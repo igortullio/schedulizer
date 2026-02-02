@@ -6,9 +6,10 @@
   "tags": [],
   "targets": {
     "lint": {
-      "executor": "@nx/js:biome",
+      "executor": "nx:run-commands",
       "options": {
-        "command": "check"
+        "command": "npx biome check libs/ui/src",
+        "cwd": "{workspaceRoot}"
       }
     },
     "test": {

@@ -1,4 +1,12 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+
+// Mock clientEnv before importing App
+vi.mock('@schedulizer/env/client', () => ({
+  clientEnv: {
+    apiUrl: 'http://localhost:3000',
+  },
+}))
+
 import App from './app'
 
 // Configuration tests for landing app setup

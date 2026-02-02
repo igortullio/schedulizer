@@ -23,12 +23,15 @@
       }
     },
     "build": {
-      "executor": "@nx/js:tsc",
+      "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/apps/api",
         "main": "apps/api/src/index.ts",
-        "tsConfig": "apps/api/tsconfig.json"
+        "tsConfig": "apps/api/tsconfig.json",
+        "platform": "node",
+        "format": ["cjs"],
+        "bundle": true
       }
     }
   }

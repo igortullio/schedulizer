@@ -1,4 +1,4 @@
-import { boolean, integer, pgTable, text, time, timestamp, uuid } from 'drizzle-orm/pg-core'
+import { boolean, integer, pgEnum, pgTable, text, time, timestamp, uuid, varchar } from 'drizzle-orm/pg-core'
 
 // Better-auth managed tables
 export const users = pgTable('users', {
@@ -133,4 +133,16 @@ export const appointments = pgTable('appointments', {
   notes: text('notes'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
+// Landing page lead capture
+export const planInterestEnum = pgEnum('plan_interest', ['essential', 'professional'])
+
+export const leads = pgTable('leads', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: varchar('name', { length: 255 }).notNull(),
+  email: varchar('email', { length: 255 }).notNull(),
+  phone: varchar('phone', { length: 20 }).notNull(),
+  planInterest: planInterestEnum('plan_interest').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 })

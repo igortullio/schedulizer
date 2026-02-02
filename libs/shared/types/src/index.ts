@@ -112,6 +112,27 @@ export interface UpdateAppointmentDTO {
   notes?: string
 }
 
+// Lead types
+export interface Lead {
+  id: string
+  name: string
+  email: string
+  phone: string
+  planInterest: 'essential' | 'professional'
+  createdAt: Date
+}
+
+export interface CreateLeadRequest {
+  name: string
+  email: string
+  phone: string
+  planInterest: 'essential' | 'professional'
+}
+
+export interface CreateLeadResponse {
+  data: { id: string; message: string }
+}
+
 // API response types
 export interface ApiResponse<T> {
   data: T

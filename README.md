@@ -1,109 +1,185 @@
 # Schedulizer
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+> Modern scheduling software for small businesses — simple, secure, and open source
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)](https://www.typescriptlang.org/)
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/js?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+## About
 
-## Generate a library
+Schedulizer is a **scheduling software** and **appointment management** system designed for small businesses. Built as an **open source SaaS booking system**, it helps businesses manage appointments, bookings, and schedules with a modern, user-friendly interface.
 
-```sh
-npx nx g @nx/js:lib packages/pkg1 --publishable --importPath=@my-org/pkg1
+Whether you're running a salon, a consultancy, a clinic, or any service-based business, Schedulizer provides the **appointment scheduling** tools you need to organize your time, reduce no-shows, and deliver a better experience to your customers.
+
+This **booking system** combines powerful **scheduling software** capabilities with enterprise-grade features like multi-tenancy, secure authentication, and real-time **appointment management** — all while remaining accessible and easy to self-host. Perfect for businesses seeking a reliable **open source scheduling solution**.
+
+## Features
+
+- ✨ **Magic Link Authentication** — Secure, passwordless login via email for your booking system
+- 🏢 **Multi-Tenant Architecture** — Manage multiple organizations from a single scheduling software instance
+- 📅 **Appointment Management** — Create, update, and track appointments effortlessly with intuitive scheduling tools
+- 📆 **Booking System** — Streamlined appointment booking for clients and customers
+- 🔒 **Security First** — Built-in CAPTCHA protection and secure session management for SaaS applications
+- 🎨 **Modern UI** — Built with React 19, Tailwind CSS v4, and Shadcn/ui components
+- 🗄️ **Type-Safe Database** — Drizzle ORM with PostgreSQL for reliable appointment data management
+- 📧 **Email Notifications** — Automated booking confirmations powered by Resend
+- ⚡ **Fast Development** — Hot module replacement with Vite, organized in an Nx monorepo
+
+## Tech Stack
+
+**Frontend:**
+- React 19 with TypeScript
+- Vite for fast development and builds
+- Tailwind CSS v4 for styling
+- Shadcn/ui component library
+
+**Backend:**
+- Express.js v5 with TypeScript
+- better-auth for authentication
+- Zod for validation
+
+**Database:**
+- PostgreSQL 16
+- Drizzle ORM for type-safe queries
+
+**Infrastructure:**
+- Nx monorepo for workspace management
+- Docker Compose for local development
+- Biome for linting and formatting
+
+## Getting Started
+
+### Prerequisites
+
+- **Node.js** 20.0.0 or higher
+- **npm** or **yarn**
+- **Docker** (for running PostgreSQL locally)
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd schedulizer
 ```
 
-## Run tasks
-
-To build the library use:
-
-```sh
-npx nx build pkg1
+2. Install dependencies:
+```bash
+npm install
 ```
 
-To run any task with Nx use:
-
-```sh
-npx nx <target> <project-name>
+3. Set up environment variables:
+```bash
+cp .env.example .env
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+Edit `.env` with your configuration (database credentials, API keys, etc.)
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Versioning and releasing
-
-To version and release the library use
-
-```
-npx nx release
+4. Start the PostgreSQL database:
+```bash
+docker-compose up -d
 ```
 
-Pass `--dry-run` to see what would happen without actually releasing the library.
-
-[Learn more about Nx release &raquo;](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Keep TypeScript project references up to date
-
-Nx automatically updates TypeScript [project references](https://www.typescriptlang.org/docs/handbook/project-references.html) in `tsconfig.json` files to ensure they remain accurate based on your project dependencies (`import` or `require` statements). This sync is automatically done when running tasks such as `build` or `typecheck`, which require updated references to function correctly.
-
-To manually trigger the process to sync the project graph dependencies information to the TypeScript project references, run the following command:
-
-```sh
-npx nx sync
+5. Run database migrations:
+```bash
+npx nx run db:migrate
 ```
 
-You can enforce that the TypeScript project references are always in the correct state when running in CI by adding a step to your CI job configuration that runs the following command:
+### Running Locally
 
-```sh
-npx nx sync:check
+**Start the frontend:**
+```bash
+npx nx serve web
+```
+The web app will be available at `http://localhost:4200`
+
+**Start the backend:**
+```bash
+npx nx serve api
+```
+The API will be available at `http://localhost:3000`
+
+**Run both simultaneously:**
+```bash
+npx nx run-many -t serve
 ```
 
-[Learn more about nx sync](https://nx.dev/reference/nx-commands#sync)
+## Project Structure
 
-## Set up CI!
+Schedulizer is organized as an **Nx monorepo** with a clear separation of concerns:
 
-### Step 1
-
-To connect to Nx Cloud, run the following command:
-
-```sh
-npx nx connect
+```
+schedulizer/
+├── apps/
+│   ├── web/              # React frontend application
+│   └── api/              # Express.js backend API
+├── libs/
+│   ├── db/               # Drizzle ORM schemas and database logic
+│   ├── shared/
+│   │   ├── types/        # Shared TypeScript types
+│   │   └── env/          # Environment variable validation (Zod)
+├── nx.json               # Nx workspace configuration
+├── package.json          # Root package and scripts
+└── docker-compose.yml    # PostgreSQL development setup
 ```
 
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
+**Key directories:**
+- `apps/web/src/components/` — React components
+- `apps/web/src/pages/` — Application pages and routes
+- `apps/api/src/routes/` — API endpoints
+- `apps/api/src/services/` — Business logic
+- `libs/db/src/schema.ts` — Database schema definitions
 
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## Development
 
-### Step 2
+### Common Commands
 
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
+**Linting and Formatting:**
+```bash
+npm run check          # Check code quality
+npm run format         # Auto-fix formatting issues
+npm run lint          # Run linter only
 ```
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+**Database Operations:**
+```bash
+npx nx run db:generate  # Generate new migrations
+npx nx run db:migrate   # Apply migrations
+npx nx run db:studio    # Open Drizzle Studio (database GUI)
+```
 
-## Install Nx Console
+**Monorepo Utilities:**
+```bash
+npx nx graph            # Visualize project dependencies
+npx nx affected:test    # Run tests for affected projects
+```
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+### Conventions
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- **Timestamps:** Stored in UTC in the database, converted to local time in the frontend
+- **Multi-tenancy:** All queries are filtered by `organization_id` to ensure data isolation
+- **Validation:** Zod schemas for all input validation and environment variables
+- **Code style:** Enforced by Biome (2 spaces, 120 character line width)
 
-## Useful links
+## Try the Hosted SaaS Version
 
-Learn more:
+Want to use Schedulizer as a fully managed **scheduling software** without managing infrastructure? Our hosted **SaaS booking system** provides enterprise-grade **appointment management** with zero setup.
 
-- [Learn more about this workspace setup](https://nx.dev/nx-api/js?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+Perfect for businesses that need reliable **appointment scheduling** without the complexity of self-hosting.
 
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+👉 **[Coming Soon]** — Sign up for early access to our hosted scheduling solution
+
+## Contributing
+
+We welcome contributions! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
+
+Contribution guidelines will be available soon in CONTRIBUTING.md.
+
+## License
+
+This project is licensed under the **MIT License** — see the [LICENSE](./LICENSE) file for details.
+
+---
+
+Built with ❤️ using modern web technologies. If you find this project useful, give it a ⭐ on GitHub!

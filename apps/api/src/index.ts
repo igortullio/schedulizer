@@ -3,12 +3,13 @@ import { toNodeHandler } from 'better-auth/node'
 import cors from 'cors'
 import express from 'express'
 import { auth } from './lib/auth'
+import { leadsRoutes } from './routes/leads.routes'
 
 const app = express()
 
 app.use(
   cors({
-    origin: 'http://localhost:4200',
+    origin: ['http://localhost:4200', 'http://localhost:4201', 'http://localhost:4300'],
     credentials: true,
   }),
 )
@@ -17,6 +18,9 @@ app.use(
 app.all('/api/auth/{*any}', toNodeHandler(auth))
 
 app.use(express.json())
+
+// Routes
+app.use('/api/leads', leadsRoutes)
 
 // Health check
 app.get('/health', (_req, res) => {

@@ -58,7 +58,6 @@
   ],
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
-    "@rollup/rollup-darwin-arm64": "^4.57.1",
     "better-auth": "^1.4.18",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

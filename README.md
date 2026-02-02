@@ -124,13 +124,6 @@ schedulizer/
 └── docker-compose.yml    # PostgreSQL development setup
 ```
 
-**Key directories:**
-- `apps/web/src/components/` — React components
-- `apps/web/src/pages/` — Application pages and routes
-- `apps/api/src/routes/` — API endpoints
-- `apps/api/src/services/` — Business logic
-- `libs/db/src/schema.ts` — Database schema definitions
-
 ## Development
 
 ### Common Commands
@@ -155,31 +148,6 @@ npx nx graph            # Visualize project dependencies
 npx nx affected:test    # Run tests for affected projects
 ```
 
-### Conventions
-
-- **Timestamps:** Stored in UTC in the database, converted to local time in the frontend
-- **Multi-tenancy:** All queries are filtered by `organization_id` to ensure data isolation
-- **Validation:** Zod schemas for all input validation and environment variables
-- **Code style:** Enforced by Biome (2 spaces, 120 character line width)
-
-## Try the Hosted SaaS Version
-
-Want to use Schedulizer as a fully managed **scheduling software** without managing infrastructure? Our hosted **SaaS booking system** provides enterprise-grade **appointment management** with zero setup.
-
-Perfect for businesses that need reliable **appointment scheduling** without the complexity of self-hosting.
-
-👉 **[Coming Soon]** — Sign up for early access to our hosted scheduling solution
-
-## Contributing
-
-We welcome contributions! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
-
-Contribution guidelines will be available soon in CONTRIBUTING.md.
-
 ## License
 
 This project is licensed under the **MIT License** — see the [LICENSE](./LICENSE) file for details.
-
----
-
-Built with ❤️ using modern web technologies. If you find this project useful, give it a ⭐ on GitHub!

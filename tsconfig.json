@@ -10,13 +10,16 @@
       "path": "./libs/shared/types"
     },
     {
-      "path": "./apps/api"
-    },
-    {
       "path": "./libs/db"
     },
     {
       "path": "./libs/shared/env"
+    },
+    {
+      "path": "./apps/landing"
+    },
+    {
+      "path": "./libs/ui"
     }
   ]
 }

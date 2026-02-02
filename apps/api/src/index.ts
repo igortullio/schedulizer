@@ -9,7 +9,14 @@ const app = express()
 
 app.use(
   cors({
-    origin: ['http://localhost:4200', 'http://localhost:4201', 'http://localhost:4300'],
+    origin: [
+      'http://localhost:4200',
+      'http://localhost:4201',
+      'http://localhost:4300',
+      'https://schedulizer.me',
+      'https://www.schedulizer.me',
+      'https://app.schedulizer.me',
+    ],
     credentials: true,
   }),
 )

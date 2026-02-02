@@ -7,7 +7,7 @@ const serverEnvSchema = z.object({
   BETTER_AUTH_SECRET: z.string().min(32),
   BETTER_AUTH_URL: z.string().url(),
   RESEND_API_KEY: z.string(),
-  TURNSTILE_SECRET_KEY: z.string(),
+  TURNSTILE_SECRET_KEY: z.string().optional(),
 })
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>
@@ -26,7 +26,7 @@ function createServerEnv() {
     betterAuthSecret: result.data.BETTER_AUTH_SECRET,
     betterAuthUrl: result.data.BETTER_AUTH_URL,
     resendApiKey: result.data.RESEND_API_KEY,
-    turnstileSecretKey: result.data.TURNSTILE_SECRET_KEY,
+    turnstileSecretKey: result.data.TURNSTILE_SECRET_KEY ?? undefined,
   } as const
 }
 

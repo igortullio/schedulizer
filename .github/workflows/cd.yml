@@ -1,0 +1,47 @@
+name: CD
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - uses: actions/cache@v4
+        with:
+          path: .nx/cache
+          key: ${{ runner.os }}-nx-${{ hashFiles('package-lock.json') }}-${{ hashFiles('nx.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nx-${{ hashFiles('package-lock.json') }}-
+            ${{ runner.os }}-nx-
+
+      - run: npm ci
+
+      - name: Build all applications
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+        run: npx nx run-many -t build --all
+
+      - name: Upload web application artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-web
+          path: dist/apps/web
+          retention-days: 90
+
+      - name: Upload api application artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-api
+          path: dist/apps/api
+          retention-days: 90

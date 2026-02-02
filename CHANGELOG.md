@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **CI/CD Pipeline**:
+  - GitHub Actions workflow for CI (lint, test, build on pull requests)
+  - GitHub Actions workflow for CD (deploy artifacts on main branch)
+  - Branch protection rules for main branch requiring all CI checks to pass
 - **Monorepo Structure**: Nx workspace with apps/ and libs/ organization
 - **Frontend (apps/web)**: React 19 + Vite + Tailwind CSS v4 + Shadcn/ui
 - **Backend (apps/api)**: Express.js v5 + TypeScript with better-auth integration

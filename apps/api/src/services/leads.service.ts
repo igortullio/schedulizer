@@ -1,7 +1,7 @@
 import { createDb } from '@schedulizer/db'
 import { leads } from '@schedulizer/db/schema'
 import { serverEnv } from '@schedulizer/env/server'
-import type { CreateLeadRequest, Lead } from '@schedulizer/types'
+import type { CreateLeadRequest, Lead } from '@schedulizer/shared-types'
 
 // Create database connection once at module level
 const db = createDb(serverEnv.databaseUrl)

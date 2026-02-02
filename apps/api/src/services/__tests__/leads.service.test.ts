@@ -1,4 +1,4 @@
-import type { CreateLeadRequest } from '@schedulizer/types'
+import type { CreateLeadRequest } from '@schedulizer/shared-types'
 import { describe, expect, it, vi } from 'vitest'
 import { leadsService } from '../leads.service'
 

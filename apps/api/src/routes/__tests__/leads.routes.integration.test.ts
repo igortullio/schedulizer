@@ -1,6 +1,14 @@
 import type { Request, Response } from 'express'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+// Type for Express router stack layers
+interface RouteLayer {
+  route?: {
+    methods?: { post?: boolean }
+    stack?: Array<{ handle?: (req: Request, res: Response, next: () => void) => Promise<void> }>
+  }
+}
+
 // Mock environment variables before importing modules
 vi.mock('@schedulizer/env/server', () => ({
   serverEnv: {
@@ -61,7 +69,7 @@ describe('Leads Routes Integration', () => {
   })
 
   it('should have POST route registered', () => {
-    const routes = leadsRoutes.stack
+    const routes = leadsRoutes.stack as RouteLayer[]
     const postRoute = routes.find(r => r.route?.methods?.post)
     expect(postRoute).toBeDefined()
   })
@@ -86,8 +94,8 @@ describe('Leads Routes Integration', () => {
     })
 
     // Get the route handler
-    const postRoute = leadsRoutes.stack.find(r => r.route?.methods?.post)
-    const handler = postRoute?.route?.stack[0]?.handle
+    const postRoute = (leadsRoutes.stack as RouteLayer[]).find(r => r.route?.methods?.post)
+    const handler = postRoute?.route?.stack?.[0]?.handle
 
     if (handler) {
       await handler(req, res, vi.fn())
@@ -117,8 +125,8 @@ describe('Leads Routes Integration', () => {
       planInterest: 'invalid',
     })
 
-    const postRoute = leadsRoutes.stack.find(r => r.route?.methods?.post)
-    const handler = postRoute?.route?.stack[0]?.handle
+    const postRoute = (leadsRoutes.stack as RouteLayer[]).find(r => r.route?.methods?.post)
+    const handler = postRoute?.route?.stack?.[0]?.handle
 
     if (handler) {
       await handler(req, res, vi.fn())
@@ -142,8 +150,8 @@ describe('Leads Routes Integration', () => {
       planInterest: 'essential',
     })
 
-    const postRoute = leadsRoutes.stack.find(r => r.route?.methods?.post)
-    const handler = postRoute?.route?.stack[0]?.handle
+    const postRoute = (leadsRoutes.stack as RouteLayer[]).find(r => r.route?.methods?.post)
+    const handler = postRoute?.route?.stack?.[0]?.handle
 
     if (handler) {
       await handler(req, res, vi.fn())

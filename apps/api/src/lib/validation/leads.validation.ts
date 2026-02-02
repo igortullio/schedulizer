@@ -8,6 +8,6 @@ export const createLeadSchema = z.object({
     .min(1, 'Telefone é obrigatório')
     .regex(/^\+?[\d\s\-()]+$/, 'Formato de telefone inválido'),
   planInterest: z.enum(['essential', 'professional'], {
-    errorMap: () => ({ message: 'Plano deve ser "essential" ou "professional"' }),
+    message: 'Plano deve ser "essential" ou "professional"',
   }),
 })

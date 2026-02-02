@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // Mock do clientEnv ANTES de importar o componente
 vi.mock('@schedulizer/env/client', () => ({
   clientEnv: {
-    apiUrl: 'http://localhost:3000/api',
+    apiUrl: 'http://localhost:3000',
   },
 }))
 

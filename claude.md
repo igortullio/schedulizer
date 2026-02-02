@@ -45,3 +45,11 @@ Sistema SaaS de gerenciamento de agendamentos.
 - Backend usa `@schedulizer/env/server` (serverEnv)
 - Frontend usa `@schedulizer/env/client` (clientEnv)
 - Variáveis do frontend devem ter prefixo `VITE_`
+
+## CI/CD
+
+- **CI (Pull Requests)**: Valida lint, test e build em código alterado (nx affected)
+- **CD (Main Branch)**: Build de produção de todos os apps + upload de artefatos
+- **Secrets necessários**: `VITE_API_URL` (obrigatório para build de produção)
+- **Branch Protection**: CI checks obrigatórios antes de merge (lint, test, build)
+- Documentação completa: [.github/CI_CD.md](.github/CI_CD.md)

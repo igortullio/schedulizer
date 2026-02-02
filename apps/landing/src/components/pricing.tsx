@@ -1,0 +1,127 @@
+import { Button } from '@schedulizer/ui'
+import { Check, Star } from 'lucide-react'
+
+interface PricingPlan {
+  name: string
+  price: string
+  planId: 'essential' | 'professional'
+  features: string[]
+  recommended?: boolean
+}
+
+const plans: PricingPlan[] = [
+  {
+    name: 'Essencial',
+    price: 'R$ 49,90',
+    planId: 'essential',
+    features: [
+      'Agendamentos ilimitados',
+      'Lembretes automáticos',
+      'Calendário online',
+      'Gestão de serviços',
+      'Suporte por e-mail',
+    ],
+  },
+  {
+    name: 'Profissional',
+    price: 'R$ 99,90',
+    planId: 'professional',
+    recommended: true,
+    features: [
+      'Tudo do plano Essencial',
+      'Múltiplos profissionais',
+      'Relatórios e métricas',
+      'Integração WhatsApp',
+      'Suporte prioritário',
+      'Personalização avançada',
+    ],
+  },
+]
+
+interface PricingProps {
+  onPlanSelect?: (planId: 'essential' | 'professional') => void
+}
+
+export function Pricing({ onPlanSelect }: PricingProps) {
+  return (
+    <section className="px-4 py-20 md:py-28">
+      <div className="mx-auto max-w-5xl">
+        <div className="mb-16 text-center">
+          <h2 className="mb-4 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+            Planos que cabem no seu{' '}
+            <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">bolso</span>
+          </h2>
+          <p className="text-lg text-muted-foreground">Escolha o plano ideal para o seu negócio</p>
+        </div>
+
+        <div className="grid gap-8 md:grid-cols-2">
+          {plans.map(plan => (
+            <div
+              key={plan.planId}
+              className={`glass hover-lift relative cursor-pointer rounded-3xl p-8 transition-all duration-300 ${
+                plan.recommended ? 'ring-2 ring-accent shadow-xl shadow-accent/10' : ''
+              }`}
+            >
+              {plan.recommended && (
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                  <span className="gradient-accent inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-semibold text-white shadow-lg">
+                    <Star className="h-4 w-4" />
+                    Mais popular
+                  </span>
+                </div>
+              )}
+
+              <div className="mb-8 text-center">
+                <h3 className="mb-2 text-2xl font-bold text-foreground">{plan.name}</h3>
+                <div className="flex items-baseline justify-center gap-1">
+                  <span className="text-5xl font-bold text-foreground">{plan.price}</span>
+                  <span className="text-muted-foreground">/mês</span>
+                </div>
+              </div>
+
+              <ul className="mb-8 space-y-4">
+                {plan.features.map(feature => (
+                  <li key={feature} className="flex items-start gap-3">
+                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                      <Check className="h-4 w-4 text-primary" />
+                    </div>
+                    <span className="text-muted-foreground">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <Button
+                className={`w-full cursor-pointer py-6 text-base font-semibold transition-all duration-200 hover:scale-[1.02] ${
+                  plan.recommended
+                    ? 'gradient-accent border-0 text-white shadow-lg hover:shadow-xl'
+                    : 'bg-primary/5 text-primary hover:bg-primary/10'
+                }`}
+                size="lg"
+                variant={plan.recommended ? 'default' : 'outline'}
+                onClick={() => onPlanSelect?.(plan.planId)}
+              >
+                Começar agora
+              </Button>
+            </div>
+          ))}
+        </div>
+
+        {/* Trust badges */}
+        <div className="mt-12 flex flex-wrap items-center justify-center gap-8 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <Check className="h-5 w-5 text-primary" />
+            <span>Sem taxa de adesão</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Check className="h-5 w-5 text-primary" />
+            <span>Cancele quando quiser</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Check className="h-5 w-5 text-primary" />
+            <span>14 dias grátis</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}

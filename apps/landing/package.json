@@ -1,0 +1,8 @@
+{
+  "name": "@schedulizer/landing",
+  "version": "0.0.1",
+  "private": true,
+  "devDependencies": {
+    "happy-dom": "^20.4.0"
+  }
+}

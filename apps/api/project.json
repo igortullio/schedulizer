@@ -31,7 +31,8 @@
         "tsConfig": "apps/api/tsconfig.json",
         "platform": "node",
         "format": ["cjs"],
-        "bundle": true
+        "bundle": true,
+        "thirdParty": true
       }
     },
     "test": {

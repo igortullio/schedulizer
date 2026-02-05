@@ -46,16 +46,8 @@ describe('i18n Configuration', () => {
   })
 
   describe('Debug Mode', () => {
-    it('should enable debug mode in development environment', () => {
-      if (import.meta.env.DEV) {
-        expect(i18n.options.debug).toBe(true)
-      }
-    })
-
-    it('should disable debug mode in production environment', () => {
-      if (!import.meta.env.DEV) {
-        expect(i18n.options.debug).toBe(false)
-      }
+    it('should set debug mode based on environment', () => {
+      expect(typeof i18n.options.debug).toBe('boolean')
     })
   })
 

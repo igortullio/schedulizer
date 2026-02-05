@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it, vi } from 'vitest'
-import i18n from './lib/i18n'
+import i18n from './lib/i18n/i18n'
 
 describe('Main Application i18n Integration', () => {
   beforeAll(async () => {

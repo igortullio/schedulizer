@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import * as ReactDOM from 'react-dom/client'
-import './lib/i18n'
+import './lib/i18n/i18n'
 import App from './app/app'
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)

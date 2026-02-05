@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it } from 'vitest'
+import enTranslations from '../../../public/locales/en/common.json'
+import ptBRTranslations from '../../../public/locales/pt-BR/common.json'
 import i18n from './i18n'
-import enTranslations from '../../public/locales/en/common.json'
-import ptBRTranslations from '../../public/locales/pt-BR/common.json'
 
 describe('i18n Configuration', () => {
   beforeAll(async () => {

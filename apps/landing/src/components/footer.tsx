@@ -9,7 +9,6 @@ export function Footer() {
     <footer className="border-t border-border/50 bg-foreground/[0.02] px-4 py-16">
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-12 md:grid-cols-3">
-          {/* Brand */}
           <div>
             <div className="mb-4 flex items-center gap-2">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
@@ -20,7 +19,6 @@ export function Footer() {
             <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">{t('footer.brandDescription')}</p>
           </div>
 
-          {/* Links */}
           <div>
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-foreground">
               {t('footer.sections.links.title')}
@@ -45,7 +43,6 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Contact */}
           <div>
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-foreground">
               {t('footer.sections.contact.title')}

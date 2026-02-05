@@ -30,7 +30,6 @@ export function App() {
 
   return (
     <div className="min-h-screen">
-      {/* Floating Glassmorphism Header */}
       <header className="fixed top-4 left-4 right-4 z-50 mx-auto max-w-7xl">
         <div className="glass rounded-2xl px-6 py-4 shadow-lg">
           <div className="flex items-center justify-between">
@@ -85,28 +84,22 @@ export function App() {
         </div>
       </header>
 
-      {/* Main Content with top padding for fixed header */}
       <main className="pt-24">
-        {/* Hero Section */}
         <Hero onCtaClick={scrollToForm} />
 
-        {/* Benefits Section */}
         <div id="benefits">
           <Benefits />
         </div>
 
-        {/* Pricing Section */}
         <div id="pricing">
           <Pricing onPlanSelect={handlePlanSelect} />
         </div>
 
-        {/* Lead Form Section */}
         <div ref={leadFormRef} id="lead-form">
           <LeadForm defaultPlanInterest={selectedPlan} />
         </div>
       </main>
 
-      {/* Footer */}
       <Footer />
     </div>
   )

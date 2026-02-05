@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import enCommon from '../../public/locales/en/common.json'
-import ptBRCommon from '../../public/locales/pt-BR/common.json'
+import enCommon from '../../../public/locales/en/common.json'
+import ptBRCommon from '../../../public/locales/pt-BR/common.json'
 
 describe('Translation Files', () => {
   describe('JSON Structure Validation', () => {

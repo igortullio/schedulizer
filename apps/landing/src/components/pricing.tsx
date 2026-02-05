@@ -98,7 +98,6 @@ export function Pricing({ onPlanSelect }: PricingProps) {
           })}
         </div>
 
-        {/* Trust badges */}
         <div className="mt-12 flex flex-wrap items-center justify-center gap-8 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <Check className="h-5 w-5 text-primary" />

@@ -34,6 +34,15 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok' })
 })
 
+// Global error handler
+app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error('Unhandled error', {
+    error: err.message,
+    stack: err.stack,
+  })
+  res.status(500).json({ error: 'Internal server error' })
+})
+
 app.listen(serverEnv.port, () => {
   console.log(`Server running on port ${serverEnv.port}`)
 })

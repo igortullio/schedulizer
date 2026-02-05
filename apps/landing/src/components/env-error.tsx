@@ -23,9 +23,7 @@ export function EnvError({ error }: EnvErrorProps) {
           </svg>
         </div>
         <h1 className="mb-2 text-2xl font-bold text-gray-900">Configuration Error</h1>
-        <p className="mb-4 text-gray-600">
-          The application could not start due to missing configuration.
-        </p>
+        <p className="mb-4 text-gray-600">The application could not start due to missing configuration.</p>
         <div className="rounded-lg bg-red-50 p-4">
           <p className="font-mono text-sm text-red-800">{error}</p>
         </div>

@@ -1,5 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import i18n from 'i18next'
+import { I18nextProvider, initReactI18next } from 'react-i18next'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Mock do clientEnv ANTES de importar o componente
@@ -23,8 +25,66 @@ vi.mock('./confirmation-modal', () => ({
   },
 }))
 
+// Configure i18n for tests
+const i18nTest = i18n.createInstance()
+i18nTest.use(initReactI18next).init({
+  lng: 'en',
+  fallbackLng: 'en',
+  ns: ['common'],
+  defaultNS: 'common',
+  resources: {
+    en: {
+      common: {
+        leadForm: {
+          title: 'Get started',
+          titleHighlight: 'now',
+          subtitle: 'Fill out the form and we will contact you soon',
+          labels: {
+            name: 'Full name',
+            email: 'Email',
+            phone: 'Phone',
+            planInterest: 'Plan of interest',
+          },
+          placeholders: {
+            name: 'John Smith',
+            email: 'john@email.com',
+            phone: '+1 (555) 123-4567',
+          },
+          options: {
+            essential: 'Essential - $49.90/month',
+            professional: 'Professional - $99.90/month',
+          },
+          validation: {
+            nameRequired: 'Name is required',
+            invalidEmail: 'Invalid email',
+            phoneRequired: 'Phone is required',
+            invalidPhoneFormat: 'Invalid phone format',
+            invalidPlan: 'Plan must be "essential" or "professional"',
+          },
+          errors: {
+            submitError: 'Error submitting form',
+            genericError: 'Error submitting form. Please try again.',
+          },
+          buttons: {
+            submit: 'Submit',
+            submitting: 'Submitting...',
+          },
+        },
+      },
+    },
+  },
+  interpolation: {
+    escapeValue: false,
+  },
+})
+
 // Importar o componente DEPOIS dos mocks
 import { LeadForm } from './lead-form'
+
+// Helper function to render with i18n
+const renderWithI18n = (component: React.ReactElement) => {
+  return render(<I18nextProvider i18n={i18nTest}>{component}</I18nextProvider>)
+}
 
 describe('LeadForm Component', () => {
   const mockFetch = vi.fn()
@@ -42,7 +102,7 @@ describe('LeadForm Component', () => {
   })
 
   it('should render form with all fields', () => {
-    render(<LeadForm />)
+    renderWithI18n(<LeadForm />)
 
     expect(screen.getByLabelText(/full name/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument()
@@ -52,7 +112,7 @@ describe('LeadForm Component', () => {
   })
 
   it('should render with default plan interest', () => {
-    render(<LeadForm defaultPlanInterest="professional" />)
+    renderWithI18n(<LeadForm defaultPlanInterest="professional" />)
 
     const select = screen.getByLabelText(/plan of interest/i) as HTMLSelectElement
     expect(select.value).toBe('professional')
@@ -60,7 +120,7 @@ describe('LeadForm Component', () => {
 
   it('should update form fields on input change', async () => {
     const user = userEvent.setup()
-    render(<LeadForm />)
+    renderWithI18n(<LeadForm />)
 
     const nameInput = screen.getByLabelText(/full name/i) as HTMLInputElement
     const emailInput = screen.getByLabelText(/email/i) as HTMLInputElement
@@ -77,7 +137,7 @@ describe('LeadForm Component', () => {
 
   it('should display validation errors for empty fields', async () => {
     const user = userEvent.setup()
-    render(<LeadForm />)
+    renderWithI18n(<LeadForm />)
 
     const submitButton = screen.getByRole('button', { name: /submit/i })
     await user.click(submitButton)
@@ -97,7 +157,7 @@ describe('LeadForm Component', () => {
 
   it('should validate field formats', async () => {
     const user = userEvent.setup()
-    render(<LeadForm />)
+    renderWithI18n(<LeadForm />)
 
     // Test with invalid inputs
     await user.type(screen.getByLabelText(/full name/i), 'John Smith')
@@ -121,7 +181,7 @@ describe('LeadForm Component', () => {
 
   it('should clear field error when user starts typing', async () => {
     const user = userEvent.setup()
-    render(<LeadForm />)
+    renderWithI18n(<LeadForm />)
 
     const submitButton = screen.getByRole('button', { name: /submit/i })
     await user.click(submitButton)
@@ -145,7 +205,7 @@ describe('LeadForm Component', () => {
       json: async () => ({ data: { id: '123', name: 'John Smith' } }),
     })
 
-    render(<LeadForm onSuccess={onSuccess} />)
+    renderWithI18n(<LeadForm onSuccess={onSuccess} />)
 
     const nameInput = screen.getByLabelText(/full name/i)
     await user.type(nameInput, 'John Smith')
@@ -196,7 +256,7 @@ describe('LeadForm Component', () => {
         }),
     )
 
-    render(<LeadForm />)
+    renderWithI18n(<LeadForm />)
 
     await user.type(screen.getByLabelText(/full name/i), 'John Smith')
     await user.type(screen.getByLabelText(/email/i), 'john@email.com')
@@ -232,7 +292,7 @@ describe('LeadForm Component', () => {
       json: async () => ({ data: { id: '123' } }),
     })
 
-    render(<LeadForm />)
+    renderWithI18n(<LeadForm />)
 
     const nameInput = screen.getByLabelText(/full name/i) as HTMLInputElement
     await user.type(nameInput, 'John Smith')
@@ -262,7 +322,7 @@ describe('LeadForm Component', () => {
       json: async () => ({ error: 'Internal server error' }),
     })
 
-    render(<LeadForm />)
+    renderWithI18n(<LeadForm />)
 
     const nameInput = screen.getByLabelText(/full name/i)
     await user.type(nameInput, 'John Smith')
@@ -284,7 +344,7 @@ describe('LeadForm Component', () => {
 
     mockFetch.mockRejectedValue(new TypeError('Failed to fetch'))
 
-    render(<LeadForm />)
+    renderWithI18n(<LeadForm />)
 
     await user.type(screen.getByLabelText(/full name/i), 'John Smith')
     await user.type(screen.getByLabelText(/email/i), 'john@email.com')
@@ -313,7 +373,7 @@ describe('LeadForm Component', () => {
       json: async () => ({ data: { id: '123' } }),
     })
 
-    render(<LeadForm onSuccess={onSuccess} />)
+    renderWithI18n(<LeadForm onSuccess={onSuccess} />)
 
     await user.type(screen.getByLabelText(/full name/i), 'John Smith')
     await user.type(screen.getByLabelText(/email/i), 'john@email.com')
@@ -350,7 +410,7 @@ describe('LeadForm Component', () => {
         json: async () => ({ data: { id: '123' } }),
       })
 
-    render(<LeadForm />)
+    renderWithI18n(<LeadForm />)
 
     const nameInput = screen.getByLabelText(/full name/i)
     await user.type(nameInput, 'John Smith')
@@ -385,7 +445,7 @@ describe('LeadForm Component', () => {
       },
     })
 
-    render(<LeadForm />)
+    renderWithI18n(<LeadForm />)
 
     const nameInput = screen.getByLabelText(/full name/i)
     await user.type(nameInput, 'John Smith')
@@ -414,7 +474,7 @@ describe('LeadForm Component', () => {
         }),
     )
 
-    render(<LeadForm />)
+    renderWithI18n(<LeadForm />)
 
     await user.type(screen.getByLabelText(/full name/i), 'John Smith')
     await user.type(screen.getByLabelText(/email/i), 'john@email.com')
@@ -452,7 +512,7 @@ describe('LeadForm Component', () => {
       json: async () => ({ data: { id: '123' } }),
     })
 
-    render(<LeadForm />)
+    renderWithI18n(<LeadForm />)
 
     const nameInput = screen.getByLabelText(/full name/i)
     await user.type(nameInput, 'John Smith')

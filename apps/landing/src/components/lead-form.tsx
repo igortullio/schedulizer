@@ -3,20 +3,9 @@ import type { CreateLeadRequest } from '@schedulizer/shared-types'
 import { Button, Input } from '@schedulizer/ui'
 import { Send } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { ConfirmationModal } from './confirmation-modal'
-
-const createLeadSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  email: z.email('Invalid email'),
-  phone: z
-    .string()
-    .min(1, 'Phone is required')
-    .regex(/^\+?[\d\s\-()]+$/, 'Invalid phone format'),
-  planInterest: z.enum(['essential', 'professional'], {
-    message: 'Plan must be "essential" or "professional"',
-  }),
-})
 
 interface LeadFormProps {
   onSuccess?: () => void
@@ -24,6 +13,7 @@ interface LeadFormProps {
 }
 
 export function LeadForm({ onSuccess, defaultPlanInterest }: LeadFormProps) {
+  const { t } = useTranslation()
   const [formData, setFormData] = useState<CreateLeadRequest>({
     name: '',
     email: '',
@@ -39,6 +29,18 @@ export function LeadForm({ onSuccess, defaultPlanInterest }: LeadFormProps) {
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [showConfirmationModal, setShowConfirmationModal] = useState(false)
+
+  const createLeadSchema = z.object({
+    name: z.string().min(1, t('leadForm.validation.nameRequired')),
+    email: z.email(t('leadForm.validation.invalidEmail')),
+    phone: z
+      .string()
+      .min(1, t('leadForm.validation.phoneRequired'))
+      .regex(/^\+?[\d\s\-()]+$/, t('leadForm.validation.invalidPhoneFormat')),
+    planInterest: z.enum(['essential', 'professional'], {
+      message: t('leadForm.validation.invalidPlan'),
+    }),
+  })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -69,8 +71,8 @@ export function LeadForm({ onSuccess, defaultPlanInterest }: LeadFormProps) {
         })
 
         if (!response.ok) {
-          const errorData = await response.json().catch(() => ({ error: 'Error submitting form' }))
-          throw new Error(errorData.error || 'Error submitting form')
+          const errorData = await response.json().catch(() => ({ error: t('leadForm.errors.submitError') }))
+          throw new Error(errorData.error || t('leadForm.errors.submitError'))
         }
 
         await response.json()
@@ -96,7 +98,7 @@ export function LeadForm({ onSuccess, defaultPlanInterest }: LeadFormProps) {
     try {
       await submitWithRetry()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error submitting form. Please try again.')
+      setError(err instanceof Error ? err.message : t('leadForm.errors.genericError'))
     } finally {
       setIsLoading(false)
     }
@@ -120,17 +122,19 @@ export function LeadForm({ onSuccess, defaultPlanInterest }: LeadFormProps) {
         <div className="mx-auto max-w-xl">
           <div className="mb-12 text-center">
             <h2 className="mb-4 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-              Get started{' '}
-              <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">now</span>
+              {t('leadForm.title')}{' '}
+              <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                {t('leadForm.titleHighlight')}
+              </span>
             </h2>
-            <p className="text-lg text-muted-foreground">Fill out the form and we will contact you soon</p>
+            <p className="text-lg text-muted-foreground">{t('leadForm.subtitle')}</p>
           </div>
 
           <div className="glass rounded-3xl p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label htmlFor="name" className="mb-2 block text-sm font-medium text-foreground">
-                  Full name
+                  {t('leadForm.labels.name')}
                 </label>
                 <Input
                   id="name"
@@ -138,7 +142,7 @@ export function LeadForm({ onSuccess, defaultPlanInterest }: LeadFormProps) {
                   type="text"
                   value={formData.name}
                   onChange={handleChange}
-                  placeholder="John Smith"
+                  placeholder={t('leadForm.placeholders.name')}
                   disabled={isLoading}
                   className="h-12 rounded-xl border-border/50 bg-background/50 transition-all duration-200 focus:bg-background"
                   aria-invalid={!!fieldErrors.name}
@@ -153,7 +157,7 @@ export function LeadForm({ onSuccess, defaultPlanInterest }: LeadFormProps) {
 
               <div>
                 <label htmlFor="email" className="mb-2 block text-sm font-medium text-foreground">
-                  Email
+                  {t('leadForm.labels.email')}
                 </label>
                 <Input
                   id="email"
@@ -161,7 +165,7 @@ export function LeadForm({ onSuccess, defaultPlanInterest }: LeadFormProps) {
                   type="email"
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder="john@email.com"
+                  placeholder={t('leadForm.placeholders.email')}
                   disabled={isLoading}
                   className="h-12 rounded-xl border-border/50 bg-background/50 transition-all duration-200 focus:bg-background"
                   aria-invalid={!!fieldErrors.email}
@@ -176,7 +180,7 @@ export function LeadForm({ onSuccess, defaultPlanInterest }: LeadFormProps) {
 
               <div>
                 <label htmlFor="phone" className="mb-2 block text-sm font-medium text-foreground">
-                  Phone
+                  {t('leadForm.labels.phone')}
                 </label>
                 <Input
                   id="phone"
@@ -184,7 +188,7 @@ export function LeadForm({ onSuccess, defaultPlanInterest }: LeadFormProps) {
                   type="tel"
                   value={formData.phone}
                   onChange={handleChange}
-                  placeholder="+1 (555) 123-4567"
+                  placeholder={t('leadForm.placeholders.phone')}
                   disabled={isLoading}
                   className="h-12 rounded-xl border-border/50 bg-background/50 transition-all duration-200 focus:bg-background"
                   aria-invalid={!!fieldErrors.phone}
@@ -199,7 +203,7 @@ export function LeadForm({ onSuccess, defaultPlanInterest }: LeadFormProps) {
 
               <div>
                 <label htmlFor="planInterest" className="mb-2 block text-sm font-medium text-foreground">
-                  Plan of interest
+                  {t('leadForm.labels.planInterest')}
                 </label>
                 <select
                   id="planInterest"
@@ -211,8 +215,8 @@ export function LeadForm({ onSuccess, defaultPlanInterest }: LeadFormProps) {
                   aria-invalid={!!fieldErrors.planInterest}
                   aria-describedby={fieldErrors.planInterest ? 'planInterest-error' : undefined}
                 >
-                  <option value="essential">Essential - $49.90/month</option>
-                  <option value="professional">Professional - $99.90/month</option>
+                  <option value="essential">{t('leadForm.options.essential')}</option>
+                  <option value="professional">{t('leadForm.options.professional')}</option>
                 </select>
                 {fieldErrors.planInterest && (
                   <p id="planInterest-error" className="mt-2 text-sm text-destructive">
@@ -234,11 +238,11 @@ export function LeadForm({ onSuccess, defaultPlanInterest }: LeadFormProps) {
                 disabled={isLoading}
               >
                 {isLoading ? (
-                  'Submitting...'
+                  t('leadForm.buttons.submitting')
                 ) : (
                   <span className="flex items-center justify-center gap-2">
                     <Send className="h-5 w-5" />
-                    Submit
+                    {t('leadForm.buttons.submit')}
                   </span>
                 )}
               </Button>

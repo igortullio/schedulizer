@@ -1,0 +1,139 @@
+{
+  "meta": {
+    "title": "Schedulizer - Simplifique seus agendamentos",
+    "description": "Simplifique seu gerenciamento de agendamentos com Schedulizer. Plataforma SaaS completa para gestão eficiente de agendamentos."
+  },
+  "hero": {
+    "badge": "Simplifique seus agendamentos",
+    "title": "Organize seus compromissos",
+    "titleHighlight": "profissionalmente",
+    "subtitle": "Sistema completo para salões, barbearias e estúdios. Agendamento online 24/7, lembretes automáticos e gestão simplificada.",
+    "cta": {
+      "primary": "Começar gratuitamente",
+      "secondary": "Assistir demonstração"
+    },
+    "features": {
+      "scheduling": "Agendamento 24/7",
+      "setup": "Configure em 5 minutos",
+      "trial": "14 dias grátis"
+    }
+  },
+  "benefits": {
+    "title": "Por que escolher",
+    "titleHighlight": "Schedulizer",
+    "subtitle": "Tudo que você precisa para gerenciar seu negócio com eficiência",
+    "items": [
+      {
+        "title": "Agendamento online 24/7",
+        "description": "Seus clientes podem agendar a qualquer hora, de qualquer lugar. Nunca perca uma oportunidade."
+      },
+      {
+        "title": "Lembretes automáticos",
+        "description": "Reduza faltas com notificações automáticas por WhatsApp e e-mail."
+      },
+      {
+        "title": "Organização da agenda",
+        "description": "Visualize e gerencie todos os seus compromissos em um só lugar."
+      },
+      {
+        "title": "Gestão multiprofissional",
+        "description": "Controle a agenda de toda a sua equipe de forma centralizada."
+      }
+    ]
+  },
+  "pricing": {
+    "title": "Planos que cabem no seu",
+    "titleHighlight": "bolso",
+    "subtitle": "Escolha o plano ideal para o seu negócio",
+    "badge": "Mais popular",
+    "plans": {
+      "essential": {
+        "name": "Essencial",
+        "price": "R$ 49,90",
+        "period": "/mês",
+        "features": [
+          "Agendamentos ilimitados",
+          "Lembretes automáticos",
+          "Calendário online",
+          "Gestão de serviços",
+          "Suporte por e-mail"
+        ]
+      },
+      "professional": {
+        "name": "Profissional",
+        "price": "R$ 99,90",
+        "period": "/mês",
+        "features": [
+          "Tudo do plano Essencial",
+          "Múltiplos profissionais",
+          "Relatórios e métricas",
+          "Integração com WhatsApp",
+          "Suporte prioritário",
+          "Customização avançada"
+        ]
+      }
+    },
+    "cta": "Começar agora",
+    "trustBadges": {
+      "noSetupFee": "Sem taxa de configuração",
+      "cancelAnytime": "Cancele quando quiser",
+      "freeTrial": "14 dias grátis"
+    }
+  },
+  "footer": {
+    "brandDescription": "Sistema completo de gestão de agendamentos para pequenos negócios que querem crescer.",
+    "sections": {
+      "links": {
+        "title": "Links",
+        "privacy": "Política de Privacidade",
+        "terms": "Termos de Serviço"
+      },
+      "contact": {
+        "title": "Contato"
+      }
+    },
+    "copyright": "© {{year}} Schedulizer. Todos os direitos reservados."
+  },
+  "leadForm": {
+    "title": "Comece",
+    "titleHighlight": "agora",
+    "subtitle": "Preencha o formulário e entraremos em contato em breve",
+    "labels": {
+      "name": "Nome completo",
+      "email": "E-mail",
+      "phone": "Telefone",
+      "planInterest": "Plano de interesse"
+    },
+    "placeholders": {
+      "name": "João Silva",
+      "email": "joao@email.com",
+      "phone": "+55 (11) 98765-4321"
+    },
+    "options": {
+      "essential": "Essencial - R$ 49,90/mês",
+      "professional": "Profissional - R$ 99,90/mês"
+    },
+    "validation": {
+      "nameRequired": "Nome é obrigatório",
+      "invalidEmail": "E-mail inválido",
+      "phoneRequired": "Telefone é obrigatório",
+      "invalidPhoneFormat": "Formato de telefone inválido",
+      "invalidPlan": "O plano deve ser \"essential\" ou \"professional\""
+    },
+    "errors": {
+      "submitError": "Erro ao enviar formulário",
+      "genericError": "Erro ao enviar formulário. Por favor, tente novamente."
+    },
+    "buttons": {
+      "submit": "Enviar",
+      "submitting": "Enviando..."
+    }
+  },
+  "languageSelector": {
+    "label": "Selecionar idioma",
+    "languages": {
+      "pt-BR": "Português",
+      "en": "English"
+    }
+  }
+}

@@ -2,7 +2,7 @@ import { clientEnv } from '@schedulizer/env/client'
 import type { CreateLeadRequest } from '@schedulizer/shared-types'
 import { Button, Input } from '@schedulizer/ui'
 import { Send } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { z } from 'zod'
 import { ConfirmationModal } from './confirmation-modal'
 
@@ -31,6 +31,11 @@ export function LeadForm({ onSuccess, defaultPlanInterest }: LeadFormProps) {
     planInterest: defaultPlanInterest || 'essential',
   })
   const [isLoading, setIsLoading] = useState(false)
+  useEffect(() => {
+    if (defaultPlanInterest) {
+      setFormData(prev => ({ ...prev, planInterest: defaultPlanInterest }))
+    }
+  }, [defaultPlanInterest])
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [showConfirmationModal, setShowConfirmationModal] = useState(false)

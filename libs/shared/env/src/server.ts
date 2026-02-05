@@ -7,10 +7,10 @@ if (process.env.NODE_ENV !== 'production') {
 import { z } from 'zod'
 
 const serverEnvSchema = z.object({
-  DATABASE_URL: z.string().url(),
+  DATABASE_URL: z.url(),
   SERVER_PORT: z.coerce.number().default(3000),
   BETTER_AUTH_SECRET: z.string().min(32),
-  BETTER_AUTH_URL: z.string().url(),
+  BETTER_AUTH_URL: z.url(),
   RESEND_API_KEY: z.string(),
   TURNSTILE_SECRET_KEY: z.string().optional(),
 })

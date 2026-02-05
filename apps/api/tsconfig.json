@@ -10,6 +10,9 @@
   "exclude": ["node_modules", "dist"],
   "references": [
     {
+      "path": "../../libs/shared/types"
+    },
+    {
       "path": "../../libs/db"
     },
     {

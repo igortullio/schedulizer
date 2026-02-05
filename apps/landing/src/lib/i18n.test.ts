@@ -1,11 +1,15 @@
 import { beforeAll, describe, expect, it } from 'vitest'
 import i18n from './i18n'
+import enTranslations from '../../public/locales/en/common.json'
+import ptBRTranslations from '../../public/locales/pt-BR/common.json'
 
 describe('i18n Configuration', () => {
   beforeAll(async () => {
     if (!i18n.isInitialized) {
       await i18n.init()
     }
+    i18n.addResourceBundle('en', 'common', enTranslations, true, true)
+    i18n.addResourceBundle('pt-BR', 'common', ptBRTranslations, true, true)
   })
 
   describe('Initialization', () => {

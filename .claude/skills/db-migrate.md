@@ -1,26 +1,26 @@
 # Database Migration Skill
 
-Gera e aplica migrations do Drizzle automaticamente.
+Generates and applies Drizzle migrations automatically.
 
-## Comandos
+## Commands
 
-1. Gerar nova migration:
+1. Generate new migration:
 ```bash
 nx run db:generate
 ```
 
-2. Aplicar migrations pendentes:
+2. Apply pending migrations:
 ```bash
 nx run db:migrate
 ```
 
-3. Para gerar e aplicar em sequência:
+3. Generate and apply in sequence:
 ```bash
 nx run db:generate && nx run db:migrate
 ```
 
-## Notas
+## Notes
 
-- Certifique-se de que o PostgreSQL está rodando (docker-compose up -d)
-- O arquivo .env deve conter DATABASE_URL configurado
-- As migrations são salvas em libs/db/drizzle/
+- Make sure PostgreSQL is running (`docker-compose up -d`)
+- The .env file must have DATABASE_URL configured
+- Migrations are saved in `libs/db/drizzle/`

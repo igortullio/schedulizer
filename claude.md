@@ -1,55 +1,36 @@
 # Schedulizer
 
-Sistema SaaS de gerenciamento de agendamentos.
+Modern SaaS scheduling software for small businesses
 
-## Arquitetura
+## Architecture
 
-- **Monorepo**: Nx
-- **Frontend**: React + Vite + Tailwind + Shadcn (apps/web)
-- **Backend**: Express.js v5 + TypeScript (apps/api)
-- **Database**: PostgreSQL + Drizzle ORM (libs/db)
-- **Auth**: better-auth (magic link + organization + captcha)
-- **Email**: Resend
+- Monorepo: Nx (@nx.json)
+    - Frontend (React + Vite + Tailwind + Shadcn):
+        - Web (`apps/web`)
+        - Landing page (`apps/landing`)
+    - Backend (Express.js v5 + TypeScript) (`apps/api`)
+    - Database (PostgreSQL + Drizzle ORM) (`libs/db`)
+    - Shared libs:
+        - Env validation (`libs/shared/env`)
+        - TypeScript types (`libs/shared/types`)
 
-## Comandos
+## Rules
 
-- `nx serve web` - Frontend dev
-- `nx serve api` - Backend dev
-- `nx run-many -t serve` - Ambos
-- `nx run db:generate` - Gerar migrations
-- `nx run db:migrate` - Aplicar migrations
-- `nx run db:studio` - Drizzle Studio
-- `npx biome check .` - Lint + format check
-- `npx biome check . --write` - Auto-fix
+Use these rules for standars:
 
-## Convenções
+- @.claude/rules/code-standards.md - Code standards
+- @.claude/rules/http.md - Creates a new backend route following the standard structure
+- @.claude/rules/logging.md - Logging best practices
 
-- Timestamps em UTC no banco, convertidos no frontend
-- Todas queries filtradas por organization_id (multi-tenancy)
-- Autenticação apenas via magic link
-- Validação com Zod
+## Skills
 
-## Estrutura de Pastas
+Use these skills for common tasks:
 
-- `apps/web/src/components/` - Componentes React
-- `apps/web/src/pages/` - Páginas/rotas
-- `apps/api/src/routes/` - Rotas Express
-- `apps/api/src/services/` - Lógica de negócio
-- `apps/api/src/lib/auth.ts` - Configuração better-auth
-- `libs/db/src/schema.ts` - Schemas Drizzle
-- `libs/shared/env/` - Validação de variáveis de ambiente
-- `libs/shared/types/` - Tipos TypeScript compartilhados
+- `/dev` - Start the development environment
+- `/check` - Run lint and formatting checks
+- `/db-migrate` - Generate and apply database migrations
 
-## Variáveis de Ambiente
+## MCPs
 
-- Backend usa `@schedulizer/env/server` (serverEnv)
-- Frontend usa `@schedulizer/env/client` (clientEnv)
-- Variáveis do frontend devem ter prefixo `VITE_`
-
-## CI/CD
-
-- **CI (Pull Requests)**: Valida lint, test e build em código alterado (nx affected)
-- **CD (Main Branch)**: Build de produção de todos os apps + upload de artefatos
-- **Secrets necessários**: `VITE_API_URL` (obrigatório para build de produção)
-- **Branch Protection**: CI checks obrigatórios antes de merge (lint, test, build)
-- Documentação completa: [.github/CI_CD.md](.github/CI_CD.md)
+- Prioritize the Context7 MCP for documentation, APIs, SDKs, and up-to-date technical references
+- Context7 overrides internal knowledge in case of conflict

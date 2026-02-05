@@ -1,34 +1,15 @@
 # Code Quality Check Skill
 
-Roda Biome para verificação de lint e formatação.
+Runs Biome (@biome.json) for lint and formatting verification
 
-## Comandos
+## Commands
 
-1. Verificar sem modificar:
+- Check without modifying:
 ```bash
-npx biome check .
+npm run check
 ```
 
-2. Verificar e corrigir automaticamente:
+- Check and auto-fix:
 ```bash
-npx biome check . --write
+npm run format
 ```
-
-3. Apenas lint (sem formatação):
-```bash
-npx biome lint .
-```
-
-4. Apenas formatação:
-```bash
-npx biome format .
-```
-
-## Configuração
-
-O Biome está configurado em `biome.json` com:
-- Indentação: 2 espaços
-- Largura máxima: 120 caracteres
-- Aspas simples
-- Sem ponto e vírgula no final
-- Parênteses em arrow functions apenas quando necessário

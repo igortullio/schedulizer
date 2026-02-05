@@ -11,29 +11,29 @@ interface PricingPlan {
 
 const plans: PricingPlan[] = [
   {
-    name: 'Essencial',
-    price: 'R$ 49,90',
+    name: 'Essential',
+    price: '$49.90',
     planId: 'essential',
     features: [
-      'Agendamentos ilimitados',
-      'Lembretes automáticos',
-      'Calendário online',
-      'Gestão de serviços',
-      'Suporte por e-mail',
+      'Unlimited appointments',
+      'Automatic reminders',
+      'Online calendar',
+      'Service management',
+      'Email support',
     ],
   },
   {
-    name: 'Profissional',
-    price: 'R$ 99,90',
+    name: 'Professional',
+    price: '$99.90',
     planId: 'professional',
     recommended: true,
     features: [
-      'Tudo do plano Essencial',
-      'Múltiplos profissionais',
-      'Relatórios e métricas',
-      'Integração WhatsApp',
-      'Suporte prioritário',
-      'Personalização avançada',
+      'Everything in Essential plan',
+      'Multiple professionals',
+      'Reports and metrics',
+      'WhatsApp integration',
+      'Priority support',
+      'Advanced customization',
     ],
   },
 ]
@@ -48,10 +48,10 @@ export function Pricing({ onPlanSelect }: PricingProps) {
       <div className="mx-auto max-w-5xl">
         <div className="mb-16 text-center">
           <h2 className="mb-4 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-            Planos que cabem no seu{' '}
-            <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">bolso</span>
+            Plans that fit your{' '}
+            <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">budget</span>
           </h2>
-          <p className="text-lg text-muted-foreground">Escolha o plano ideal para o seu negócio</p>
+          <p className="text-lg text-muted-foreground">Choose the ideal plan for your business</p>
         </div>
 
         <div className="grid gap-8 md:grid-cols-2">
@@ -66,7 +66,7 @@ export function Pricing({ onPlanSelect }: PricingProps) {
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                   <span className="gradient-accent inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-semibold text-white shadow-lg">
                     <Star className="h-4 w-4" />
-                    Mais popular
+                    Most popular
                   </span>
                 </div>
               )}
@@ -75,7 +75,7 @@ export function Pricing({ onPlanSelect }: PricingProps) {
                 <h3 className="mb-2 text-2xl font-bold text-foreground">{plan.name}</h3>
                 <div className="flex items-baseline justify-center gap-1">
                   <span className="text-5xl font-bold text-foreground">{plan.price}</span>
-                  <span className="text-muted-foreground">/mês</span>
+                  <span className="text-muted-foreground">/month</span>
                 </div>
               </div>
 
@@ -100,7 +100,7 @@ export function Pricing({ onPlanSelect }: PricingProps) {
                 variant={plan.recommended ? 'default' : 'outline'}
                 onClick={() => onPlanSelect?.(plan.planId)}
               >
-                Começar agora
+                Get started
               </Button>
             </div>
           ))}
@@ -110,15 +110,15 @@ export function Pricing({ onPlanSelect }: PricingProps) {
         <div className="mt-12 flex flex-wrap items-center justify-center gap-8 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <Check className="h-5 w-5 text-primary" />
-            <span>Sem taxa de adesão</span>
+            <span>No setup fee</span>
           </div>
           <div className="flex items-center gap-2">
             <Check className="h-5 w-5 text-primary" />
-            <span>Cancele quando quiser</span>
+            <span>Cancel anytime</span>
           </div>
           <div className="flex items-center gap-2">
             <Check className="h-5 w-5 text-primary" />
-            <span>14 dias grátis</span>
+            <span>14 days free</span>
           </div>
         </div>
       </div>

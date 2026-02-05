@@ -10,23 +10,23 @@ interface Benefit {
 const benefits: Benefit[] = [
   {
     icon: Calendar,
-    title: 'Agendamentos online 24/7',
-    description: 'Seus clientes podem agendar a qualquer hora, de qualquer lugar. Nunca perca uma oportunidade.',
+    title: 'Online scheduling 24/7',
+    description: 'Your customers can book anytime, from anywhere. Never miss an opportunity.',
   },
   {
     icon: Bell,
-    title: 'Lembretes automáticos',
-    description: 'Reduza faltas com notificações automáticas por WhatsApp e e-mail.',
+    title: 'Automatic reminders',
+    description: 'Reduce no-shows with automatic WhatsApp and email notifications.',
   },
   {
     icon: Clock,
-    title: 'Organização de horários',
-    description: 'Visualize e gerencie todos os seus agendamentos em um só lugar.',
+    title: 'Schedule organization',
+    description: 'View and manage all your appointments in one place.',
   },
   {
     icon: Users,
-    title: 'Gestão de múltiplos profissionais',
-    description: 'Controle a agenda de toda a sua equipe de forma centralizada.',
+    title: 'Multi-professional management',
+    description: 'Control your entire team\'s schedule centrally.',
   },
 ]
 
@@ -36,14 +36,14 @@ export function Benefits() {
       <div className="mx-auto max-w-7xl">
         <div className="mb-16 text-center">
           <h2 className="mb-4 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-            Por que escolher o{' '}
+            Why choose{' '}
             <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               Schedulizer
             </span>
             ?
           </h2>
           <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-            Tudo que você precisa para gerenciar seu negócio de forma eficiente
+            Everything you need to efficiently manage your business
           </p>
         </div>
 

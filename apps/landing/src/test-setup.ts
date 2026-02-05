@@ -2,6 +2,10 @@ import '@testing-library/jest-dom/vitest'
 import { cleanup } from '@testing-library/react'
 import { afterEach } from 'vitest'
 
+declare global {
+  var IS_REACT_ACT_ENVIRONMENT: boolean
+}
+
 // Ensure proper cleanup after each test
 afterEach(() => {
   cleanup()

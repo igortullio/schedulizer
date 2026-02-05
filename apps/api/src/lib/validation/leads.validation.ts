@@ -1,13 +1,13 @@
 import { z } from 'zod'
 
 export const createLeadSchema = z.object({
-  name: z.string().min(1, 'Nome é obrigatório'),
-  email: z.string().email('Email inválido'),
+  name: z.string().min(1, 'Name is required'),
+  email: z.email('Invalid email'),
   phone: z
     .string()
-    .min(1, 'Telefone é obrigatório')
-    .regex(/^\+?[\d\s\-()]+$/, 'Formato de telefone inválido'),
+    .min(1, 'Phone is required')
+    .regex(/^\+?[\d\s\-()]+$/, 'Invalid phone format'),
   planInterest: z.enum(['essential', 'professional'], {
-    message: 'Plano deve ser "essential" ou "professional"',
+    message: 'Plan must be "essential" or "professional"',
   }),
 })

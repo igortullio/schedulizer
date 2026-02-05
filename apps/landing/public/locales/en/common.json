@@ -1,0 +1,128 @@
+{
+  "hero": {
+    "badge": "Simplify your scheduling",
+    "title": "Organize your appointments",
+    "titleHighlight": "professionally",
+    "subtitle": "Complete system for salons, barbershops and studios. Online scheduling 24/7, automatic reminders and simplified management.",
+    "cta": {
+      "primary": "Start for free",
+      "secondary": "Watch demo"
+    },
+    "features": {
+      "scheduling": "24/7 Scheduling",
+      "setup": "Setup in 5 minutes",
+      "trial": "14-day free trial"
+    }
+  },
+  "benefits": {
+    "title": "Why choose",
+    "titleHighlight": "Schedulizer",
+    "subtitle": "Everything you need to efficiently manage your business",
+    "items": [
+      {
+        "title": "Online scheduling 24/7",
+        "description": "Your customers can book anytime, from anywhere. Never miss an opportunity."
+      },
+      {
+        "title": "Automatic reminders",
+        "description": "Reduce no-shows with automatic WhatsApp and email notifications."
+      },
+      {
+        "title": "Schedule organization",
+        "description": "View and manage all your appointments in one place."
+      },
+      {
+        "title": "Multi-professional management",
+        "description": "Control your entire team's schedule centrally."
+      }
+    ]
+  },
+  "pricing": {
+    "title": "Plans that fit your",
+    "titleHighlight": "budget",
+    "subtitle": "Choose the ideal plan for your business",
+    "badge": "Most popular",
+    "plans": {
+      "essential": {
+        "name": "Essential",
+        "price": "$49.90",
+        "period": "/month",
+        "features": [
+          "Unlimited appointments",
+          "Automatic reminders",
+          "Online calendar",
+          "Service management",
+          "Email support"
+        ]
+      },
+      "professional": {
+        "name": "Professional",
+        "price": "$99.90",
+        "period": "/month",
+        "features": [
+          "Everything in Essential plan",
+          "Multiple professionals",
+          "Reports and metrics",
+          "WhatsApp integration",
+          "Priority support",
+          "Advanced customization"
+        ]
+      }
+    },
+    "cta": "Get started",
+    "trustBadges": {
+      "noSetupFee": "No setup fee",
+      "cancelAnytime": "Cancel anytime",
+      "freeTrial": "14 days free"
+    }
+  },
+  "footer": {
+    "brandDescription": "Complete appointment management system for small businesses that want to grow.",
+    "sections": {
+      "links": {
+        "title": "Links",
+        "privacy": "Privacy Policy",
+        "terms": "Terms of Service"
+      },
+      "contact": {
+        "title": "Contact"
+      }
+    },
+    "copyright": "© {{year}} Schedulizer. All rights reserved."
+  },
+  "leadForm": {
+    "title": "Get started",
+    "titleHighlight": "now",
+    "subtitle": "Fill out the form and we will contact you soon",
+    "labels": {
+      "name": "Full name",
+      "email": "Email",
+      "phone": "Phone",
+      "planInterest": "Plan of interest"
+    },
+    "placeholders": {
+      "name": "John Smith",
+      "email": "john@email.com",
+      "phone": "+1 (555) 123-4567"
+    },
+    "options": {
+      "essential": "Essential - $49.90/month",
+      "professional": "Professional - $99.90/month"
+    },
+    "validation": {
+      "nameRequired": "Name is required",
+      "invalidEmail": "Invalid email",
+      "phoneRequired": "Phone is required",
+      "invalidPhoneFormat": "Invalid phone format",
+      "invalidPlan": "Plan must be \"essential\" or \"professional\""
+    },
+    "errors": {
+      "submitError": "Error submitting form",
+      "genericError": "Error submitting form. Please try again."
+    },
+    "buttons": {
+      "submit": "Submit",
+      "submitting": "Submitting..."
+    }
+  }
+}

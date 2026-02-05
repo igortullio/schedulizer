@@ -24,7 +24,9 @@ export function Hero({ onCtaClick }: HeroProps) {
         {/* Title */}
         <h1 className="animate-fade-in-up stagger-1 mb-6 text-4xl font-bold leading-tight tracking-tight text-foreground md:text-5xl lg:text-6xl">
           Organize your appointments{' '}
-          <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">professionally</span>
+          <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            professionally
+          </span>
         </h1>
 
         {/* Subtitle */}

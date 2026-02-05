@@ -26,7 +26,7 @@ const benefits: Benefit[] = [
   {
     icon: Users,
     title: 'Multi-professional management',
-    description: 'Control your entire team\'s schedule centrally.',
+    description: "Control your entire team's schedule centrally.",
   },
 ]
 

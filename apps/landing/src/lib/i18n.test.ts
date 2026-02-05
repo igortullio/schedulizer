@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeAll } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 import i18n from './i18n'
 
 describe('i18n Configuration', () => {
@@ -14,12 +14,12 @@ describe('i18n Configuration', () => {
       expect(i18n.isInitialized).toBeTruthy()
     })
 
-    it('should set fallback language to English', () => {
+    it('should set fallback language to pt-BR', () => {
       const fallbackLng = i18n.options.fallbackLng
       if (Array.isArray(fallbackLng)) {
-        expect(fallbackLng).toContain('en')
+        expect(fallbackLng).toContain('pt-BR')
       } else {
-        expect(fallbackLng).toBe('en')
+        expect(fallbackLng).toBe('pt-BR')
       }
     })
 
@@ -68,10 +68,10 @@ describe('i18n Configuration', () => {
   })
 
   describe('Language Detection Configuration', () => {
-    it('should configure language detection order', () => {
+    it('should configure language detection order with querystring priority', () => {
       const detectionOptions = i18n.options.detection
       expect(detectionOptions).toBeDefined()
-      expect(detectionOptions?.order).toEqual(['localStorage', 'navigator'])
+      expect(detectionOptions?.order).toEqual(['querystring', 'localStorage', 'navigator'])
     })
 
     it('should configure localStorage caching', () => {
@@ -82,6 +82,17 @@ describe('i18n Configuration', () => {
     it('should set localStorage lookup key', () => {
       const detectionOptions = i18n.options.detection
       expect(detectionOptions?.lookupLocalStorage).toBe('i18nextLng')
+    })
+
+    it('should set querystring lookup key', () => {
+      const detectionOptions = i18n.options.detection
+      expect(detectionOptions?.lookupQuerystring).toBe('lng')
+    })
+  })
+
+  describe('Load Strategy Configuration', () => {
+    it('should set load strategy to currentOnly', () => {
+      expect(i18n.options.load).toBe('currentOnly')
     })
   })
 
@@ -124,10 +135,63 @@ describe('i18n Configuration', () => {
         expect(typeof currentLanguage).toBe('string')
       }
       if (Array.isArray(fallbackLng)) {
-        expect(fallbackLng).toContain('en')
+        expect(fallbackLng).toContain('pt-BR')
       } else {
-        expect(fallbackLng).toBe('en')
+        expect(fallbackLng).toBe('pt-BR')
       }
+    })
+  })
+
+  describe('Automatic Language Detection', () => {
+    it('should support changing language programmatically to en', async () => {
+      await i18n.changeLanguage('en')
+      expect(i18n.language).toBe('en')
+    })
+
+    it('should support changing language programmatically to pt-BR', async () => {
+      await i18n.changeLanguage('pt-BR')
+      expect(i18n.language).toBe('pt-BR')
+    })
+
+    it('should cache language changes to localStorage', async () => {
+      await i18n.changeLanguage('en')
+      const cachedLng = localStorage.getItem('i18nextLng')
+      expect(cachedLng).toBeDefined()
+      expect(cachedLng).toMatch(/en/)
+    })
+
+    it('should support only en and pt-BR languages in supportedLngs', () => {
+      const supportedLngs = i18n.options.supportedLngs
+      expect(supportedLngs).toContain('en')
+      expect(supportedLngs).toContain('pt-BR')
+    })
+
+    it('should use pt-BR as fallback language', () => {
+      const fallbackLng = i18n.options.fallbackLng
+      if (Array.isArray(fallbackLng)) {
+        expect(fallbackLng).toContain('pt-BR')
+      } else {
+        expect(fallbackLng).toBe('pt-BR')
+      }
+    })
+
+    it('should have querystring as highest priority in detection order', () => {
+      const detectionOptions = i18n.options.detection
+      expect(detectionOptions?.order?.[0]).toBe('querystring')
+    })
+
+    it('should have localStorage as second priority in detection order', () => {
+      const detectionOptions = i18n.options.detection
+      expect(detectionOptions?.order?.[1]).toBe('localStorage')
+    })
+
+    it('should have navigator as third priority in detection order', () => {
+      const detectionOptions = i18n.options.detection
+      expect(detectionOptions?.order?.[2]).toBe('navigator')
+    })
+
+    it('should have load strategy set to currentOnly for strict language matching', () => {
+      expect(i18n.options.load).toBe('currentOnly')
     })
   })
 })

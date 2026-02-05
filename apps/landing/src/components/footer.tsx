@@ -60,9 +60,7 @@ export function Footer() {
         </div>
 
         <div className="mt-12 border-t border-border/50 pt-8 text-center">
-          <p className="text-sm text-muted-foreground">
-            &copy; {currentYear} Schedulizer. All rights reserved.
-          </p>
+          <p className="text-sm text-muted-foreground">&copy; {currentYear} Schedulizer. All rights reserved.</p>
         </div>
       </div>
     </footer>

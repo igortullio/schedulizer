@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeAll } from 'vitest'
+import { beforeAll, describe, expect, it, vi } from 'vitest'
 import i18n from './lib/i18n'
 
 describe('Main Application i18n Integration', () => {
@@ -36,20 +36,20 @@ describe('Main Application i18n Integration', () => {
       expect(typeof detectedLanguage).toBe('string')
     })
 
-    it('should default to English when browser language is unavailable', () => {
+    it('should default to pt-BR when browser language is unavailable', () => {
       const currentLang = i18n.language
       const supportedLangs = i18n.options.supportedLngs || []
       if (!supportedLangs.includes(currentLang)) {
-        expect(i18n.options.fallbackLng).toBe('en')
+        expect(i18n.options.fallbackLng).toBe('pt-BR')
       }
     })
 
     it('should use fallback language for unsupported languages', () => {
       const fallbackLng = i18n.options.fallbackLng
       if (Array.isArray(fallbackLng)) {
-        expect(fallbackLng).toContain('en')
+        expect(fallbackLng).toContain('pt-BR')
       } else {
-        expect(fallbackLng).toBe('en')
+        expect(fallbackLng).toBe('pt-BR')
       }
     })
   })

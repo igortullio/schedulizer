@@ -1,6 +1,8 @@
 import { Calendar, Mail, Phone } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 export function Footer() {
+  const { t } = useTranslation()
   const currentYear = new Date().getFullYear()
 
   return (
@@ -15,21 +17,21 @@ export function Footer() {
               </div>
               <span className="text-xl font-bold text-foreground">Schedulizer</span>
             </div>
-            <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">
-              Complete appointment management system for small businesses that want to grow.
-            </p>
+            <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">{t('footer.brandDescription')}</p>
           </div>
 
           {/* Links */}
           <div>
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-foreground">Links</h3>
+            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-foreground">
+              {t('footer.sections.links.title')}
+            </h3>
             <ul className="space-y-3">
               <li>
                 <a
                   href="/privacy"
                   className="text-sm text-muted-foreground transition-colors duration-200 hover:text-primary"
                 >
-                  Privacy Policy
+                  {t('footer.sections.links.privacy')}
                 </a>
               </li>
               <li>
@@ -37,7 +39,7 @@ export function Footer() {
                   href="/terms"
                   className="text-sm text-muted-foreground transition-colors duration-200 hover:text-primary"
                 >
-                  Terms of Service
+                  {t('footer.sections.links.terms')}
                 </a>
               </li>
             </ul>
@@ -45,7 +47,9 @@ export function Footer() {
 
           {/* Contact */}
           <div>
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-foreground">Contact</h3>
+            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-foreground">
+              {t('footer.sections.contact.title')}
+            </h3>
             <ul className="space-y-3">
               <li className="flex items-center gap-3">
                 <Mail className="h-4 w-4 text-primary" />
@@ -60,7 +64,7 @@ export function Footer() {
         </div>
 
         <div className="mt-12 border-t border-border/50 pt-8 text-center">
-          <p className="text-sm text-muted-foreground">&copy; {currentYear} Schedulizer. All rights reserved.</p>
+          <p className="text-sm text-muted-foreground">{t('footer.copyright', { year: currentYear })}</p>
         </div>
       </div>
     </footer>

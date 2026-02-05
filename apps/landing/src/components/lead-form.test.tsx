@@ -44,17 +44,17 @@ describe('LeadForm Component', () => {
   it('should render form with all fields', () => {
     render(<LeadForm />)
 
-    expect(screen.getByLabelText(/nome completo/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/e-mail/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/telefone/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/plano de interesse/i)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /enviar/i })).toBeInTheDocument()
+    expect(screen.getByLabelText(/full name/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/email/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/phone/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/plan of interest/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /submit/i })).toBeInTheDocument()
   })
 
   it('should render with default plan interest', () => {
     render(<LeadForm defaultPlanInterest="professional" />)
 
-    const select = screen.getByLabelText(/plano de interesse/i) as HTMLSelectElement
+    const select = screen.getByLabelText(/plan of interest/i) as HTMLSelectElement
     expect(select.value).toBe('professional')
   })
 
@@ -62,16 +62,16 @@ describe('LeadForm Component', () => {
     const user = userEvent.setup()
     render(<LeadForm />)
 
-    const nameInput = screen.getByLabelText(/nome completo/i) as HTMLInputElement
-    const emailInput = screen.getByLabelText(/e-mail/i) as HTMLInputElement
-    const phoneInput = screen.getByLabelText(/telefone/i) as HTMLInputElement
+    const nameInput = screen.getByLabelText(/full name/i) as HTMLInputElement
+    const emailInput = screen.getByLabelText(/email/i) as HTMLInputElement
+    const phoneInput = screen.getByLabelText(/phone/i) as HTMLInputElement
 
-    await user.type(nameInput, 'João Silva')
-    await user.type(emailInput, 'joao@email.com')
+    await user.type(nameInput, 'John Smith')
+    await user.type(emailInput, 'john@email.com')
     await user.type(phoneInput, '11999999999')
 
-    expect(nameInput.value).toBe('João Silva')
-    expect(emailInput.value).toBe('joao@email.com')
+    expect(nameInput.value).toBe('John Smith')
+    expect(emailInput.value).toBe('john@email.com')
     expect(phoneInput.value).toBe('11999999999')
   })
 
@@ -79,16 +79,16 @@ describe('LeadForm Component', () => {
     const user = userEvent.setup()
     render(<LeadForm />)
 
-    const submitButton = screen.getByRole('button', { name: /enviar/i })
+    const submitButton = screen.getByRole('button', { name: /submit/i })
     await user.click(submitButton)
 
     // Should show validation errors for all required fields
     await waitFor(() => {
       const errors = screen.queryAllByRole('paragraph')
       const errorTexts = errors.map(el => el.textContent)
-      expect(errorTexts.some(text => text?.toLowerCase().includes('nome'))).toBe(true)
+      expect(errorTexts.some(text => text?.toLowerCase().includes('name'))).toBe(true)
       expect(errorTexts.some(text => text?.toLowerCase().includes('email'))).toBe(true)
-      expect(errorTexts.some(text => text?.toLowerCase().includes('telefone'))).toBe(true)
+      expect(errorTexts.some(text => text?.toLowerCase().includes('phone'))).toBe(true)
     })
 
     // Should not call API when validation fails
@@ -100,11 +100,11 @@ describe('LeadForm Component', () => {
     render(<LeadForm />)
 
     // Test with invalid inputs
-    await user.type(screen.getByLabelText(/nome completo/i), 'João Silva')
-    await user.type(screen.getByLabelText(/e-mail/i), 'invalid-format')
-    await user.type(screen.getByLabelText(/telefone/i), 'abc')
+    await user.type(screen.getByLabelText(/full name/i), 'John Smith')
+    await user.type(screen.getByLabelText(/email/i), 'invalid-format')
+    await user.type(screen.getByLabelText(/phone/i), 'abc')
 
-    await user.click(screen.getByRole('button', { name: /enviar/i }))
+    await user.click(screen.getByRole('button', { name: /submit/i }))
 
     // Validation should prevent API call
     await waitFor(() => {
@@ -123,16 +123,16 @@ describe('LeadForm Component', () => {
     const user = userEvent.setup()
     render(<LeadForm />)
 
-    const submitButton = screen.getByRole('button', { name: /enviar/i })
+    const submitButton = screen.getByRole('button', { name: /submit/i })
     await user.click(submitButton)
 
-    expect(await screen.findByText(/nome é obrigatório/i)).toBeInTheDocument()
+    expect(await screen.findByText(/name is required/i)).toBeInTheDocument()
 
-    const nameInput = screen.getByLabelText(/nome completo/i)
+    const nameInput = screen.getByLabelText(/full name/i)
     await user.type(nameInput, 'J')
 
     await waitFor(() => {
-      expect(screen.queryByText(/nome é obrigatório/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/name is required/i)).not.toBeInTheDocument()
     })
   })
 
@@ -142,21 +142,21 @@ describe('LeadForm Component', () => {
 
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ data: { id: '123', name: 'João Silva' } }),
+      json: async () => ({ data: { id: '123', name: 'John Smith' } }),
     })
 
     render(<LeadForm onSuccess={onSuccess} />)
 
-    const nameInput = screen.getByLabelText(/nome completo/i)
-    await user.type(nameInput, 'João Silva')
+    const nameInput = screen.getByLabelText(/full name/i)
+    await user.type(nameInput, 'John Smith')
 
-    const emailInput = screen.getByLabelText(/e-mail/i)
-    await user.type(emailInput, 'joao@email.com')
+    const emailInput = screen.getByLabelText(/email/i)
+    await user.type(emailInput, 'john@email.com')
 
-    const phoneInput = screen.getByLabelText(/telefone/i)
+    const phoneInput = screen.getByLabelText(/phone/i)
     await user.type(phoneInput, '11999999999')
 
-    const submitButton = screen.getByRole('button', { name: /enviar/i })
+    const submitButton = screen.getByRole('button', { name: /submit/i })
     await user.click(submitButton)
 
     await waitFor(() => {
@@ -168,8 +168,8 @@ describe('LeadForm Component', () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            name: 'João Silva',
-            email: 'joao@email.com',
+            name: 'John Smith',
+            email: 'john@email.com',
             phone: '11999999999',
             planInterest: 'essential',
           }),
@@ -198,17 +198,17 @@ describe('LeadForm Component', () => {
 
     render(<LeadForm />)
 
-    await user.type(screen.getByLabelText(/nome completo/i), 'João Silva')
-    await user.type(screen.getByLabelText(/e-mail/i), 'joao@email.com')
-    await user.type(screen.getByLabelText(/telefone/i), '11999999999')
+    await user.type(screen.getByLabelText(/full name/i), 'John Smith')
+    await user.type(screen.getByLabelText(/email/i), 'john@email.com')
+    await user.type(screen.getByLabelText(/phone/i), '11999999999')
 
-    await user.click(screen.getByRole('button', { name: /enviar/i }))
+    await user.click(screen.getByRole('button', { name: /submit/i }))
 
     // Check loading state
-    expect(screen.getByRole('button', { name: /enviando/i })).toBeDisabled()
-    expect(screen.getByLabelText(/nome completo/i)).toBeDisabled()
-    expect(screen.getByLabelText(/e-mail/i)).toBeDisabled()
-    expect(screen.getByLabelText(/telefone/i)).toBeDisabled()
+    expect(screen.getByRole('button', { name: /submitting/i })).toBeDisabled()
+    expect(screen.getByLabelText(/full name/i)).toBeDisabled()
+    expect(screen.getByLabelText(/email/i)).toBeDisabled()
+    expect(screen.getByLabelText(/phone/i)).toBeDisabled()
 
     // Resolve fetch
     if (resolveFunction) {
@@ -220,7 +220,7 @@ describe('LeadForm Component', () => {
 
     // Wait for loading to complete
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /enviar/i })).not.toBeDisabled()
+      expect(screen.getByRole('button', { name: /submit/i })).not.toBeDisabled()
     })
   })
 
@@ -234,16 +234,16 @@ describe('LeadForm Component', () => {
 
     render(<LeadForm />)
 
-    const nameInput = screen.getByLabelText(/nome completo/i) as HTMLInputElement
-    await user.type(nameInput, 'João Silva')
+    const nameInput = screen.getByLabelText(/full name/i) as HTMLInputElement
+    await user.type(nameInput, 'John Smith')
 
-    const emailInput = screen.getByLabelText(/e-mail/i) as HTMLInputElement
-    await user.type(emailInput, 'joao@email.com')
+    const emailInput = screen.getByLabelText(/email/i) as HTMLInputElement
+    await user.type(emailInput, 'john@email.com')
 
-    const phoneInput = screen.getByLabelText(/telefone/i) as HTMLInputElement
+    const phoneInput = screen.getByLabelText(/phone/i) as HTMLInputElement
     await user.type(phoneInput, '11999999999')
 
-    const submitButton = screen.getByRole('button', { name: /enviar/i })
+    const submitButton = screen.getByRole('button', { name: /submit/i })
     await user.click(submitButton)
 
     await waitFor(() => {
@@ -264,16 +264,16 @@ describe('LeadForm Component', () => {
 
     render(<LeadForm />)
 
-    const nameInput = screen.getByLabelText(/nome completo/i)
-    await user.type(nameInput, 'João Silva')
+    const nameInput = screen.getByLabelText(/full name/i)
+    await user.type(nameInput, 'John Smith')
 
-    const emailInput = screen.getByLabelText(/e-mail/i)
-    await user.type(emailInput, 'joao@email.com')
+    const emailInput = screen.getByLabelText(/email/i)
+    await user.type(emailInput, 'john@email.com')
 
-    const phoneInput = screen.getByLabelText(/telefone/i)
+    const phoneInput = screen.getByLabelText(/phone/i)
     await user.type(phoneInput, '11999999999')
 
-    const submitButton = screen.getByRole('button', { name: /enviar/i })
+    const submitButton = screen.getByRole('button', { name: /submit/i })
     await user.click(submitButton)
 
     expect(await screen.findByText(/internal server error/i)).toBeInTheDocument()
@@ -286,11 +286,11 @@ describe('LeadForm Component', () => {
 
     render(<LeadForm />)
 
-    await user.type(screen.getByLabelText(/nome completo/i), 'João Silva')
-    await user.type(screen.getByLabelText(/e-mail/i), 'joao@email.com')
-    await user.type(screen.getByLabelText(/telefone/i), '11999999999')
+    await user.type(screen.getByLabelText(/full name/i), 'John Smith')
+    await user.type(screen.getByLabelText(/email/i), 'john@email.com')
+    await user.type(screen.getByLabelText(/phone/i), '11999999999')
 
-    await user.click(screen.getByRole('button', { name: /enviar/i }))
+    await user.click(screen.getByRole('button', { name: /submit/i }))
 
     // Wait for error to appear after retries
     await waitFor(
@@ -315,11 +315,11 @@ describe('LeadForm Component', () => {
 
     render(<LeadForm onSuccess={onSuccess} />)
 
-    await user.type(screen.getByLabelText(/nome completo/i), 'João Silva')
-    await user.type(screen.getByLabelText(/e-mail/i), 'joao@email.com')
-    await user.type(screen.getByLabelText(/telefone/i), '11999999999')
+    await user.type(screen.getByLabelText(/full name/i), 'John Smith')
+    await user.type(screen.getByLabelText(/email/i), 'john@email.com')
+    await user.type(screen.getByLabelText(/phone/i), '11999999999')
 
-    await user.click(screen.getByRole('button', { name: /enviar/i }))
+    await user.click(screen.getByRole('button', { name: /submit/i }))
 
     // Wait for retries to complete
     await waitFor(
@@ -352,16 +352,16 @@ describe('LeadForm Component', () => {
 
     render(<LeadForm />)
 
-    const nameInput = screen.getByLabelText(/nome completo/i)
-    await user.type(nameInput, 'João Silva')
+    const nameInput = screen.getByLabelText(/full name/i)
+    await user.type(nameInput, 'John Smith')
 
-    const emailInput = screen.getByLabelText(/e-mail/i)
-    await user.type(emailInput, 'joao@email.com')
+    const emailInput = screen.getByLabelText(/email/i)
+    await user.type(emailInput, 'john@email.com')
 
-    const phoneInput = screen.getByLabelText(/telefone/i)
+    const phoneInput = screen.getByLabelText(/phone/i)
     await user.type(phoneInput, '11999999999')
 
-    const submitButton = screen.getByRole('button', { name: /enviar/i })
+    const submitButton = screen.getByRole('button', { name: /submit/i })
     await user.click(submitButton)
 
     expect(await screen.findByText(/server error/i)).toBeInTheDocument()
@@ -387,19 +387,19 @@ describe('LeadForm Component', () => {
 
     render(<LeadForm />)
 
-    const nameInput = screen.getByLabelText(/nome completo/i)
-    await user.type(nameInput, 'João Silva')
+    const nameInput = screen.getByLabelText(/full name/i)
+    await user.type(nameInput, 'John Smith')
 
-    const emailInput = screen.getByLabelText(/e-mail/i)
-    await user.type(emailInput, 'joao@email.com')
+    const emailInput = screen.getByLabelText(/email/i)
+    await user.type(emailInput, 'john@email.com')
 
-    const phoneInput = screen.getByLabelText(/telefone/i)
+    const phoneInput = screen.getByLabelText(/phone/i)
     await user.type(phoneInput, '11999999999')
 
-    const submitButton = screen.getByRole('button', { name: /enviar/i })
+    const submitButton = screen.getByRole('button', { name: /submit/i })
     await user.click(submitButton)
 
-    expect(await screen.findByText(/erro ao enviar formulário/i)).toBeInTheDocument()
+    expect(await screen.findByText(/error submitting form/i)).toBeInTheDocument()
   })
 
   it('should prevent duplicate submissions while loading', async () => {
@@ -416,11 +416,11 @@ describe('LeadForm Component', () => {
 
     render(<LeadForm />)
 
-    await user.type(screen.getByLabelText(/nome completo/i), 'João Silva')
-    await user.type(screen.getByLabelText(/e-mail/i), 'joao@email.com')
-    await user.type(screen.getByLabelText(/telefone/i), '11999999999')
+    await user.type(screen.getByLabelText(/full name/i), 'John Smith')
+    await user.type(screen.getByLabelText(/email/i), 'john@email.com')
+    await user.type(screen.getByLabelText(/phone/i), '11999999999')
 
-    const submitButton = screen.getByRole('button', { name: /enviar/i })
+    const submitButton = screen.getByRole('button', { name: /submit/i })
     await user.click(submitButton)
 
     expect(submitButton).toBeDisabled()
@@ -454,16 +454,16 @@ describe('LeadForm Component', () => {
 
     render(<LeadForm />)
 
-    const nameInput = screen.getByLabelText(/nome completo/i)
-    await user.type(nameInput, 'João Silva')
+    const nameInput = screen.getByLabelText(/full name/i)
+    await user.type(nameInput, 'John Smith')
 
-    const emailInput = screen.getByLabelText(/e-mail/i)
-    await user.type(emailInput, 'joao@email.com')
+    const emailInput = screen.getByLabelText(/email/i)
+    await user.type(emailInput, 'john@email.com')
 
-    const phoneInput = screen.getByLabelText(/telefone/i)
+    const phoneInput = screen.getByLabelText(/phone/i)
     await user.type(phoneInput, '11999999999')
 
-    const submitButton = screen.getByRole('button', { name: /enviar/i })
+    const submitButton = screen.getByRole('button', { name: /submit/i })
     await user.click(submitButton)
 
     await waitFor(() => {
@@ -479,10 +479,10 @@ describe('LeadForm Component', () => {
     })
 
     // Fill and submit again
-    await user.type(screen.getByLabelText(/nome completo/i), 'Maria Santos')
-    await user.type(screen.getByLabelText(/e-mail/i), 'maria@email.com')
-    await user.type(screen.getByLabelText(/telefone/i), '11988888888')
-    await user.click(screen.getByRole('button', { name: /enviar/i }))
+    await user.type(screen.getByLabelText(/full name/i), 'Mary Johnson')
+    await user.type(screen.getByLabelText(/email/i), 'mary@email.com')
+    await user.type(screen.getByLabelText(/phone/i), '11988888888')
+    await user.click(screen.getByRole('button', { name: /submit/i }))
 
     await waitFor(() => {
       expect(mockFetch).toHaveBeenCalledTimes(2)

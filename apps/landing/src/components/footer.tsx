@@ -16,7 +16,7 @@ export function Footer() {
               <span className="text-xl font-bold text-foreground">Schedulizer</span>
             </div>
             <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">
-              Sistema completo de gerenciamento de agendamentos para pequenos negócios que querem crescer.
+              Complete appointment management system for small businesses that want to grow.
             </p>
           </div>
 
@@ -29,7 +29,7 @@ export function Footer() {
                   href="/privacy"
                   className="text-sm text-muted-foreground transition-colors duration-200 hover:text-primary"
                 >
-                  Política de Privacidade
+                  Privacy Policy
                 </a>
               </li>
               <li>
@@ -37,7 +37,7 @@ export function Footer() {
                   href="/terms"
                   className="text-sm text-muted-foreground transition-colors duration-200 hover:text-primary"
                 >
-                  Termos de Uso
+                  Terms of Service
                 </a>
               </li>
             </ul>
@@ -45,7 +45,7 @@ export function Footer() {
 
           {/* Contact */}
           <div>
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-foreground">Contato</h3>
+            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-foreground">Contact</h3>
             <ul className="space-y-3">
               <li className="flex items-center gap-3">
                 <Mail className="h-4 w-4 text-primary" />
@@ -53,7 +53,7 @@ export function Footer() {
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="h-4 w-4 text-primary" />
-                <span className="text-sm text-muted-foreground">(11) 99999-9999</span>
+                <span className="text-sm text-muted-foreground">+1 (555) 123-4567</span>
               </li>
             </ul>
           </div>
@@ -61,7 +61,7 @@ export function Footer() {
 
         <div className="mt-12 border-t border-border/50 pt-8 text-center">
           <p className="text-sm text-muted-foreground">
-            &copy; {currentYear} Schedulizer. Todos os direitos reservados.
+            &copy; {currentYear} Schedulizer. All rights reserved.
           </p>
         </div>
       </div>

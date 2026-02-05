@@ -18,21 +18,19 @@ export function Hero({ onCtaClick }: HeroProps) {
         {/* Badge */}
         <div className="animate-fade-in-up mb-6 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
           <Sparkles className="h-4 w-4" />
-          <span>Simplifique seus agendamentos</span>
+          <span>Simplify your scheduling</span>
         </div>
 
         {/* Title */}
         <h1 className="animate-fade-in-up stagger-1 mb-6 text-4xl font-bold leading-tight tracking-tight text-foreground md:text-5xl lg:text-6xl">
-          Organize seus agendamentos de forma{' '}
-          <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            profissional
-          </span>
+          Organize your appointments{' '}
+          <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">professionally</span>
         </h1>
 
         {/* Subtitle */}
         <p className="animate-fade-in-up stagger-2 mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-muted-foreground md:text-xl">
-          Sistema completo para salões, barbearias e estúdios. Agendamentos online 24/7, lembretes automáticos e gestão
-          simplificada.
+          Complete system for salons, barbershops and studios. Online scheduling 24/7, automatic reminders and
+          simplified management.
         </p>
 
         {/* CTA Buttons */}
@@ -42,14 +40,14 @@ export function Hero({ onCtaClick }: HeroProps) {
             onClick={onCtaClick}
             className="gradient-accent cursor-pointer border-0 px-8 py-6 text-base font-semibold shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl"
           >
-            Começar gratuitamente
+            Start for free
           </Button>
           <Button
             size="lg"
             variant="outline"
             className="cursor-pointer px-8 py-6 text-base font-semibold transition-all duration-200 hover:bg-primary/5"
           >
-            Ver demonstração
+            Watch demo
           </Button>
         </div>
 
@@ -57,15 +55,15 @@ export function Hero({ onCtaClick }: HeroProps) {
         <div className="animate-fade-in-up stagger-4 flex flex-wrap items-center justify-center gap-8 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <Calendar className="h-5 w-5 text-primary" />
-            <span>Agendamento 24/7</span>
+            <span>24/7 Scheduling</span>
           </div>
           <div className="flex items-center gap-2">
             <Clock className="h-5 w-5 text-primary" />
-            <span>Setup em 5 minutos</span>
+            <span>Setup in 5 minutes</span>
           </div>
           <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
-            <span>Teste grátis por 14 dias</span>
+            <span>14-day free trial</span>
           </div>
         </div>
       </div>

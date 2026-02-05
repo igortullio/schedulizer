@@ -3,7 +3,7 @@ export function App() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="text-center">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">Schedulizer</h1>
-        <p className="text-gray-600">Sistema de gerenciamento de agendamentos</p>
+        <p className="text-gray-600">Appointment management system</p>
       </div>
     </div>
   )

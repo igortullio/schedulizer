@@ -30,14 +30,14 @@ describe('i18n Configuration', () => {
       expect(supportedLngs).toContain('pt-BR')
     })
 
-    it('should set default namespace to translation', () => {
-      expect(i18n.options.defaultNS).toBe('translation')
+    it('should set default namespace to common', () => {
+      expect(i18n.options.defaultNS).toBe('common')
     })
 
     it('should configure namespace list', () => {
       const namespaces = i18n.options.ns
       expect(namespaces).toBeDefined()
-      expect(namespaces).toContain('translation')
+      expect(namespaces).toContain('common')
     })
   })
 

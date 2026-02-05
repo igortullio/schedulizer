@@ -124,5 +124,12 @@
       "submit": "Submit",
       "submitting": "Submitting..."
     }
+  },
+  "languageSelector": {
+    "label": "Select language",
+    "languages": {
+      "pt-BR": "Português",
+      "en": "English"
+    }
   }
 }

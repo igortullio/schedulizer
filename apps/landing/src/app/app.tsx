@@ -4,6 +4,7 @@ import { Benefits } from '@/components/benefits'
 import { EnvError } from '@/components/env-error'
 import { Footer } from '@/components/footer'
 import { Hero } from '@/components/hero'
+import { LanguageSelector } from '@/components/language-selector'
 import { LeadForm } from '@/components/lead-form'
 import { Pricing } from '@/components/pricing'
 
@@ -49,7 +50,7 @@ export function App() {
               </div>
               <span className="text-xl font-bold text-foreground">Schedulizer</span>
             </div>
-            <nav className="hidden items-center gap-8 md:flex">
+            <nav className="hidden items-center gap-6 md:flex">
               <a
                 href="#benefits"
                 className="text-sm font-medium text-muted-foreground transition-colors duration-200 hover:text-primary"
@@ -68,6 +69,7 @@ export function App() {
               >
                 Contato
               </a>
+              <LanguageSelector />
             </nav>
             <button
               type="button"

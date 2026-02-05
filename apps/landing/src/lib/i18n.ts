@@ -12,8 +12,8 @@ i18n
     supportedLngs: ['en', 'pt-BR'],
     load: 'currentOnly',
     debug: import.meta.env.DEV,
-    ns: ['translation'],
-    defaultNS: 'translation',
+    ns: ['common'],
+    defaultNS: 'common',
     backend: {
       loadPath: '/locales/{{lng}}/{{ns}}.json',
     },

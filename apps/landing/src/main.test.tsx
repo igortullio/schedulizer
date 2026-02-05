@@ -64,7 +64,7 @@ describe('Main Application i18n Integration', () => {
 
     it('should support namespace-based translations', () => {
       expect(i18n.options.ns).toBeDefined()
-      expect(i18n.options.defaultNS).toBe('translation')
+      expect(i18n.options.defaultNS).toBe('common')
     })
   })
 

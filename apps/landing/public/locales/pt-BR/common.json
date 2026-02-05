@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "Schedulizer - Simplifique seus agendamentos",
+    "description": "Simplifique seu gerenciamento de agendamentos com Schedulizer. Plataforma SaaS completa para gestão eficiente de agendamentos."
+  },
   "hero": {
     "badge": "Simplifique seus agendamentos",
     "title": "Organize seus compromissos",

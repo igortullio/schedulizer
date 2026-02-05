@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "Schedulizer - Simplify your scheduling",
+    "description": "Simplify your appointment management with Schedulizer. A complete SaaS platform for efficient scheduling management."
+  },
   "hero": {
     "badge": "Simplify your scheduling",
     "title": "Organize your appointments",

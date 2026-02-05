@@ -7,12 +7,15 @@ import { Hero } from '@/components/hero'
 import { LanguageSelector } from '@/components/language-selector'
 import { LeadForm } from '@/components/lead-form'
 import { Pricing } from '@/components/pricing'
+import { useDocumentMeta } from '@/hooks/useDocumentMeta'
 
 export function App() {
   const envError = getEnvError()
   if (hasEnvError() && envError) {
     return <EnvError error={envError} />
   }
+
+  useDocumentMeta()
   const leadFormRef = useRef<HTMLDivElement>(null)
   const [selectedPlan, setSelectedPlan] = useState<'essential' | 'professional'>('essential')
 

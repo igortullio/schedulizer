@@ -1,25 +1,34 @@
 # Development Environment Skill
 
-Inicia o ambiente de desenvolvimento completo.
+Starts the full development environment
 
-## Comandos
+## Prerequisites
 
-1. Subir o banco de dados:
+- Docker and Docker Compose installed
+- Node.js 18+ installed
+- .env file configured (copy from .env.example)
+
+## Commands
+
+- Start the database:
 ```bash
 docker-compose up -d
 ```
 
-2. Iniciar frontend e backend simultaneamente:
+- Start frontend and backend simultaneously:
 ```bash
 nx run-many -t serve
 ```
 
-3. Ou iniciar separadamente:
+- Start only frontend:
 ```bash
-# Frontend (porta 4200)
+# Frontend (port 4200)
 nx serve web
+```
 
-# Backend (porta 3000)
+- Start only backend:
+# Backend (port 3000)
+```bash
 nx serve api
 ```
 
@@ -27,10 +36,4 @@ nx serve api
 
 - Frontend: http://localhost:4200
 - Backend API: http://localhost:3000
-- Health Check: http://localhost:3000/health
-
-## Pré-requisitos
-
-- Docker e Docker Compose instalados
-- Node.js 18+ instalado
-- Arquivo .env configurado (copiar de .env.example)
+    - Health Check: http://localhost:3000/health

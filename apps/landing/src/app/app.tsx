@@ -1,11 +1,17 @@
+import { getEnvError, hasEnvError } from '@schedulizer/env/client'
 import { useRef, useState } from 'react'
 import { Benefits } from '@/components/benefits'
+import { EnvError } from '@/components/env-error'
 import { Footer } from '@/components/footer'
 import { Hero } from '@/components/hero'
 import { LeadForm } from '@/components/lead-form'
 import { Pricing } from '@/components/pricing'
 
 export function App() {
+  const envError = getEnvError()
+  if (hasEnvError() && envError) {
+    return <EnvError error={envError} />
+  }
   const leadFormRef = useRef<HTMLDivElement>(null)
   const [selectedPlan, setSelectedPlan] = useState<'essential' | 'professional'>('essential')
 

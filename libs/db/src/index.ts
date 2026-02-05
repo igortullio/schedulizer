@@ -1,6 +1,6 @@
+import path from 'node:path'
 import { drizzle } from 'drizzle-orm/postgres-js'
 import { migrate } from 'drizzle-orm/postgres-js/migrator'
-import path from 'node:path'
 import postgres from 'postgres'
 
 import * as schema from './schema'

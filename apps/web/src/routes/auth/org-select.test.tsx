@@ -1,0 +1,597 @@
+import { render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { Component as OrgSelectPage } from './org-select'
+
+vi.mock('@/lib/auth-client', () => ({
+  authClient: {
+    useListOrganizations: vi.fn(),
+    organization: {
+      setActive: vi.fn(),
+    },
+  },
+}))
+
+import { authClient } from '@/lib/auth-client'
+
+const mockUseListOrganizations = vi.mocked(authClient.useListOrganizations)
+const mockSetActive = vi.mocked(authClient.organization.setActive)
+
+const mockNavigate = vi.fn()
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom')
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  }
+})
+
+function renderWithRouter() {
+  return render(
+    <MemoryRouter initialEntries={['/auth/org-select']}>
+      <Routes>
+        <Route path="/auth/org-select" element={<OrgSelectPage />} />
+        <Route path="/auth/login" element={<div data-testid="login-page">Login Page</div>} />
+        <Route path="/" element={<div data-testid="dashboard-page">Dashboard Page</div>} />
+      </Routes>
+    </MemoryRouter>,
+  )
+}
+
+const mockOrganizations = [
+  { id: 'org-1', name: 'Organization One', slug: 'org-one', createdAt: new Date(), logo: null },
+  {
+    id: 'org-2',
+    name: 'Organization Two',
+    slug: 'org-two',
+    createdAt: new Date(),
+    logo: 'https://example.com/logo.png',
+  },
+]
+
+describe('OrgSelectPage', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockUseListOrganizations.mockReturnValue({
+      data: null,
+      isPending: true,
+      error: null,
+    })
+  })
+
+  describe('loading state', () => {
+    it('renders loading state while fetching organizations', () => {
+      mockUseListOrganizations.mockReturnValue({
+        data: null,
+        isPending: true,
+        error: null,
+      })
+      renderWithRouter()
+      expect(screen.getByTestId('org-select-loading')).toBeInTheDocument()
+      expect(screen.getByText('Loading organizations')).toBeInTheDocument()
+      expect(screen.getByText('Please wait while we load your organizations...')).toBeInTheDocument()
+    })
+
+    it('shows loading spinner animation', () => {
+      mockUseListOrganizations.mockReturnValue({
+        data: null,
+        isPending: true,
+        error: null,
+      })
+      renderWithRouter()
+      const spinner = screen.getByTestId('org-select-loading').querySelector('svg')
+      expect(spinner).toHaveClass('animate-spin')
+    })
+  })
+
+  describe('organization list', () => {
+    it('displays list of organizations when user has multiple organizations', () => {
+      mockUseListOrganizations.mockReturnValue({
+        data: mockOrganizations,
+        isPending: false,
+        error: null,
+      })
+      renderWithRouter()
+      expect(screen.getByTestId('org-select-list')).toBeInTheDocument()
+      expect(screen.getByText('Organization One')).toBeInTheDocument()
+      expect(screen.getByText('Organization Two')).toBeInTheDocument()
+    })
+
+    it('shows organization name for each organization', () => {
+      mockUseListOrganizations.mockReturnValue({
+        data: mockOrganizations,
+        isPending: false,
+        error: null,
+      })
+      renderWithRouter()
+      expect(screen.getByText('Organization One')).toBeInTheDocument()
+      expect(screen.getByText('Organization Two')).toBeInTheDocument()
+    })
+
+    it('displays organization items with correct test ids', () => {
+      mockUseListOrganizations.mockReturnValue({
+        data: mockOrganizations,
+        isPending: false,
+        error: null,
+      })
+      renderWithRouter()
+      expect(screen.getByTestId('org-item-org-1')).toBeInTheDocument()
+      expect(screen.getByTestId('org-item-org-2')).toBeInTheDocument()
+    })
+
+    it('shows organization logo when available', () => {
+      mockUseListOrganizations.mockReturnValue({
+        data: mockOrganizations,
+        isPending: false,
+        error: null,
+      })
+      renderWithRouter()
+      const orgWithLogo = screen.getByTestId('org-item-org-2')
+      const logoImg = orgWithLogo.querySelector('img')
+      expect(logoImg).toBeInTheDocument()
+      expect(logoImg).toHaveAttribute('src', 'https://example.com/logo.png')
+    })
+
+    it('shows building icon when organization has no logo', () => {
+      mockUseListOrganizations.mockReturnValue({
+        data: [mockOrganizations[0]],
+        isPending: false,
+        error: null,
+      })
+      renderWithRouter()
+      const orgWithoutLogo = screen.getByTestId('org-item-org-1')
+      const buildingIcon = orgWithoutLogo.querySelector('svg')
+      expect(buildingIcon).toBeInTheDocument()
+    })
+  })
+
+  describe('auto-selection', () => {
+    it('auto-selects and redirects when user has single organization', async () => {
+      mockSetActive.mockResolvedValueOnce({ data: {}, error: null })
+      mockUseListOrganizations.mockReturnValue({
+        data: [mockOrganizations[0]],
+        isPending: false,
+        error: null,
+      })
+      renderWithRouter()
+      await waitFor(() => {
+        expect(mockSetActive).toHaveBeenCalledWith({ organizationId: 'org-1' })
+      })
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true })
+      })
+    })
+
+    it('does not auto-select when user has multiple organizations', () => {
+      mockUseListOrganizations.mockReturnValue({
+        data: mockOrganizations,
+        isPending: false,
+        error: null,
+      })
+      renderWithRouter()
+      expect(mockSetActive).not.toHaveBeenCalled()
+      expect(mockNavigate).not.toHaveBeenCalled()
+    })
+
+    it('does not auto-select when organizations are still loading', () => {
+      mockUseListOrganizations.mockReturnValue({
+        data: null,
+        isPending: true,
+        error: null,
+      })
+      renderWithRouter()
+      expect(mockSetActive).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('organization selection', () => {
+    it('calls setActive with correct organizationId on selection', async () => {
+      const user = userEvent.setup()
+      mockSetActive.mockResolvedValueOnce({ data: {}, error: null })
+      mockUseListOrganizations.mockReturnValue({
+        data: mockOrganizations,
+        isPending: false,
+        error: null,
+      })
+      renderWithRouter()
+      await user.click(screen.getByTestId('org-item-org-1'))
+      expect(mockSetActive).toHaveBeenCalledWith({ organizationId: 'org-1' })
+    })
+
+    it('redirects to dashboard after successful selection', async () => {
+      const user = userEvent.setup()
+      mockSetActive.mockResolvedValueOnce({ data: {}, error: null })
+      mockUseListOrganizations.mockReturnValue({
+        data: mockOrganizations,
+        isPending: false,
+        error: null,
+      })
+      renderWithRouter()
+      await user.click(screen.getByTestId('org-item-org-1'))
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true })
+      })
+    })
+
+    it('shows loading spinner on selected organization during selection', async () => {
+      const user = userEvent.setup()
+      mockSetActive.mockImplementation(
+        () => new Promise(resolve => setTimeout(() => resolve({ data: {}, error: null }), 100)),
+      )
+      mockUseListOrganizations.mockReturnValue({
+        data: mockOrganizations,
+        isPending: false,
+        error: null,
+      })
+      renderWithRouter()
+      await user.click(screen.getByTestId('org-item-org-1'))
+      const orgItem = screen.getByTestId('org-item-org-1')
+      const spinner = orgItem.querySelector('.animate-spin')
+      expect(spinner).toBeInTheDocument()
+    })
+
+    it('disables all organization buttons during selection', async () => {
+      const user = userEvent.setup()
+      mockSetActive.mockImplementation(
+        () => new Promise(resolve => setTimeout(() => resolve({ data: {}, error: null }), 100)),
+      )
+      mockUseListOrganizations.mockReturnValue({
+        data: mockOrganizations,
+        isPending: false,
+        error: null,
+      })
+      renderWithRouter()
+      await user.click(screen.getByTestId('org-item-org-1'))
+      expect(screen.getByTestId('org-item-org-1')).toBeDisabled()
+      expect(screen.getByTestId('org-item-org-2')).toBeDisabled()
+    })
+  })
+
+  describe('error handling - fetch', () => {
+    it('displays error message when organization fetch fails', () => {
+      mockUseListOrganizations.mockReturnValue({
+        data: null,
+        isPending: false,
+        error: { message: 'Failed to fetch organizations' },
+      })
+      renderWithRouter()
+      expect(screen.getByTestId('org-select-fetch-error')).toBeInTheDocument()
+      expect(screen.getByText('Failed to load organizations')).toBeInTheDocument()
+      expect(screen.getByTestId('org-select-fetch-error-message')).toHaveTextContent('Failed to fetch organizations')
+    })
+
+    it('shows try again button on fetch error', () => {
+      mockUseListOrganizations.mockReturnValue({
+        data: null,
+        isPending: false,
+        error: { message: 'Network error' },
+      })
+      renderWithRouter()
+      expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument()
+    })
+
+    it('fetch error has role alert', () => {
+      mockUseListOrganizations.mockReturnValue({
+        data: null,
+        isPending: false,
+        error: { message: 'Error' },
+      })
+      renderWithRouter()
+      expect(screen.getByTestId('org-select-fetch-error')).toHaveAttribute('role', 'alert')
+    })
+  })
+
+  describe('error handling - selection', () => {
+    it('displays error message when organization selection fails', async () => {
+      const user = userEvent.setup()
+      mockSetActive.mockResolvedValueOnce({
+        data: null,
+        error: { code: 'SELECTION_FAILED', message: 'Selection failed', status: 500 },
+      })
+      mockUseListOrganizations.mockReturnValue({
+        data: mockOrganizations,
+        isPending: false,
+        error: null,
+      })
+      renderWithRouter()
+      await user.click(screen.getByTestId('org-item-org-1'))
+      await waitFor(() => {
+        expect(screen.getByTestId('org-select-selection-error')).toBeInTheDocument()
+      })
+      expect(screen.getByTestId('org-select-selection-error')).toHaveTextContent(
+        'Failed to select organization. Please try again.',
+      )
+    })
+
+    it('displays permission error message for 403 status', async () => {
+      const user = userEvent.setup()
+      mockSetActive.mockResolvedValueOnce({
+        data: null,
+        error: { code: 'FORBIDDEN', message: 'Forbidden', status: 403 },
+      })
+      mockUseListOrganizations.mockReturnValue({
+        data: mockOrganizations,
+        isPending: false,
+        error: null,
+      })
+      renderWithRouter()
+      await user.click(screen.getByTestId('org-item-org-1'))
+      await waitFor(() => {
+        expect(screen.getByTestId('org-select-selection-error')).toBeInTheDocument()
+      })
+      expect(screen.getByTestId('org-select-selection-error')).toHaveTextContent(
+        'You do not have permission to access this organization.',
+      )
+    })
+
+    it('displays not found error message for 404 status', async () => {
+      const user = userEvent.setup()
+      mockSetActive.mockResolvedValueOnce({
+        data: null,
+        error: { code: 'NOT_FOUND', message: 'Not found', status: 404 },
+      })
+      mockUseListOrganizations.mockReturnValue({
+        data: mockOrganizations,
+        isPending: false,
+        error: null,
+      })
+      renderWithRouter()
+      await user.click(screen.getByTestId('org-item-org-1'))
+      await waitFor(() => {
+        expect(screen.getByTestId('org-select-selection-error')).toBeInTheDocument()
+      })
+      expect(screen.getByTestId('org-select-selection-error')).toHaveTextContent('Organization not found.')
+    })
+
+    it('handles network error during selection', async () => {
+      const user = userEvent.setup()
+      mockSetActive.mockRejectedValueOnce(new Error('Network error'))
+      mockUseListOrganizations.mockReturnValue({
+        data: mockOrganizations,
+        isPending: false,
+        error: null,
+      })
+      renderWithRouter()
+      await user.click(screen.getByTestId('org-item-org-1'))
+      await waitFor(() => {
+        expect(screen.getByTestId('org-select-selection-error')).toBeInTheDocument()
+      })
+      expect(screen.getByTestId('org-select-selection-error')).toHaveTextContent(
+        'An unexpected error occurred. Please try again.',
+      )
+    })
+
+    it('shows retry button on selection error', async () => {
+      const user = userEvent.setup()
+      mockSetActive.mockResolvedValueOnce({
+        data: null,
+        error: { code: 'ERROR', message: 'Error', status: 500 },
+      })
+      mockUseListOrganizations.mockReturnValue({
+        data: mockOrganizations,
+        isPending: false,
+        error: null,
+      })
+      renderWithRouter()
+      await user.click(screen.getByTestId('org-item-org-1'))
+      await waitFor(() => {
+        expect(screen.getByTestId('org-select-selection-error')).toBeInTheDocument()
+      })
+      expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument()
+    })
+
+    it('retries selection when clicking retry button', async () => {
+      const user = userEvent.setup()
+      mockSetActive.mockResolvedValueOnce({
+        data: null,
+        error: { code: 'ERROR', message: 'Error', status: 500 },
+      })
+      mockUseListOrganizations.mockReturnValue({
+        data: mockOrganizations,
+        isPending: false,
+        error: null,
+      })
+      renderWithRouter()
+      await user.click(screen.getByTestId('org-item-org-1'))
+      await waitFor(() => {
+        expect(screen.getByTestId('org-select-selection-error')).toBeInTheDocument()
+      })
+      mockSetActive.mockResolvedValueOnce({ data: {}, error: null })
+      await user.click(screen.getByRole('button', { name: /retry/i }))
+      await waitFor(() => {
+        expect(mockSetActive).toHaveBeenCalledTimes(2)
+      })
+      expect(mockSetActive).toHaveBeenLastCalledWith({ organizationId: 'org-1' })
+    })
+  })
+
+  describe('empty state', () => {
+    it('shows empty state when user has no organizations', () => {
+      mockUseListOrganizations.mockReturnValue({
+        data: [],
+        isPending: false,
+        error: null,
+      })
+      renderWithRouter()
+      expect(screen.getByTestId('org-select-empty')).toBeInTheDocument()
+      expect(screen.getByText('No organizations found')).toBeInTheDocument()
+      expect(
+        screen.getByText("You don't belong to any organization yet. Contact your administrator to get access."),
+      ).toBeInTheDocument()
+    })
+
+    it('shows back to login link on empty state', () => {
+      mockUseListOrganizations.mockReturnValue({
+        data: [],
+        isPending: false,
+        error: null,
+      })
+      renderWithRouter()
+      const backToLoginLink = screen.getByRole('link', { name: /back to login/i })
+      expect(backToLoginLink).toBeInTheDocument()
+      expect(backToLoginLink).toHaveAttribute('href', '/auth/login')
+    })
+
+    it('navigates to login page when clicking back to login link', async () => {
+      const user = userEvent.setup()
+      mockUseListOrganizations.mockReturnValue({
+        data: [],
+        isPending: false,
+        error: null,
+      })
+      renderWithRouter()
+      const backToLoginLink = screen.getByRole('link', { name: /back to login/i })
+      await user.click(backToLoginLink)
+      expect(screen.getByTestId('login-page')).toBeInTheDocument()
+    })
+
+    it('shows empty state when data is null and not pending', () => {
+      mockUseListOrganizations.mockReturnValue({
+        data: null,
+        isPending: false,
+        error: null,
+      })
+      renderWithRouter()
+      expect(screen.getByTestId('org-select-empty')).toBeInTheDocument()
+    })
+  })
+
+  describe('accessibility', () => {
+    it('organization list has proper aria-label', () => {
+      mockUseListOrganizations.mockReturnValue({
+        data: mockOrganizations,
+        isPending: false,
+        error: null,
+      })
+      renderWithRouter()
+      const list = screen.getByLabelText(/organizations/i)
+      expect(list).toBeInTheDocument()
+      expect(list.tagName).toBe('UL')
+    })
+
+    it('loading state has proper heading structure', () => {
+      mockUseListOrganizations.mockReturnValue({
+        data: null,
+        isPending: true,
+        error: null,
+      })
+      renderWithRouter()
+      expect(screen.getByRole('heading', { name: /loading organizations/i })).toBeInTheDocument()
+    })
+
+    it('list state has proper heading structure', () => {
+      mockUseListOrganizations.mockReturnValue({
+        data: mockOrganizations,
+        isPending: false,
+        error: null,
+      })
+      renderWithRouter()
+      expect(screen.getByRole('heading', { name: /select an organization/i })).toBeInTheDocument()
+    })
+
+    it('empty state has proper heading structure', () => {
+      mockUseListOrganizations.mockReturnValue({
+        data: [],
+        isPending: false,
+        error: null,
+      })
+      renderWithRouter()
+      expect(screen.getByRole('heading', { name: /no organizations found/i })).toBeInTheDocument()
+    })
+
+    it('error state has proper heading structure', () => {
+      mockUseListOrganizations.mockReturnValue({
+        data: null,
+        isPending: false,
+        error: { message: 'Error' },
+      })
+      renderWithRouter()
+      expect(screen.getByRole('heading', { name: /failed to load organizations/i })).toBeInTheDocument()
+    })
+
+    it('selection error has role alert', async () => {
+      const user = userEvent.setup()
+      mockSetActive.mockResolvedValueOnce({
+        data: null,
+        error: { code: 'ERROR', message: 'Error', status: 500 },
+      })
+      mockUseListOrganizations.mockReturnValue({
+        data: mockOrganizations,
+        isPending: false,
+        error: null,
+      })
+      renderWithRouter()
+      await user.click(screen.getByTestId('org-item-org-1'))
+      await waitFor(() => {
+        expect(screen.getByTestId('org-select-selection-error')).toBeInTheDocument()
+      })
+      expect(screen.getByTestId('org-select-selection-error')).toHaveAttribute('role', 'alert')
+    })
+
+    it('icons have aria-hidden attribute', () => {
+      mockUseListOrganizations.mockReturnValue({
+        data: null,
+        isPending: true,
+        error: null,
+      })
+      renderWithRouter()
+      const icons = screen.getByTestId('org-select-loading').querySelectorAll('svg')
+      icons.forEach(icon => {
+        expect(icon).toHaveAttribute('aria-hidden', 'true')
+      })
+    })
+
+    it('organization button has aria-busy when selecting', async () => {
+      const user = userEvent.setup()
+      mockSetActive.mockImplementation(
+        () => new Promise(resolve => setTimeout(() => resolve({ data: {}, error: null }), 100)),
+      )
+      mockUseListOrganizations.mockReturnValue({
+        data: mockOrganizations,
+        isPending: false,
+        error: null,
+      })
+      renderWithRouter()
+      await user.click(screen.getByTestId('org-item-org-1'))
+      expect(screen.getByTestId('org-item-org-1')).toHaveAttribute('aria-busy', 'true')
+    })
+  })
+
+  describe('integration', () => {
+    it('full flow from page load to organization selection to redirect', async () => {
+      const user = userEvent.setup()
+      mockSetActive.mockResolvedValueOnce({ data: {}, error: null })
+      mockUseListOrganizations.mockReturnValue({
+        data: mockOrganizations,
+        isPending: false,
+        error: null,
+      })
+      renderWithRouter()
+      expect(screen.getByTestId('org-select-list')).toBeInTheDocument()
+      expect(screen.getByText('Organization One')).toBeInTheDocument()
+      expect(screen.getByText('Organization Two')).toBeInTheDocument()
+      await user.click(screen.getByTestId('org-item-org-2'))
+      expect(mockSetActive).toHaveBeenCalledWith({ organizationId: 'org-2' })
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true })
+      })
+    })
+
+    it('auto-selection flow for single-organization user', async () => {
+      mockSetActive.mockResolvedValueOnce({ data: {}, error: null })
+      mockUseListOrganizations.mockReturnValue({
+        data: [mockOrganizations[0]],
+        isPending: false,
+        error: null,
+      })
+      renderWithRouter()
+      await waitFor(() => {
+        expect(mockSetActive).toHaveBeenCalledWith({ organizationId: 'org-1' })
+      })
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true })
+      })
+    })
+  })
+})

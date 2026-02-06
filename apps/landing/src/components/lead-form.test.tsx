@@ -271,12 +271,10 @@ describe('LeadForm Component', () => {
     expect(screen.getByLabelText(/phone/i)).toBeDisabled()
 
     // Resolve fetch
-    if (resolveFunction) {
-      resolveFunction({
-        ok: true,
-        json: async () => ({ data: { id: '123' } }),
-      })
-    }
+    resolveFunction!({
+      ok: true,
+      json: async () => ({ data: { id: '123' } }),
+    })
 
     // Wait for loading to complete
     await waitFor(() => {
@@ -492,12 +490,10 @@ describe('LeadForm Component', () => {
     expect(mockFetch).toHaveBeenCalledTimes(1)
 
     // Resolve fetch
-    if (resolveFunction) {
-      resolveFunction({
-        ok: true,
-        json: async () => ({ data: { id: '123' } }),
-      })
-    }
+    resolveFunction!({
+      ok: true,
+      json: async () => ({ data: { id: '123' } }),
+    })
 
     await waitFor(() => {
       expect(mockModalOpen).toBe(true)

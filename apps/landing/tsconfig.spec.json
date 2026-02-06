@@ -7,7 +7,7 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "lib": ["dom"],
-    "types": ["vitest/globals", "vite/client", "node"],
+    "types": ["vitest/globals", "@testing-library/jest-dom", "vite/client", "node"],
     "paths": {
       "@/*": ["./src/*"],
       "@schedulizer/db": ["../../libs/db/src/index.ts"],
@@ -19,9 +19,23 @@
     }
   },
   "include": [
-    "src/**/*.spec.ts",
-    "src/**/*.test.ts",
-    "src/**/*.spec.tsx",
-    "src/**/*.test.tsx"
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "public/**/*.json",
+    "../../libs/ui/src/**/*.ts",
+    "../../libs/ui/src/**/*.tsx",
+    "../../libs/shared/env/src/**/*.ts",
+    "../../libs/shared/types/src/**/*.ts"
+  ],
+  "references": [
+    {
+      "path": "../../libs/shared/types"
+    },
+    {
+      "path": "../../libs/shared/env"
+    },
+    {
+      "path": "../../libs/ui"
+    }
   ]
 }

@@ -1,6 +1,7 @@
 import { getEnvError, hasEnvError } from '@schedulizer/env/client'
 import { Button } from '@schedulizer/ui'
 import { useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Benefits } from '@/components/benefits'
 import { EnvError } from '@/components/env-error'
 import { Footer } from '@/components/footer'
@@ -12,7 +13,7 @@ import { useDocumentMeta } from '@/hooks/useDocumentMeta'
 
 export function App() {
   useDocumentMeta()
-
+  const { t } = useTranslation()
   const leadFormRef = useRef<HTMLDivElement>(null)
   const [selectedPlan, setSelectedPlan] = useState<'essential' | 'professional'>('essential')
 
@@ -59,19 +60,19 @@ export function App() {
                 href="#benefits"
                 className="text-sm font-medium text-muted-foreground transition-colors duration-200 hover:text-primary"
               >
-                Benefícios
+                {t('nav.benefits')}
               </a>
               <a
                 href="#pricing"
                 className="text-sm font-medium text-muted-foreground transition-colors duration-200 hover:text-primary"
               >
-                Preços
+                {t('nav.pricing')}
               </a>
               <a
                 href="#lead-form"
                 className="text-sm font-medium text-muted-foreground transition-colors duration-200 hover:text-primary"
               >
-                Contato
+                {t('nav.contact')}
               </a>
               <LanguageSelector />
             </nav>
@@ -80,7 +81,7 @@ export function App() {
               onClick={scrollToForm}
               className="gradient-accent cursor-pointer rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:scale-105 hover:shadow-lg"
             >
-              Começar agora
+              {t('nav.cta')}
             </Button>
           </div>
         </div>

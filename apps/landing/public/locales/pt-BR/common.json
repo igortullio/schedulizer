@@ -129,6 +129,12 @@
       "submitting": "Enviando..."
     }
   },
+  "nav": {
+    "benefits": "Benefícios",
+    "pricing": "Preços",
+    "contact": "Contato",
+    "cta": "Começar agora"
+  },
   "languageSelector": {
     "label": "Selecionar idioma",
     "languages": {

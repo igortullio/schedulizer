@@ -49,7 +49,7 @@ export function Pricing({ onPlanSelect }: PricingProps) {
             return (
               <div
                 key={plan.planId}
-                className={`glass hover-lift relative cursor-pointer rounded-3xl p-8 transition-all duration-300 ${
+                className={`glass hover-lift relative flex cursor-pointer flex-col rounded-3xl p-8 transition-all duration-300 ${
                   plan.recommended ? 'ring-2 ring-accent shadow-xl shadow-accent/10' : ''
                 }`}
               >
@@ -70,7 +70,7 @@ export function Pricing({ onPlanSelect }: PricingProps) {
                   </div>
                 </div>
 
-                <ul className="mb-8 space-y-4">
+                <ul className="mb-8 flex-1 space-y-4">
                   {planData.features.map(feature => (
                     <li key={feature} className="flex items-start gap-3">
                       <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10">

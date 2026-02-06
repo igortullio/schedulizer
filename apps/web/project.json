@@ -10,6 +10,24 @@
       "options": {
         "command": "biome check {projectRoot}"
       }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run --config apps/web/vitest.config.mts"
+      }
+    },
+    "test:watch": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest watch --config apps/web/vitest.config.mts"
+      }
+    },
+    "test:coverage": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run --coverage --config apps/web/vitest.config.mts"
+      }
     }
   }
 }

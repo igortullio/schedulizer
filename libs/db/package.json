@@ -8,6 +8,10 @@
     ".": "./src/index.ts",
     "./schema": "./src/schema.ts"
   },
+  "dependencies": {
+    "drizzle-orm": "^0.45.1",
+    "postgres": "^3.4.8"
+  },
   "devDependencies": {
     "typescript": "^5.9.3"
   }

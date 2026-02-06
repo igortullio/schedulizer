@@ -1,4 +1,5 @@
 import { getEnvError, hasEnvError } from '@schedulizer/env/client'
+import { Button } from '@schedulizer/ui'
 import { useRef, useState } from 'react'
 import { Benefits } from '@/components/benefits'
 import { EnvError } from '@/components/env-error'
@@ -10,14 +11,15 @@ import { Pricing } from '@/components/pricing'
 import { useDocumentMeta } from '@/hooks/useDocumentMeta'
 
 export function App() {
+  useDocumentMeta()
+
+  const leadFormRef = useRef<HTMLDivElement>(null)
+  const [selectedPlan, setSelectedPlan] = useState<'essential' | 'professional'>('essential')
+
   const envError = getEnvError()
   if (hasEnvError() && envError) {
     return <EnvError error={envError} />
   }
-
-  useDocumentMeta()
-  const leadFormRef = useRef<HTMLDivElement>(null)
-  const [selectedPlan, setSelectedPlan] = useState<'essential' | 'professional'>('essential')
 
   const scrollToForm = () => {
     leadFormRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -73,13 +75,13 @@ export function App() {
               </a>
               <LanguageSelector />
             </nav>
-            <button
+            <Button
               type="button"
               onClick={scrollToForm}
               className="gradient-accent cursor-pointer rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:scale-105 hover:shadow-lg"
             >
               Começar agora
-            </button>
+            </Button>
           </div>
         </div>
       </header>

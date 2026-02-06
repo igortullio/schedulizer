@@ -144,7 +144,7 @@ export function LeadForm({ onSuccess, defaultPlanInterest }: LeadFormProps) {
                   onChange={handleChange}
                   placeholder={t('leadForm.placeholders.name')}
                   disabled={isLoading}
-                  className="h-12 rounded-xl border-border/50 bg-background/50 transition-all duration-200 focus:bg-background"
+                  className="h-12 rounded-xl border-border/50 bg-background/50 px-4 transition-all duration-200 focus:bg-background"
                   aria-invalid={!!fieldErrors.name}
                   aria-describedby={fieldErrors.name ? 'name-error' : undefined}
                 />
@@ -167,7 +167,7 @@ export function LeadForm({ onSuccess, defaultPlanInterest }: LeadFormProps) {
                   onChange={handleChange}
                   placeholder={t('leadForm.placeholders.email')}
                   disabled={isLoading}
-                  className="h-12 rounded-xl border-border/50 bg-background/50 transition-all duration-200 focus:bg-background"
+                  className="h-12 rounded-xl border-border/50 bg-background/50 px-4 transition-all duration-200 focus:bg-background"
                   aria-invalid={!!fieldErrors.email}
                   aria-describedby={fieldErrors.email ? 'email-error' : undefined}
                 />
@@ -190,7 +190,7 @@ export function LeadForm({ onSuccess, defaultPlanInterest }: LeadFormProps) {
                   onChange={handleChange}
                   placeholder={t('leadForm.placeholders.phone')}
                   disabled={isLoading}
-                  className="h-12 rounded-xl border-border/50 bg-background/50 transition-all duration-200 focus:bg-background"
+                  className="h-12 rounded-xl border-border/50 bg-background/50 px-4 transition-all duration-200 focus:bg-background"
                   aria-invalid={!!fieldErrors.phone}
                   aria-describedby={fieldErrors.phone ? 'phone-error' : undefined}
                 />

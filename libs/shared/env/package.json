@@ -8,5 +8,9 @@
     ".": "./src/index.ts",
     "./server": "./src/server.ts",
     "./client": "./src/client.ts"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "zod": "^4.3.6"
   }
 }

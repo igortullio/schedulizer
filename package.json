@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "check": "biome check .",
+    "check": "npx nx run-many -t lint typecheck test build",
     "format": "biome check . --write"
   },
   "private": true,

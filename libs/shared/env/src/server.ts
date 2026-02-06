@@ -1,9 +1,4 @@
-// Only load dotenv in development - in production, env vars are injected by the platform
-if (process.env.NODE_ENV !== 'production') {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  require('dotenv/config')
-}
-
+import 'dotenv/config'
 import { z } from 'zod'
 
 const serverEnvSchema = z.object({

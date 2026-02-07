@@ -4,11 +4,10 @@
     "baseUrl": ".",
     "rootDir": "../..",
     "outDir": "dist",
-    "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
     "noEmit": true,
     "jsx": "react-jsx",
     "lib": ["dom"],
-    "types": ["node", "@nx/react/typings/cssmodule.d.ts", "@nx/react/typings/image.d.ts", "vite/client"],
+    "types": ["vitest/globals", "@testing-library/jest-dom", "vite/client", "node"],
     "paths": {
       "@/*": ["./src/*"],
       "@schedulizer/db": ["../../libs/db/src/index.ts"],
@@ -19,23 +18,10 @@
       "@schedulizer/ui": ["../../libs/ui/src/index.ts"]
     }
   },
-  "exclude": [
-    "out-tsc",
-    "dist",
-    "src/**/*.spec.ts",
-    "src/**/*.test.ts",
-    "src/**/*.spec.tsx",
-    "src/**/*.test.tsx",
-    "src/**/*.spec.js",
-    "src/**/*.test.js",
-    "src/**/*.spec.jsx",
-    "src/**/*.test.jsx"
-  ],
   "include": [
-    "src/**/*.js",
-    "src/**/*.jsx",
     "src/**/*.ts",
     "src/**/*.tsx",
+    "public/**/*.json",
     "../../libs/ui/src/**/*.ts",
     "../../libs/ui/src/**/*.tsx",
     "../../libs/shared/env/src/**/*.ts",
@@ -43,7 +29,13 @@
   ],
   "references": [
     {
+      "path": "../../libs/shared/types"
+    },
+    {
       "path": "../../libs/shared/env"
+    },
+    {
+      "path": "../../libs/ui"
     }
   ]
 }

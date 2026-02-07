@@ -1,5 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CheckCircle2, Loader2, Mail } from 'lucide-react'
+import CheckCircle2 from 'lucide-react/dist/esm/icons/check-circle-2'
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
+import Mail from 'lucide-react/dist/esm/icons/mail'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
@@ -99,13 +101,13 @@ export function Component() {
                 data-testid="email-input"
               />
             </div>
-            {errors.email && (
+            {errors.email ? (
               <p id="email-error" className="text-sm text-destructive" role="alert" data-testid="email-error">
                 {errors.email.message}
               </p>
-            )}
+            ) : null}
           </div>
-          {formState === 'error' && errorMessage && (
+          {formState === 'error' && errorMessage ? (
             <div
               className="rounded-md bg-destructive/10 p-3 text-sm text-destructive"
               role="alert"
@@ -113,7 +115,7 @@ export function Component() {
             >
               {errorMessage}
             </div>
-          )}
+          ) : null}
           <Button type="submit" className="w-full" disabled={formState === 'submitting'} data-testid="submit-button">
             {formState === 'submitting' ? (
               <>

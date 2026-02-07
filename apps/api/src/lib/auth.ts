@@ -11,28 +11,43 @@ const resend = new Resend(serverEnv.resendApiKey)
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: 'pg',
-    schema,
+    schema: {
+      user: schema.users,
+      session: schema.sessions,
+      account: schema.accounts,
+      verification: schema.verifications,
+      organization: schema.organizations,
+      member: schema.members,
+      invitation: schema.invitations,
+    },
   }),
   secret: serverEnv.betterAuthSecret,
   baseURL: serverEnv.betterAuthUrl,
+  trustedOrigins: ['http://localhost:4200', 'https://app.schedulizer.me'],
   emailAndPassword: {
     enabled: false,
   },
   plugins: [
     magicLink({
       sendMagicLink: async ({ email, url }) => {
-        await resend.emails.send({
-          from: 'Schedulizer <noreply@schedulizer.app>',
+        const token = new URL(url).searchParams.get('token')
+        const verifyUrl = `${serverEnv.frontendUrl}/auth/verify?token=${token}`
+        const { error } = await resend.emails.send({
+          from: 'Schedulizer <noreply@contact.schedulizer.me>',
           to: email,
           subject: 'Seu link de acesso ao Schedulizer',
           html: `
             <h1>Bem-vindo ao Schedulizer!</h1>
             <p>Clique no link abaixo para acessar sua conta:</p>
-            <a href="${url}">Acessar Schedulizer</a>
+            <a href="${verifyUrl}">Acessar Schedulizer</a>
             <p>Este link expira em 10 minutos.</p>
             <p>Se você não solicitou este email, ignore-o.</p>
           `,
         })
+        if (error) {
+          console.error('Failed to send magic link email', { email, error: error.message })
+          throw new Error('Failed to send magic link email')
+        }
       },
     }),
     organization({
@@ -40,6 +55,9 @@ export const auth = betterAuth({
     }),
   ],
   advanced: {
+    database: {
+      generateId: 'uuid',
+    },
     crossSubDomainCookies: {
       enabled: false,
     },

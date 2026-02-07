@@ -9,6 +9,7 @@ vi.mock('@/lib/auth-client', () => ({
     useListOrganizations: vi.fn(),
     organization: {
       setActive: vi.fn(),
+      create: vi.fn(),
     },
   },
 }))
@@ -17,6 +18,18 @@ import { authClient } from '@/lib/auth-client'
 
 const mockUseListOrganizations = vi.mocked(authClient.useListOrganizations)
 const mockSetActive = vi.mocked(authClient.organization.setActive)
+const mockCreate = vi.mocked(authClient.organization.create)
+
+function mockOrgList(value: { data?: unknown; isPending?: boolean; error?: unknown }) {
+  mockUseListOrganizations.mockReturnValue({
+    data: null,
+    isPending: false,
+    error: null,
+    isRefetching: false,
+    refetch: vi.fn(),
+    ...value,
+  } as ReturnType<typeof authClient.useListOrganizations>)
+}
 
 const mockNavigate = vi.fn()
 vi.mock('react-router-dom', async () => {
@@ -53,7 +66,7 @@ const mockOrganizations = [
 describe('OrgSelectPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mockUseListOrganizations.mockReturnValue({
+    mockOrgList({
       data: null,
       isPending: true,
       error: null,
@@ -62,7 +75,7 @@ describe('OrgSelectPage', () => {
 
   describe('loading state', () => {
     it('renders loading state while fetching organizations', () => {
-      mockUseListOrganizations.mockReturnValue({
+      mockOrgList({
         data: null,
         isPending: true,
         error: null,
@@ -74,7 +87,7 @@ describe('OrgSelectPage', () => {
     })
 
     it('shows loading spinner animation', () => {
-      mockUseListOrganizations.mockReturnValue({
+      mockOrgList({
         data: null,
         isPending: true,
         error: null,
@@ -87,7 +100,7 @@ describe('OrgSelectPage', () => {
 
   describe('organization list', () => {
     it('displays list of organizations when user has multiple organizations', () => {
-      mockUseListOrganizations.mockReturnValue({
+      mockOrgList({
         data: mockOrganizations,
         isPending: false,
         error: null,
@@ -99,7 +112,7 @@ describe('OrgSelectPage', () => {
     })
 
     it('shows organization name for each organization', () => {
-      mockUseListOrganizations.mockReturnValue({
+      mockOrgList({
         data: mockOrganizations,
         isPending: false,
         error: null,
@@ -110,7 +123,7 @@ describe('OrgSelectPage', () => {
     })
 
     it('displays organization items with correct test ids', () => {
-      mockUseListOrganizations.mockReturnValue({
+      mockOrgList({
         data: mockOrganizations,
         isPending: false,
         error: null,
@@ -121,7 +134,7 @@ describe('OrgSelectPage', () => {
     })
 
     it('shows organization logo when available', () => {
-      mockUseListOrganizations.mockReturnValue({
+      mockOrgList({
         data: mockOrganizations,
         isPending: false,
         error: null,
@@ -134,7 +147,7 @@ describe('OrgSelectPage', () => {
     })
 
     it('shows building icon when organization has no logo', () => {
-      mockUseListOrganizations.mockReturnValue({
+      mockOrgList({
         data: [mockOrganizations[0]],
         isPending: false,
         error: null,
@@ -149,7 +162,7 @@ describe('OrgSelectPage', () => {
   describe('auto-selection', () => {
     it('auto-selects and redirects when user has single organization', async () => {
       mockSetActive.mockResolvedValueOnce({ data: {}, error: null })
-      mockUseListOrganizations.mockReturnValue({
+      mockOrgList({
         data: [mockOrganizations[0]],
         isPending: false,
         error: null,
@@ -164,7 +177,7 @@ describe('OrgSelectPage', () => {
     })
 
     it('does not auto-select when user has multiple organizations', () => {
-      mockUseListOrganizations.mockReturnValue({
+      mockOrgList({
         data: mockOrganizations,
         isPending: false,
         error: null,
@@ -175,7 +188,7 @@ describe('OrgSelectPage', () => {
     })
 
     it('does not auto-select when organizations are still loading', () => {
-      mockUseListOrganizations.mockReturnValue({
+      mockOrgList({
         data: null,
         isPending: true,
         error: null,
@@ -189,7 +202,7 @@ describe('OrgSelectPage', () => {
     it('calls setActive with correct organizationId on selection', async () => {
       const user = userEvent.setup()
       mockSetActive.mockResolvedValueOnce({ data: {}, error: null })
-      mockUseListOrganizations.mockReturnValue({
+      mockOrgList({
         data: mockOrganizations,
         isPending: false,
         error: null,
@@ -202,7 +215,7 @@ describe('OrgSelectPage', () => {
     it('redirects to dashboard after successful selection', async () => {
       const user = userEvent.setup()
       mockSetActive.mockResolvedValueOnce({ data: {}, error: null })
-      mockUseListOrganizations.mockReturnValue({
+      mockOrgList({
         data: mockOrganizations,
         isPending: false,
         error: null,
@@ -219,7 +232,7 @@ describe('OrgSelectPage', () => {
       mockSetActive.mockImplementation(
         () => new Promise(resolve => setTimeout(() => resolve({ data: {}, error: null }), 100)),
       )
-      mockUseListOrganizations.mockReturnValue({
+      mockOrgList({
         data: mockOrganizations,
         isPending: false,
         error: null,
@@ -236,7 +249,7 @@ describe('OrgSelectPage', () => {
       mockSetActive.mockImplementation(
         () => new Promise(resolve => setTimeout(() => resolve({ data: {}, error: null }), 100)),
       )
-      mockUseListOrganizations.mockReturnValue({
+      mockOrgList({
         data: mockOrganizations,
         isPending: false,
         error: null,
@@ -250,7 +263,7 @@ describe('OrgSelectPage', () => {
 
   describe('error handling - fetch', () => {
     it('displays error message when organization fetch fails', () => {
-      mockUseListOrganizations.mockReturnValue({
+      mockOrgList({
         data: null,
         isPending: false,
         error: { message: 'Failed to fetch organizations' },
@@ -262,7 +275,7 @@ describe('OrgSelectPage', () => {
     })
 
     it('shows try again button on fetch error', () => {
-      mockUseListOrganizations.mockReturnValue({
+      mockOrgList({
         data: null,
         isPending: false,
         error: { message: 'Network error' },
@@ -272,7 +285,7 @@ describe('OrgSelectPage', () => {
     })
 
     it('fetch error has role alert', () => {
-      mockUseListOrganizations.mockReturnValue({
+      mockOrgList({
         data: null,
         isPending: false,
         error: { message: 'Error' },
@@ -289,7 +302,7 @@ describe('OrgSelectPage', () => {
         data: null,
         error: { code: 'SELECTION_FAILED', message: 'Selection failed', status: 500 },
       })
-      mockUseListOrganizations.mockReturnValue({
+      mockOrgList({
         data: mockOrganizations,
         isPending: false,
         error: null,
@@ -310,7 +323,7 @@ describe('OrgSelectPage', () => {
         data: null,
         error: { code: 'FORBIDDEN', message: 'Forbidden', status: 403 },
       })
-      mockUseListOrganizations.mockReturnValue({
+      mockOrgList({
         data: mockOrganizations,
         isPending: false,
         error: null,
@@ -331,7 +344,7 @@ describe('OrgSelectPage', () => {
         data: null,
         error: { code: 'NOT_FOUND', message: 'Not found', status: 404 },
       })
-      mockUseListOrganizations.mockReturnValue({
+      mockOrgList({
         data: mockOrganizations,
         isPending: false,
         error: null,
@@ -347,7 +360,7 @@ describe('OrgSelectPage', () => {
     it('handles network error during selection', async () => {
       const user = userEvent.setup()
       mockSetActive.mockRejectedValueOnce(new Error('Network error'))
-      mockUseListOrganizations.mockReturnValue({
+      mockOrgList({
         data: mockOrganizations,
         isPending: false,
         error: null,
@@ -368,7 +381,7 @@ describe('OrgSelectPage', () => {
         data: null,
         error: { code: 'ERROR', message: 'Error', status: 500 },
       })
-      mockUseListOrganizations.mockReturnValue({
+      mockOrgList({
         data: mockOrganizations,
         isPending: false,
         error: null,
@@ -387,7 +400,7 @@ describe('OrgSelectPage', () => {
         data: null,
         error: { code: 'ERROR', message: 'Error', status: 500 },
       })
-      mockUseListOrganizations.mockReturnValue({
+      mockOrgList({
         data: mockOrganizations,
         isPending: false,
         error: null,
@@ -406,60 +419,168 @@ describe('OrgSelectPage', () => {
     })
   })
 
-  describe('empty state', () => {
-    it('shows empty state when user has no organizations', () => {
-      mockUseListOrganizations.mockReturnValue({
-        data: [],
-        isPending: false,
-        error: null,
-      })
+  describe('organization creation', () => {
+    it('shows creation form when user has no organizations', () => {
+      mockOrgList({ data: [], isPending: false, error: null })
       renderWithRouter()
-      expect(screen.getByTestId('org-select-empty')).toBeInTheDocument()
-      expect(screen.getByText('No organizations found')).toBeInTheDocument()
-      expect(
-        screen.getByText("You don't belong to any organization yet. Contact your administrator to get access."),
-      ).toBeInTheDocument()
+      expect(screen.getByTestId('org-create-form')).toBeInTheDocument()
+      expect(screen.getByText('Create your organization')).toBeInTheDocument()
+      expect(screen.getByText('Get started by creating your first organization')).toBeInTheDocument()
     })
 
-    it('shows back to login link on empty state', () => {
-      mockUseListOrganizations.mockReturnValue({
-        data: [],
-        isPending: false,
-        error: null,
-      })
+    it('shows creation form when data is null and not pending', () => {
+      mockOrgList({ data: null, isPending: false, error: null })
       renderWithRouter()
-      const backToLoginLink = screen.getByRole('link', { name: /back to login/i })
-      expect(backToLoginLink).toBeInTheDocument()
-      expect(backToLoginLink).toHaveAttribute('href', '/auth/login')
+      expect(screen.getByTestId('org-create-form')).toBeInTheDocument()
     })
 
-    it('navigates to login page when clicking back to login link', async () => {
+    it('shows organization name input', () => {
+      mockOrgList({ data: [], isPending: false, error: null })
+      renderWithRouter()
+      expect(screen.getByTestId('org-name-input')).toBeInTheDocument()
+      expect(screen.getByLabelText('Organization name')).toBeInTheDocument()
+    })
+
+    it('shows create organization button', () => {
+      mockOrgList({ data: [], isPending: false, error: null })
+      renderWithRouter()
+      expect(screen.getByTestId('org-create-button')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /create organization/i })).toBeInTheDocument()
+    })
+
+    it('shows validation error for empty name', async () => {
       const user = userEvent.setup()
-      mockUseListOrganizations.mockReturnValue({
-        data: [],
-        isPending: false,
-        error: null,
-      })
+      mockOrgList({ data: [], isPending: false, error: null })
       renderWithRouter()
-      const backToLoginLink = screen.getByRole('link', { name: /back to login/i })
-      await user.click(backToLoginLink)
-      expect(screen.getByTestId('login-page')).toBeInTheDocument()
+      await user.click(screen.getByTestId('org-create-button'))
+      await waitFor(() => {
+        expect(screen.getByTestId('org-name-error')).toBeInTheDocument()
+      })
+      expect(screen.getByTestId('org-name-error')).toHaveTextContent('Organization name is required')
     })
 
-    it('shows empty state when data is null and not pending', () => {
-      mockUseListOrganizations.mockReturnValue({
-        data: null,
-        isPending: false,
-        error: null,
-      })
+    it('shows validation error for name shorter than 2 characters', async () => {
+      const user = userEvent.setup()
+      mockOrgList({ data: [], isPending: false, error: null })
       renderWithRouter()
-      expect(screen.getByTestId('org-select-empty')).toBeInTheDocument()
+      await user.type(screen.getByTestId('org-name-input'), 'A')
+      await user.click(screen.getByTestId('org-create-button'))
+      await waitFor(() => {
+        expect(screen.getByTestId('org-name-error')).toBeInTheDocument()
+      })
+      expect(screen.getByTestId('org-name-error')).toHaveTextContent('Name must be at least 2 characters')
+    })
+
+    it('calls organization.create with name and generated slug', async () => {
+      const user = userEvent.setup()
+      mockCreate.mockResolvedValueOnce({ data: { id: 'new-org-1', name: 'My Business', slug: 'my-business' }, error: null })
+      mockSetActive.mockResolvedValueOnce({ data: {}, error: null })
+      mockOrgList({ data: [], isPending: false, error: null })
+      renderWithRouter()
+      await user.type(screen.getByTestId('org-name-input'), 'My Business')
+      await user.click(screen.getByTestId('org-create-button'))
+      await waitFor(() => {
+        expect(mockCreate).toHaveBeenCalledWith({ name: 'My Business', slug: 'my-business' })
+      })
+    })
+
+    it('calls setActive and navigates to dashboard after successful creation', async () => {
+      const user = userEvent.setup()
+      mockCreate.mockResolvedValueOnce({ data: { id: 'new-org-1', name: 'My Business', slug: 'my-business' }, error: null })
+      mockSetActive.mockResolvedValueOnce({ data: {}, error: null })
+      mockOrgList({ data: [], isPending: false, error: null })
+      renderWithRouter()
+      await user.type(screen.getByTestId('org-name-input'), 'My Business')
+      await user.click(screen.getByTestId('org-create-button'))
+      await waitFor(() => {
+        expect(mockSetActive).toHaveBeenCalledWith({ organizationId: 'new-org-1' })
+      })
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true })
+      })
+    })
+
+    it('shows loading state during creation', async () => {
+      const user = userEvent.setup()
+      mockCreate.mockImplementation(
+        () => new Promise(resolve => setTimeout(() => resolve({ data: { id: 'new-org-1' }, error: null }), 100)),
+      )
+      mockOrgList({ data: [], isPending: false, error: null })
+      renderWithRouter()
+      await user.type(screen.getByTestId('org-name-input'), 'My Business')
+      await user.click(screen.getByTestId('org-create-button'))
+      expect(screen.getByText('Creating organization...')).toBeInTheDocument()
+      expect(screen.getByTestId('org-create-button')).toBeDisabled()
+    })
+
+    it('shows error when slug is already taken', async () => {
+      const user = userEvent.setup()
+      mockCreate.mockResolvedValueOnce({
+        data: null,
+        error: { code: 'ORGANIZATION_SLUG_ALREADY_TAKEN', message: 'Slug taken', status: 409 },
+      })
+      mockOrgList({ data: [], isPending: false, error: null })
+      renderWithRouter()
+      await user.type(screen.getByTestId('org-name-input'), 'My Business')
+      await user.click(screen.getByTestId('org-create-button'))
+      await waitFor(() => {
+        expect(screen.getByTestId('org-create-error')).toBeInTheDocument()
+      })
+      expect(screen.getByTestId('org-create-error')).toHaveTextContent(
+        'An organization with a similar name already exists. Please choose a different name.',
+      )
+    })
+
+    it('shows error when creation fails with generic error', async () => {
+      const user = userEvent.setup()
+      mockCreate.mockResolvedValueOnce({
+        data: null,
+        error: { code: 'INTERNAL_ERROR', message: 'Server error', status: 500 },
+      })
+      mockOrgList({ data: [], isPending: false, error: null })
+      renderWithRouter()
+      await user.type(screen.getByTestId('org-name-input'), 'My Business')
+      await user.click(screen.getByTestId('org-create-button'))
+      await waitFor(() => {
+        expect(screen.getByTestId('org-create-error')).toBeInTheDocument()
+      })
+      expect(screen.getByTestId('org-create-error')).toHaveTextContent('Failed to create organization. Please try again.')
+    })
+
+    it('shows error when network error occurs', async () => {
+      const user = userEvent.setup()
+      mockCreate.mockRejectedValueOnce(new Error('Network error'))
+      mockOrgList({ data: [], isPending: false, error: null })
+      renderWithRouter()
+      await user.type(screen.getByTestId('org-name-input'), 'My Business')
+      await user.click(screen.getByTestId('org-create-button'))
+      await waitFor(() => {
+        expect(screen.getByTestId('org-create-error')).toBeInTheDocument()
+      })
+      expect(screen.getByTestId('org-create-error')).toHaveTextContent('An unexpected error occurred. Please try again.')
+    })
+
+    it('does not navigate when setActive fails after creation', async () => {
+      const user = userEvent.setup()
+      mockCreate.mockResolvedValueOnce({ data: { id: 'new-org-1', name: 'My Business', slug: 'my-business' }, error: null })
+      mockSetActive.mockResolvedValueOnce({
+        data: null,
+        error: { code: 'ERROR', message: 'Failed', status: 500 },
+      })
+      mockOrgList({ data: [], isPending: false, error: null })
+      renderWithRouter()
+      await user.type(screen.getByTestId('org-name-input'), 'My Business')
+      await user.click(screen.getByTestId('org-create-button'))
+      await waitFor(() => {
+        expect(mockSetActive).toHaveBeenCalledWith({ organizationId: 'new-org-1' })
+      })
+      expect(mockNavigate).not.toHaveBeenCalled()
     })
   })
 
   describe('accessibility', () => {
     it('organization list has proper aria-label', () => {
-      mockUseListOrganizations.mockReturnValue({
+      mockOrgList({
         data: mockOrganizations,
         isPending: false,
         error: null,
@@ -471,7 +592,7 @@ describe('OrgSelectPage', () => {
     })
 
     it('loading state has proper heading structure', () => {
-      mockUseListOrganizations.mockReturnValue({
+      mockOrgList({
         data: null,
         isPending: true,
         error: null,
@@ -481,7 +602,7 @@ describe('OrgSelectPage', () => {
     })
 
     it('list state has proper heading structure', () => {
-      mockUseListOrganizations.mockReturnValue({
+      mockOrgList({
         data: mockOrganizations,
         isPending: false,
         error: null,
@@ -490,18 +611,18 @@ describe('OrgSelectPage', () => {
       expect(screen.getByRole('heading', { name: /select an organization/i })).toBeInTheDocument()
     })
 
-    it('empty state has proper heading structure', () => {
-      mockUseListOrganizations.mockReturnValue({
+    it('creation form has proper heading structure', () => {
+      mockOrgList({
         data: [],
         isPending: false,
         error: null,
       })
       renderWithRouter()
-      expect(screen.getByRole('heading', { name: /no organizations found/i })).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: /create your organization/i })).toBeInTheDocument()
     })
 
     it('error state has proper heading structure', () => {
-      mockUseListOrganizations.mockReturnValue({
+      mockOrgList({
         data: null,
         isPending: false,
         error: { message: 'Error' },
@@ -516,7 +637,7 @@ describe('OrgSelectPage', () => {
         data: null,
         error: { code: 'ERROR', message: 'Error', status: 500 },
       })
-      mockUseListOrganizations.mockReturnValue({
+      mockOrgList({
         data: mockOrganizations,
         isPending: false,
         error: null,
@@ -530,7 +651,7 @@ describe('OrgSelectPage', () => {
     })
 
     it('icons have aria-hidden attribute', () => {
-      mockUseListOrganizations.mockReturnValue({
+      mockOrgList({
         data: null,
         isPending: true,
         error: null,
@@ -547,7 +668,7 @@ describe('OrgSelectPage', () => {
       mockSetActive.mockImplementation(
         () => new Promise(resolve => setTimeout(() => resolve({ data: {}, error: null }), 100)),
       )
-      mockUseListOrganizations.mockReturnValue({
+      mockOrgList({
         data: mockOrganizations,
         isPending: false,
         error: null,
@@ -562,7 +683,7 @@ describe('OrgSelectPage', () => {
     it('full flow from page load to organization selection to redirect', async () => {
       const user = userEvent.setup()
       mockSetActive.mockResolvedValueOnce({ data: {}, error: null })
-      mockUseListOrganizations.mockReturnValue({
+      mockOrgList({
         data: mockOrganizations,
         isPending: false,
         error: null,
@@ -580,7 +701,7 @@ describe('OrgSelectPage', () => {
 
     it('auto-selection flow for single-organization user', async () => {
       mockSetActive.mockResolvedValueOnce({ data: {}, error: null })
-      mockUseListOrganizations.mockReturnValue({
+      mockOrgList({
         data: [mockOrganizations[0]],
         isPending: false,
         error: null,

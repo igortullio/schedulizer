@@ -79,7 +79,7 @@ export function Component() {
       >
         <Loader2 className="mb-4 h-8 w-8 animate-spin text-primary" aria-hidden="true" />
         <h1 className="mb-2 text-xl font-semibold text-foreground">Loading organizations</h1>
-        <p className="text-muted-foreground">Please wait while we load your organizations...</p>
+        <p className="text-muted-foreground">Please wait while we load your organizations…</p>
       </div>
     )
   }
@@ -142,7 +142,14 @@ export function Component() {
               >
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
                   {org.logo ? (
-                    <img src={org.logo} alt="" className="h-10 w-10 rounded-lg object-cover" aria-hidden="true" />
+                    <img
+                      src={org.logo}
+                      alt=""
+                      width={40}
+                      height={40}
+                      className="h-10 w-10 rounded-lg object-cover"
+                      aria-hidden="true"
+                    />
                   ) : (
                     <Building2 className="h-5 w-5 text-primary" aria-hidden="true" />
                   )}
@@ -255,7 +262,8 @@ function CreateOrganizationForm({ navigate }: { navigate: (path: string, options
             <Input
               id="org-name"
               type="text"
-              placeholder="My Organization"
+              placeholder="Acme Inc…"
+              autoComplete="organization"
               aria-invalid={!!errors.name}
               aria-describedby={errors.name ? 'org-name-error' : undefined}
               {...register('name')}
@@ -285,7 +293,7 @@ function CreateOrganizationForm({ navigate }: { navigate: (path: string, options
             {creationState === 'creating' ? (
               <>
                 <Loader2 className="animate-spin" aria-hidden="true" />
-                <span>Creating organization...</span>
+                <span>Creating organization…</span>
               </>
             ) : (
               'Create organization'

@@ -90,8 +90,9 @@ export function Component() {
               <Input
                 id="email"
                 type="email"
-                placeholder="name@example.com"
+                placeholder="name@example.com…"
                 autoComplete="email"
+                spellCheck={false}
                 aria-invalid={!!errors.email}
                 aria-describedby={errors.email ? 'email-error' : undefined}
                 className="pl-10"
@@ -118,7 +119,7 @@ export function Component() {
             {formState === 'submitting' ? (
               <>
                 <Loader2 className="animate-spin" aria-hidden="true" />
-                <span>Sending magic link...</span>
+                <span>Sending magic link…</span>
               </>
             ) : (
               'Continue with Email'

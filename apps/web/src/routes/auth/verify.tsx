@@ -62,7 +62,7 @@ export function Component() {
       >
         <Loader2 className="mb-4 h-8 w-8 animate-spin text-primary" aria-hidden="true" />
         <h1 className="mb-2 text-xl font-semibold text-foreground">Verifying your link</h1>
-        <p className="text-muted-foreground">Please wait while we verify your magic link...</p>
+        <p className="text-muted-foreground">Please wait while we verify your magic link…</p>
       </div>
     )
   }

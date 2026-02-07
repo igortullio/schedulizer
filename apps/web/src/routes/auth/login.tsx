@@ -1,7 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import CheckCircle2 from 'lucide-react/dist/esm/icons/check-circle-2'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import Mail from 'lucide-react/dist/esm/icons/mail'
+import { CheckCircle2, Loader2, Mail } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'

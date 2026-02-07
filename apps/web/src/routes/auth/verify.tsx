@@ -1,6 +1,4 @@
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
-import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
+import { AlertCircle, ArrowLeft, Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'

@@ -47,8 +47,5 @@
     "apps/*",
     "libs/*",
     "libs/shared/*"
-  ],
-  "dependencies": {
-    "@rollup/rollup-darwin-arm64": "^4.57.1"
-  }
+  ]
 }

@@ -1,7 +1,7 @@
+import { Button } from '@schedulizer/ui'
 import { AlertCircle, ArrowLeft, Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { Button } from '@/components/ui/button'
 import { authClient } from '@/lib/auth-client'
 
 type VerifyState = 'verifying' | 'success' | 'error'

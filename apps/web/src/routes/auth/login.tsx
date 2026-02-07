@@ -1,10 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Button, Input, Label } from '@schedulizer/ui'
 import { CheckCircle2, Loader2, Mail } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { signIn } from '@/lib/auth-client'
 import { type LoginFormData, loginSchema } from '@/schemas/login.schema'
 

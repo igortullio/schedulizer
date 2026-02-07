@@ -405,14 +405,13 @@ import { Button, TextField } from '@mui/material'
 **Correct: imports only what you need**
 
 ```tsx
-import Check from 'lucide-react/dist/esm/icons/check'
-import X from 'lucide-react/dist/esm/icons/x'
-import Menu from 'lucide-react/dist/esm/icons/menu'
-// Loads only 3 modules (~2KB vs ~1MB)
+// lucide-react supports tree-shaking with named exports,
+// so barrel imports are fine with modern bundlers (Vite, webpack 5+)
+import { Check, X, Menu } from 'lucide-react'
 
+// For MUI, use deep imports (MUI ships types for these paths)
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
-// Loads only what you use
 ```
 
 **Alternative: Next.js 13.5+**

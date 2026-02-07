@@ -473,7 +473,10 @@ describe('OrgSelectPage', () => {
 
     it('calls organization.create with name and generated slug', async () => {
       const user = userEvent.setup()
-      mockCreate.mockResolvedValueOnce({ data: { id: 'new-org-1', name: 'My Business', slug: 'my-business' }, error: null })
+      mockCreate.mockResolvedValueOnce({
+        data: { id: 'new-org-1', name: 'My Business', slug: 'my-business' },
+        error: null,
+      })
       mockSetActive.mockResolvedValueOnce({ data: {}, error: null })
       mockOrgList({ data: [], isPending: false, error: null })
       renderWithRouter()
@@ -486,7 +489,10 @@ describe('OrgSelectPage', () => {
 
     it('calls setActive and navigates to dashboard after successful creation', async () => {
       const user = userEvent.setup()
-      mockCreate.mockResolvedValueOnce({ data: { id: 'new-org-1', name: 'My Business', slug: 'my-business' }, error: null })
+      mockCreate.mockResolvedValueOnce({
+        data: { id: 'new-org-1', name: 'My Business', slug: 'my-business' },
+        error: null,
+      })
       mockSetActive.mockResolvedValueOnce({ data: {}, error: null })
       mockOrgList({ data: [], isPending: false, error: null })
       renderWithRouter()
@@ -544,7 +550,9 @@ describe('OrgSelectPage', () => {
       await waitFor(() => {
         expect(screen.getByTestId('org-create-error')).toBeInTheDocument()
       })
-      expect(screen.getByTestId('org-create-error')).toHaveTextContent('Failed to create organization. Please try again.')
+      expect(screen.getByTestId('org-create-error')).toHaveTextContent(
+        'Failed to create organization. Please try again.',
+      )
     })
 
     it('shows error when network error occurs', async () => {
@@ -557,12 +565,17 @@ describe('OrgSelectPage', () => {
       await waitFor(() => {
         expect(screen.getByTestId('org-create-error')).toBeInTheDocument()
       })
-      expect(screen.getByTestId('org-create-error')).toHaveTextContent('An unexpected error occurred. Please try again.')
+      expect(screen.getByTestId('org-create-error')).toHaveTextContent(
+        'An unexpected error occurred. Please try again.',
+      )
     })
 
     it('does not navigate when setActive fails after creation', async () => {
       const user = userEvent.setup()
-      mockCreate.mockResolvedValueOnce({ data: { id: 'new-org-1', name: 'My Business', slug: 'my-business' }, error: null })
+      mockCreate.mockResolvedValueOnce({
+        data: { id: 'new-org-1', name: 'My Business', slug: 'my-business' },
+        error: null,
+      })
       mockSetActive.mockResolvedValueOnce({
         data: null,
         error: { code: 'ERROR', message: 'Failed', status: 500 },

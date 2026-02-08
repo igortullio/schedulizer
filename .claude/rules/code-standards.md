@@ -8,7 +8,7 @@ All source code must be written in English, including variable names, functions,
 
 - camelCase: Use for methods, functions, and variables
 - PascalCase: Use for classes and interfaces
-- Use for files and directories
+- kebab-case: Use for files and directories
 
 ## Clear Naming
 

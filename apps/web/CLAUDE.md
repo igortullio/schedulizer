@@ -5,8 +5,7 @@ React + Vite + Tailwind + Shadcn frontend.
 ## Structure
 
 - `src/components/` - Reusable React components
-- `src/components/ui/` - Shadcn UI components
-- `src/pages/` - Page components / routes
+- `src/routes/` - Page components / routes
 - `src/hooks/` - Custom React hooks
 - `src/lib/` - Utilities and configuration
 

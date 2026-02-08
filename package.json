@@ -47,6 +47,5 @@
     "apps/*",
     "libs/*",
     "libs/shared/*"
-  ],
-  "dependencies": {}
+  ]
 }

@@ -6,6 +6,7 @@ const serverEnvSchema = z.object({
   SERVER_PORT: z.coerce.number().default(3000),
   BETTER_AUTH_SECRET: z.string().min(32),
   BETTER_AUTH_URL: z.url(),
+  FRONTEND_URL: z.url(),
   RESEND_API_KEY: z.string(),
   TURNSTILE_SECRET_KEY: z.string().optional(),
 })
@@ -25,6 +26,7 @@ function createServerEnv() {
     port: result.data.SERVER_PORT,
     betterAuthSecret: result.data.BETTER_AUTH_SECRET,
     betterAuthUrl: result.data.BETTER_AUTH_URL,
+    frontendUrl: result.data.FRONTEND_URL,
     resendApiKey: result.data.RESEND_API_KEY,
     turnstileSecretKey: result.data.TURNSTILE_SECRET_KEY ?? undefined,
   } as const

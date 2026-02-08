@@ -10,6 +10,7 @@
     "./input": "./src/components/ui/input.tsx",
     "./card": "./src/components/ui/card.tsx",
     "./dialog": "./src/components/ui/dialog.tsx",
+    "./label": "./src/components/ui/label.tsx",
     "./utils": "./src/lib/utils.ts"
   },
   "peerDependencies": {
@@ -18,6 +19,8 @@
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-label": "^2.1.8",
+    "@radix-ui/react-slot": "^1.2.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.563.0",

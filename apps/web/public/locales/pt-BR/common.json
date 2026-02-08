@@ -1,0 +1,17 @@
+{
+  "welcome": "Bem-vindo ao Schedulizer",
+  "loading": "Carregando...",
+  "error": {
+    "generic": "Ocorreu um erro. Tente novamente.",
+    "network": "Erro de conexão. Verifique sua internet.",
+    "unauthorized": "Você não tem permissão para acessar este recurso."
+  },
+  "buttons": {
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "save": "Salvar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "back": "Voltar"
+  }
+}

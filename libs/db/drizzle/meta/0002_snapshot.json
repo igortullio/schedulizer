@@ -96,12 +96,8 @@
           "name": "accounts_user_id_users_id_fk",
           "tableFrom": "accounts",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -205,12 +201,8 @@
           "name": "appointments_organization_id_organizations_id_fk",
           "tableFrom": "appointments",
           "tableTo": "organizations",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -218,12 +210,8 @@
           "name": "appointments_service_id_services_id_fk",
           "tableFrom": "appointments",
           "tableTo": "services",
-          "columnsFrom": [
-            "service_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["service_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -231,12 +219,8 @@
           "name": "appointments_customer_id_users_id_fk",
           "tableFrom": "appointments",
           "tableTo": "users",
-          "columnsFrom": [
-            "customer_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["customer_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -303,12 +287,8 @@
           "name": "invitations_organization_id_organizations_id_fk",
           "tableFrom": "invitations",
           "tableTo": "organizations",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -316,12 +296,8 @@
           "name": "invitations_inviter_id_users_id_fk",
           "tableFrom": "invitations",
           "tableTo": "users",
-          "columnsFrom": [
-            "inviter_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["inviter_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -428,12 +404,8 @@
           "name": "members_organization_id_organizations_id_fk",
           "tableFrom": "members",
           "tableTo": "organizations",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -441,12 +413,8 @@
           "name": "members_user_id_users_id_fk",
           "tableFrom": "members",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -507,9 +475,7 @@
         "organizations_slug_unique": {
           "name": "organizations_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         }
       },
       "policies": {},
@@ -579,12 +545,8 @@
           "name": "schedules_organization_id_organizations_id_fk",
           "tableFrom": "schedules",
           "tableTo": "organizations",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -664,12 +626,8 @@
           "name": "services_organization_id_organizations_id_fk",
           "tableFrom": "services",
           "tableTo": "organizations",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -742,12 +700,8 @@
           "name": "sessions_user_id_users_id_fk",
           "tableFrom": "sessions",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -757,9 +711,7 @@
         "sessions_token_unique": {
           "name": "sessions_token_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "token"
-          ]
+          "columns": ["token"]
         }
       },
       "policies": {},
@@ -855,12 +807,8 @@
           "name": "subscriptions_organization_id_organizations_id_fk",
           "tableFrom": "subscriptions",
           "tableTo": "organizations",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -870,9 +818,7 @@
         "subscriptions_stripe_subscription_id_unique": {
           "name": "subscriptions_stripe_subscription_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "stripe_subscription_id"
-          ]
+          "columns": ["stripe_subscription_id"]
         }
       },
       "policies": {},
@@ -937,9 +883,7 @@
         "users_email_unique": {
           "name": "users_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
@@ -1003,24 +947,12 @@
     "public.plan_interest": {
       "name": "plan_interest",
       "schema": "public",
-      "values": [
-        "essential",
-        "professional"
-      ]
+      "values": ["essential", "professional"]
     },
     "public.subscription_status": {
       "name": "subscription_status",
       "schema": "public",
-      "values": [
-        "incomplete",
-        "incomplete_expired",
-        "trialing",
-        "active",
-        "past_due",
-        "canceled",
-        "unpaid",
-        "paused"
-      ]
+      "values": ["incomplete", "incomplete_expired", "trialing", "active", "past_due", "canceled", "unpaid", "paused"]
     }
   },
   "schemas": {},

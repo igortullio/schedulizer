@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { leads, planInterestEnum, subscriptions, subscriptionStatusEnum } from './schema'
+import { leads, planInterestEnum, subscriptionStatusEnum, subscriptions } from './schema'
 
 describe('Leads Schema', () => {
   it('should compile schema without TypeScript errors', () => {

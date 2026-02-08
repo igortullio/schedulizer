@@ -4,6 +4,17 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Component as OrgSelectPage } from './org-select'
 
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+    i18n: {
+      changeLanguage: vi.fn(() => Promise.resolve()),
+      language: 'pt-BR',
+    },
+    ready: true,
+  }),
+}))
+
 vi.mock('@/components/auth/create-organization-form', () => ({
   CreateOrganizationForm: () => <div data-testid="org-create-form">Create Organization Form</div>,
 }))
@@ -84,8 +95,8 @@ describe('OrgSelectPage', () => {
       })
       renderWithRouter()
       expect(screen.getByTestId('org-select-loading')).toBeInTheDocument()
-      expect(screen.getByText('Loading organizations')).toBeInTheDocument()
-      expect(screen.getByText('Please wait while we load your organizations\u2026')).toBeInTheDocument()
+      expect(screen.getByText('orgSelect.loadingOrganizations')).toBeInTheDocument()
+      expect(screen.getByText('orgSelect.pleaseWaitLoading')).toBeInTheDocument()
     })
 
     it('shows loading spinner animation', () => {
@@ -272,7 +283,7 @@ describe('OrgSelectPage', () => {
       })
       renderWithRouter()
       expect(screen.getByTestId('org-select-fetch-error')).toBeInTheDocument()
-      expect(screen.getByText('Failed to load organizations')).toBeInTheDocument()
+      expect(screen.getByText('orgSelect.failedToLoad')).toBeInTheDocument()
       expect(screen.getByTestId('org-select-fetch-error-message')).toHaveTextContent('Failed to fetch organizations')
     })
 
@@ -283,7 +294,7 @@ describe('OrgSelectPage', () => {
         error: { message: 'Network error' },
       })
       renderWithRouter()
-      expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'orgSelect.tryAgain' })).toBeInTheDocument()
     })
 
     it('fetch error has role alert', () => {
@@ -314,9 +325,7 @@ describe('OrgSelectPage', () => {
       await waitFor(() => {
         expect(screen.getByTestId('org-select-selection-error')).toBeInTheDocument()
       })
-      expect(screen.getByTestId('org-select-selection-error')).toHaveTextContent(
-        'Failed to select organization. Please try again.',
-      )
+      expect(screen.getByTestId('org-select-selection-error')).toHaveTextContent('orgSelect.errors.failedToSelect')
     })
 
     it('displays permission error message for 403 status', async () => {
@@ -335,9 +344,7 @@ describe('OrgSelectPage', () => {
       await waitFor(() => {
         expect(screen.getByTestId('org-select-selection-error')).toBeInTheDocument()
       })
-      expect(screen.getByTestId('org-select-selection-error')).toHaveTextContent(
-        'You do not have permission to access this organization.',
-      )
+      expect(screen.getByTestId('org-select-selection-error')).toHaveTextContent('orgSelect.errors.noPermission')
     })
 
     it('displays not found error message for 404 status', async () => {
@@ -356,7 +363,7 @@ describe('OrgSelectPage', () => {
       await waitFor(() => {
         expect(screen.getByTestId('org-select-selection-error')).toBeInTheDocument()
       })
-      expect(screen.getByTestId('org-select-selection-error')).toHaveTextContent('Organization not found.')
+      expect(screen.getByTestId('org-select-selection-error')).toHaveTextContent('orgSelect.errors.notFound')
     })
 
     it('handles network error during selection', async () => {
@@ -372,9 +379,7 @@ describe('OrgSelectPage', () => {
       await waitFor(() => {
         expect(screen.getByTestId('org-select-selection-error')).toBeInTheDocument()
       })
-      expect(screen.getByTestId('org-select-selection-error')).toHaveTextContent(
-        'An unexpected error occurred. Please try again.',
-      )
+      expect(screen.getByTestId('org-select-selection-error')).toHaveTextContent('orgSelect.errors.unexpectedError')
     })
 
     it('shows retry button on selection error', async () => {
@@ -393,7 +398,7 @@ describe('OrgSelectPage', () => {
       await waitFor(() => {
         expect(screen.getByTestId('org-select-selection-error')).toBeInTheDocument()
       })
-      expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'orgSelect.retry' })).toBeInTheDocument()
     })
 
     it('retries selection when clicking retry button', async () => {
@@ -413,7 +418,7 @@ describe('OrgSelectPage', () => {
         expect(screen.getByTestId('org-select-selection-error')).toBeInTheDocument()
       })
       mockSetActive.mockResolvedValueOnce({ data: {}, error: null })
-      await user.click(screen.getByRole('button', { name: /retry/i }))
+      await user.click(screen.getByRole('button', { name: 'orgSelect.retry' }))
       await waitFor(() => {
         expect(mockSetActive).toHaveBeenCalledTimes(2)
       })
@@ -455,7 +460,7 @@ describe('OrgSelectPage', () => {
         error: null,
       })
       renderWithRouter()
-      expect(screen.getByRole('heading', { name: /loading organizations/i })).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: 'orgSelect.loadingOrganizations' })).toBeInTheDocument()
     })
 
     it('list state has proper heading structure', () => {
@@ -465,7 +470,7 @@ describe('OrgSelectPage', () => {
         error: null,
       })
       renderWithRouter()
-      expect(screen.getByRole('heading', { name: /select an organization/i })).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: 'orgSelect.selectAnOrganization' })).toBeInTheDocument()
     })
 
     it('error state has proper heading structure', () => {
@@ -475,7 +480,7 @@ describe('OrgSelectPage', () => {
         error: { message: 'Error' },
       })
       renderWithRouter()
-      expect(screen.getByRole('heading', { name: /failed to load organizations/i })).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: 'orgSelect.failedToLoad' })).toBeInTheDocument()
     })
 
     it('selection error has role alert', async () => {

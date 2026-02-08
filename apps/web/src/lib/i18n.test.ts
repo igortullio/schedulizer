@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 describe('i18n configuration', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    sessionStorage.clear()
+    localStorage.clear()
   })
 
   describe('initialization', () => {
@@ -38,11 +38,11 @@ describe('i18n configuration', () => {
   })
 
   describe('language detection', () => {
-    it('should configure sessionStorage as primary detection method', async () => {
+    it('should configure localStorage as primary detection method', async () => {
       const { default: i18n } = await import('./i18n')
       const detectionOrder = i18n.options.detection?.order
-      expect(detectionOrder).toContain('sessionStorage')
-      expect(detectionOrder?.[0]).toBe('sessionStorage')
+      expect(detectionOrder).toContain('localStorage')
+      expect(detectionOrder?.[0]).toBe('localStorage')
     })
 
     it('should configure navigator as fallback detection method', async () => {
@@ -51,15 +51,15 @@ describe('i18n configuration', () => {
       expect(detectionOrder).toContain('navigator')
     })
 
-    it('should configure sessionStorage as cache storage', async () => {
+    it('should configure localStorage as cache storage', async () => {
       const { default: i18n } = await import('./i18n')
       const caches = i18n.options.detection?.caches
-      expect(caches).toContain('sessionStorage')
+      expect(caches).toContain('localStorage')
     })
 
-    it('should use correct sessionStorage key', async () => {
+    it('should use correct localStorage key', async () => {
       const { default: i18n } = await import('./i18n')
-      expect(i18n.options.detection?.lookupSessionStorage).toBe('i18nextLng')
+      expect(i18n.options.detection?.lookupLocalStorage).toBe('i18nextLng')
     })
   })
 

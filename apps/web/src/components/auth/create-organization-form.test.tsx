@@ -4,6 +4,26 @@ import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { CreateOrganizationForm } from './create-organization-form'
 
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string, params?: Record<string, unknown>) => {
+      if (params) {
+        let result = key
+        Object.keys(params).forEach(param => {
+          result = result.replace(`{{${param}}}`, params[param])
+        })
+        return result
+      }
+      return key
+    },
+    i18n: {
+      changeLanguage: vi.fn(() => Promise.resolve()),
+      language: 'pt-BR',
+    },
+    ready: true,
+  }),
+}))
+
 vi.mock('@/lib/auth-client', () => ({
   authClient: {
     organization: {
@@ -43,20 +63,20 @@ describe('CreateOrganizationForm', () => {
   it('renders the creation form', () => {
     renderForm()
     expect(screen.getByTestId('org-create-form')).toBeInTheDocument()
-    expect(screen.getByText('Create your organization')).toBeInTheDocument()
-    expect(screen.getByText('Get started by creating your first organization')).toBeInTheDocument()
+    expect(screen.getByText('orgCreate.title')).toBeInTheDocument()
+    expect(screen.getByText('orgCreate.subtitle')).toBeInTheDocument()
   })
 
   it('shows organization name input', () => {
     renderForm()
     expect(screen.getByTestId('org-name-input')).toBeInTheDocument()
-    expect(screen.getByLabelText('Organization name')).toBeInTheDocument()
+    expect(screen.getByLabelText('orgCreate.organizationName')).toBeInTheDocument()
   })
 
   it('shows create organization button', () => {
     renderForm()
     expect(screen.getByTestId('org-create-button')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /create organization/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'orgCreate.createButton' })).toBeInTheDocument()
   })
 
   it('shows validation error for empty name', async () => {
@@ -66,7 +86,7 @@ describe('CreateOrganizationForm', () => {
     await waitFor(() => {
       expect(screen.getByTestId('org-name-error')).toBeInTheDocument()
     })
-    expect(screen.getByTestId('org-name-error')).toHaveTextContent('Organization name is required')
+    expect(screen.getByTestId('org-name-error')).toHaveTextContent('validation.orgNameRequired')
   })
 
   it('shows validation error for name shorter than 2 characters', async () => {
@@ -77,7 +97,7 @@ describe('CreateOrganizationForm', () => {
     await waitFor(() => {
       expect(screen.getByTestId('org-name-error')).toBeInTheDocument()
     })
-    expect(screen.getByTestId('org-name-error')).toHaveTextContent('Name must be at least 2 characters')
+    expect(screen.getByTestId('org-name-error')).toHaveTextContent('validation.orgNameMin')
   })
 
   it('calls organization.create with name and generated slug', async () => {
@@ -121,7 +141,7 @@ describe('CreateOrganizationForm', () => {
     renderForm()
     await user.type(screen.getByTestId('org-name-input'), 'My Business')
     await user.click(screen.getByTestId('org-create-button'))
-    expect(screen.getByText('Creating organization…')).toBeInTheDocument()
+    expect(screen.getByText('orgCreate.creating')).toBeInTheDocument()
     expect(screen.getByTestId('org-create-button')).toBeDisabled()
   })
 
@@ -137,9 +157,7 @@ describe('CreateOrganizationForm', () => {
     await waitFor(() => {
       expect(screen.getByTestId('org-create-error')).toBeInTheDocument()
     })
-    expect(screen.getByTestId('org-create-error')).toHaveTextContent(
-      'An organization with a similar name already exists. Please choose a different name.',
-    )
+    expect(screen.getByTestId('org-create-error')).toHaveTextContent('orgCreate.errors.slugTaken')
   })
 
   it('shows error when creation fails with generic error', async () => {
@@ -154,7 +172,7 @@ describe('CreateOrganizationForm', () => {
     await waitFor(() => {
       expect(screen.getByTestId('org-create-error')).toBeInTheDocument()
     })
-    expect(screen.getByTestId('org-create-error')).toHaveTextContent('Failed to create organization. Please try again.')
+    expect(screen.getByTestId('org-create-error')).toHaveTextContent('orgCreate.errors.failedToCreate')
   })
 
   it('shows error when network error occurs', async () => {
@@ -166,7 +184,7 @@ describe('CreateOrganizationForm', () => {
     await waitFor(() => {
       expect(screen.getByTestId('org-create-error')).toBeInTheDocument()
     })
-    expect(screen.getByTestId('org-create-error')).toHaveTextContent('An unexpected error occurred. Please try again.')
+    expect(screen.getByTestId('org-create-error')).toHaveTextContent('orgCreate.errors.unexpectedError')
   })
 
   it('does not navigate when setActive fails after creation', async () => {
@@ -190,6 +208,6 @@ describe('CreateOrganizationForm', () => {
 
   it('has proper heading structure', () => {
     renderForm()
-    expect(screen.getByRole('heading', { name: /create your organization/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'orgCreate.title' })).toBeInTheDocument()
   })
 })

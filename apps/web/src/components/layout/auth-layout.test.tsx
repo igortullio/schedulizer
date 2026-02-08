@@ -1,7 +1,20 @@
 import { render, screen } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { AuthLayout } from './auth-layout'
+
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    i18n: {
+      changeLanguage: vi.fn(() => Promise.resolve()),
+      language: 'pt-BR',
+    },
+  }),
+}))
+
+vi.mock('@/components/language-selector', () => ({
+  LanguageSelector: () => <div data-testid="language-selector">Language Selector</div>,
+}))
 
 function renderAuthLayoutWithRouter(childContent?: string) {
   const router = createMemoryRouter(

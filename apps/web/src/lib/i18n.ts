@@ -13,9 +13,9 @@ void i18n
     ns: ['auth', 'common'],
     defaultNS: 'auth',
     detection: {
-      order: ['sessionStorage', 'navigator'],
-      caches: ['sessionStorage'],
-      lookupSessionStorage: 'i18nextLng',
+      order: ['localStorage', 'navigator'],
+      caches: ['localStorage'],
+      lookupLocalStorage: 'i18nextLng',
     },
     backend: {
       loadPath: '/locales/{{lng}}/{{ns}}.json',

@@ -68,7 +68,7 @@ export function CreateOrganizationForm() {
         setCreationState('error')
         return
       }
-      navigate('/', { replace: true })
+      navigate('/dashboard', { replace: true })
     } catch (err) {
       console.error('Failed to create organization', {
         error: err instanceof Error ? err.message : 'Unknown error',

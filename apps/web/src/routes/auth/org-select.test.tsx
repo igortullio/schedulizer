@@ -85,7 +85,7 @@ describe('OrgSelectPage', () => {
       renderWithRouter()
       expect(screen.getByTestId('org-select-loading')).toBeInTheDocument()
       expect(screen.getByText('Loading organizations')).toBeInTheDocument()
-      expect(screen.getByText('Please wait while we load your organizations...')).toBeInTheDocument()
+      expect(screen.getByText('Please wait while we load your organizations\u2026')).toBeInTheDocument()
     })
 
     it('shows loading spinner animation', () => {
@@ -174,7 +174,7 @@ describe('OrgSelectPage', () => {
         expect(mockSetActive).toHaveBeenCalledWith({ organizationId: 'org-1' })
       })
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true })
+        expect(mockNavigate).toHaveBeenCalledWith('/dashboard', { replace: true })
       })
     })
 
@@ -225,7 +225,7 @@ describe('OrgSelectPage', () => {
       renderWithRouter()
       await user.click(screen.getByTestId('org-item-org-1'))
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true })
+        expect(mockNavigate).toHaveBeenCalledWith('/dashboard', { replace: true })
       })
     })
 
@@ -542,7 +542,7 @@ describe('OrgSelectPage', () => {
       await user.click(screen.getByTestId('org-item-org-2'))
       expect(mockSetActive).toHaveBeenCalledWith({ organizationId: 'org-2' })
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true })
+        expect(mockNavigate).toHaveBeenCalledWith('/dashboard', { replace: true })
       })
     })
 
@@ -558,7 +558,7 @@ describe('OrgSelectPage', () => {
         expect(mockSetActive).toHaveBeenCalledWith({ organizationId: 'org-1' })
       })
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true })
+        expect(mockNavigate).toHaveBeenCalledWith('/dashboard', { replace: true })
       })
     })
   })

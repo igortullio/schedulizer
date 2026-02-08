@@ -92,7 +92,7 @@ describe('AuthLayout', () => {
     it('should have background color class', () => {
       renderAuthLayoutWithRouter()
       const layout = screen.getByTestId('auth-layout')
-      expect(layout).toHaveClass('bg-gray-50')
+      expect(layout).toHaveClass('bg-background')
     })
 
     it('should have responsive padding classes', () => {

@@ -40,7 +40,7 @@ export function Component() {
           setSelectionState('error')
           return
         }
-        navigate('/', { replace: true })
+        navigate('/dashboard', { replace: true })
       } catch (err) {
         console.error('Failed to set active organization', {
           organizationId,

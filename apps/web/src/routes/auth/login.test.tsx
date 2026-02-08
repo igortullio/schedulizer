@@ -24,7 +24,7 @@ describe('LoginPage', () => {
       const emailInput = screen.getByTestId('email-input')
       expect(emailInput).toBeInTheDocument()
       expect(emailInput).toHaveAttribute('type', 'email')
-      expect(emailInput).toHaveAttribute('placeholder', 'name@example.com')
+      expect(emailInput).toHaveAttribute('placeholder', 'name@example.com\u2026')
     })
 
     it('renders submit button correctly', () => {
@@ -107,7 +107,7 @@ describe('LoginPage', () => {
       await user.type(emailInput, 'test@example.com')
       const submitButton = screen.getByTestId('submit-button')
       await user.click(submitButton)
-      expect(screen.getByText('Sending magic link...')).toBeInTheDocument()
+      expect(screen.getByText('Sending magic link\u2026')).toBeInTheDocument()
     })
   })
 

@@ -1,7 +1,15 @@
-import { createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { AuthLayout } from '@/components/layout/auth-layout'
 
 export const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <Navigate to="/dashboard" replace />,
+  },
+  {
+    path: '/dashboard',
+    lazy: () => import('@/routes/dashboard'),
+  },
   {
     path: '/auth',
     element: <AuthLayout />,

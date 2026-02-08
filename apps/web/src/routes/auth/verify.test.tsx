@@ -50,7 +50,7 @@ describe('VerifyPage', () => {
       renderWithRouter('/auth/verify?token=valid-token')
       expect(screen.getByTestId('verify-loading')).toBeInTheDocument()
       expect(screen.getByText('Verifying your link')).toBeInTheDocument()
-      expect(screen.getByText('Please wait while we verify your magic link...')).toBeInTheDocument()
+      expect(screen.getByText('Please wait while we verify your magic link\u2026')).toBeInTheDocument()
     })
 
     it('shows loading spinner animation', async () => {

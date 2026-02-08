@@ -10,7 +10,7 @@ vi.mock('react-i18next', () => ({
       if (params) {
         let result = key
         Object.keys(params).forEach(param => {
-          result = result.replace(`{{${param}}}`, params[param])
+          result = result.replace(`{{${param}}}`, String(params[param]))
         })
         return result
       }

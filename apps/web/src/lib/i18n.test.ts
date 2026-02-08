@@ -66,7 +66,7 @@ describe('i18n configuration', () => {
   describe('backend configuration', () => {
     it('should configure correct load path for translations', async () => {
       const { default: i18n } = await import('./i18n')
-      expect(i18n.options.backend?.loadPath).toBe('/locales/{{lng}}/{{ns}}.json')
+      expect((i18n.options.backend as { loadPath?: string })?.loadPath).toBe('/locales/{{lng}}/{{ns}}.json')
     })
   })
 

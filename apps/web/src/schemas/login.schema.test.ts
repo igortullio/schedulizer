@@ -1,7 +1,8 @@
+import type { TFunction } from 'i18next'
 import { describe, expect, it } from 'vitest'
 import { createLoginSchema } from './login.schema'
 
-const mockT = (key: string) => key
+const mockT = ((key: string) => key) as TFunction
 
 const loginSchema = createLoginSchema(mockT)
 

@@ -1,5 +1,5 @@
 import { Button } from '@schedulizer/ui'
-import { Building2, LogOut, User } from 'lucide-react'
+import { Building2, CreditCard, LogOut, User } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { authClient, signOut, useSession } from '@/lib/auth-client'
 
@@ -41,6 +41,18 @@ export function Component() {
               {activeOrg?.slug ? <p className="text-xs text-muted-foreground">{activeOrg.slug}</p> : null}
             </div>
           </div>
+          <button
+            type="button"
+            onClick={() => navigate('/subscription')}
+            className="flex w-full items-center gap-3 rounded-md border border-border p-4 text-left transition-colors hover:bg-accent"
+            data-testid="subscription-link"
+          >
+            <CreditCard className="h-5 w-5 text-primary" aria-hidden="true" />
+            <div>
+              <p className="text-sm text-muted-foreground">Subscription</p>
+              <p className="font-medium text-foreground">Manage billing</p>
+            </div>
+          </button>
         </div>
         <Button onClick={handleSignOut} variant="outline" className="mt-6 w-full">
           <LogOut className="mr-2 h-4 w-4" aria-hidden="true" />

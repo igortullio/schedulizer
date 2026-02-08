@@ -15,6 +15,10 @@ export const router = createBrowserRouter([
     lazy: () => import('@/routes/pricing'),
   },
   {
+    path: '/subscription',
+    lazy: () => import('@/routes/subscription'),
+  },
+  {
     path: '/checkout/success',
     lazy: () => import('@/routes/checkout/success'),
   },

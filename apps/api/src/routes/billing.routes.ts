@@ -217,6 +217,69 @@ router.get('/subscription', async (req, res) => {
   }
 })
 
+const DEFAULT_INVOICE_LIMIT = 12
+
+router.get('/invoices', async (req, res) => {
+  try {
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(req.headers),
+    })
+    if (!session) {
+      return res.status(401).json({
+        error: { message: 'Unauthorized', code: 'UNAUTHORIZED' },
+      })
+    }
+    const activeOrgId = session.session.activeOrganizationId
+    if (!activeOrgId) {
+      return res.status(400).json({
+        error: { message: 'No active organization selected', code: 'NO_ACTIVE_ORG' },
+      })
+    }
+    const subscription = await db
+      .select({ stripeCustomerId: schema.subscriptions.stripeCustomerId })
+      .from(schema.subscriptions)
+      .where(eq(schema.subscriptions.organizationId, activeOrgId))
+      .limit(1)
+    if (subscription.length === 0 || !subscription[0].stripeCustomerId) {
+      return res.status(200).json({
+        data: [],
+      })
+    }
+    const invoices = await stripe.invoices.list({
+      customer: subscription[0].stripeCustomerId,
+      limit: DEFAULT_INVOICE_LIMIT,
+    })
+    const formattedInvoices = invoices.data.map(invoice => ({
+      id: invoice.id,
+      number: invoice.number,
+      status: invoice.status,
+      amountDue: invoice.amount_due,
+      amountPaid: invoice.amount_paid,
+      currency: invoice.currency,
+      periodStart: invoice.period_start,
+      periodEnd: invoice.period_end,
+      invoicePdf: invoice.invoice_pdf,
+      hostedInvoiceUrl: invoice.hosted_invoice_url,
+      created: invoice.created,
+    }))
+    console.log('Invoices fetched', {
+      organizationId: activeOrgId,
+      count: formattedInvoices.length,
+    })
+    return res.status(200).json({
+      data: formattedInvoices,
+    })
+  } catch (error) {
+    console.error('Invoices endpoint error', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    })
+    return res.status(500).json({
+      error: { message: 'Internal server error', code: 'INTERNAL_ERROR' },
+    })
+  }
+})
+
 async function handleCheckoutSessionCompleted(checkoutSession: Stripe.Checkout.Session) {
   const organizationId = checkoutSession.metadata?.organizationId
   if (!organizationId) {

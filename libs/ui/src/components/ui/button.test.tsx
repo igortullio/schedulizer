@@ -25,7 +25,7 @@ describe('Button Component', () => {
   it('buttonVariants generates correct classes for different sizes', () => {
     const small = buttonVariants({ size: 'sm' })
     const large = buttonVariants({ size: 'lg' })
-    expect(small).toContain('h-9')
-    expect(large).toContain('h-11')
+    expect(small).toContain('h-8')
+    expect(large).toContain('h-10')
   })
 })

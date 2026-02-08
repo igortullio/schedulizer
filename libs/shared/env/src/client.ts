@@ -3,6 +3,7 @@ import { z } from 'zod'
 const clientEnvSchema = z.object({
   VITE_API_URL: z.url(),
   VITE_TURNSTILE_SITE_KEY: z.string().optional(),
+  VITE_STRIPE_PUBLISHABLE_KEY: z.string().min(1),
 })
 
 export type ClientEnv = z.infer<typeof clientEnvSchema>
@@ -10,6 +11,7 @@ export type ClientEnv = z.infer<typeof clientEnvSchema>
 interface ParsedClientEnv {
   apiUrl: string
   turnstileSiteKey: string | undefined
+  stripePublishableKey: string
 }
 
 type ClientEnvResult =
@@ -34,6 +36,7 @@ function createClientEnv(): ClientEnvResult {
     env: {
       apiUrl: result.data.VITE_API_URL,
       turnstileSiteKey: result.data.VITE_TURNSTILE_SITE_KEY,
+      stripePublishableKey: result.data.VITE_STRIPE_PUBLISHABLE_KEY,
     },
     error: null,
   }
@@ -43,7 +46,7 @@ const clientEnvResult = createClientEnv()
 
 export const clientEnv: ParsedClientEnv = clientEnvResult.success
   ? clientEnvResult.env
-  : { apiUrl: '', turnstileSiteKey: undefined }
+  : { apiUrl: '', turnstileSiteKey: undefined, stripePublishableKey: '' }
 
 export const clientEnvError = clientEnvResult.success ? null : clientEnvResult.error
 

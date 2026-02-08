@@ -11,6 +11,18 @@ export const router = createBrowserRouter([
     lazy: () => import('@/routes/dashboard'),
   },
   {
+    path: '/pricing',
+    lazy: () => import('@/routes/pricing'),
+  },
+  {
+    path: '/checkout/success',
+    lazy: () => import('@/routes/checkout/success'),
+  },
+  {
+    path: '/checkout/cancel',
+    lazy: () => import('@/routes/checkout/cancel'),
+  },
+  {
     path: '/auth',
     element: <AuthLayout />,
     children: [

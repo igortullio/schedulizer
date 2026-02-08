@@ -3,6 +3,7 @@ import { toNodeHandler } from 'better-auth/node'
 import cors from 'cors'
 import express from 'express'
 import { auth } from './lib/auth'
+import { billingRoutes, webhookRouter } from './routes/billing.routes'
 import { leadsRoutes } from './routes/leads.routes'
 import { organizationsRoutes } from './routes/organizations.routes'
 
@@ -25,9 +26,13 @@ app.use(
 // Better Auth handler
 app.all('/api/auth/{*any}', toNodeHandler(auth))
 
+// Webhook routes (must be before express.json() for raw body access)
+app.use('/api/billing', webhookRouter)
+
 app.use(express.json())
 
 // Routes
+app.use('/api/billing', billingRoutes)
 app.use('/api/leads', leadsRoutes)
 app.use('/api/organizations', organizationsRoutes)
 

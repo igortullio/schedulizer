@@ -27,7 +27,8 @@
       "@schedulizer/env": ["libs/shared/env/src/index.ts"],
       "@schedulizer/env/server": ["libs/shared/env/src/server.ts"],
       "@schedulizer/env/client": ["libs/shared/env/src/client.ts"],
-      "@schedulizer/ui": ["libs/ui/src/index.ts"]
+      "@schedulizer/ui": ["libs/ui/src/index.ts"],
+      "@schedulizer/billing": ["libs/billing/src/index.ts"]
     }
   }
 }

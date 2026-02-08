@@ -69,13 +69,8 @@ describe('Main Application i18n Integration', () => {
   })
 
   describe('Development Environment Configuration', () => {
-    it('should configure debug mode based on environment', () => {
-      const debugMode = i18n.options.debug
-      if (import.meta.env.DEV) {
-        expect(debugMode).toBe(true)
-      } else {
-        expect(debugMode).toBe(false)
-      }
+    it('should disable debug mode in test environment', () => {
+      expect(i18n.options.debug).toBe(false)
     })
   })
 

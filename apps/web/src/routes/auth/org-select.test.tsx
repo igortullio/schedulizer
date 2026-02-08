@@ -4,16 +4,16 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Component as OrgSelectPage } from './org-select'
 
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string) => key,
-    i18n: {
-      changeLanguage: vi.fn(() => Promise.resolve()),
-      language: 'pt-BR',
-    },
-    ready: true,
-  }),
-}))
+vi.mock('react-i18next', () => {
+  const t = (key: string) => key
+  const i18n = {
+    changeLanguage: vi.fn(() => Promise.resolve()),
+    language: 'pt-BR',
+  }
+  return {
+    useTranslation: () => ({ t, i18n, ready: true }),
+  }
+})
 
 vi.mock('@/components/auth/create-organization-form', () => ({
   CreateOrganizationForm: () => <div data-testid="org-create-form">Create Organization Form</div>,

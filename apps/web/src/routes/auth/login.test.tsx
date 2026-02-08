@@ -3,21 +3,21 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Component as LoginPage } from './login'
 
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string) => key,
-    i18n: {
-      changeLanguage: vi.fn(() => Promise.resolve()),
-      language: 'pt-BR',
+vi.mock('react-i18next', () => {
+  const t = (key: string) => key
+  const i18n = {
+    changeLanguage: vi.fn(() => Promise.resolve()),
+    language: 'pt-BR',
+  }
+  return {
+    useTranslation: () => ({ t, i18n, ready: true }),
+    Trans: ({ i18nKey }: { i18nKey: string }) => i18nKey,
+    initReactI18next: {
+      type: '3rdParty',
+      init: () => {},
     },
-    ready: true,
-  }),
-  Trans: ({ i18nKey }: { i18nKey: string }) => i18nKey,
-  initReactI18next: {
-    type: '3rdParty',
-    init: () => {},
-  },
-}))
+  }
+})
 
 vi.mock('@/lib/auth-client', () => ({
   signIn: {

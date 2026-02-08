@@ -11,7 +11,7 @@ i18n
     fallbackLng: 'pt-BR',
     supportedLngs: ['en', 'pt-BR'],
     load: 'currentOnly',
-    debug: import.meta.env.DEV,
+    debug: import.meta.env.DEV && !import.meta.env.VITEST,
     ns: ['common'],
     defaultNS: 'common',
     backend: {

@@ -4,25 +4,25 @@ import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { CreateOrganizationForm } from './create-organization-form'
 
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string, params?: Record<string, unknown>) => {
-      if (params) {
-        let result = key
-        Object.keys(params).forEach(param => {
-          result = result.replace(`{{${param}}}`, String(params[param]))
-        })
-        return result
-      }
-      return key
-    },
-    i18n: {
-      changeLanguage: vi.fn(() => Promise.resolve()),
-      language: 'pt-BR',
-    },
-    ready: true,
-  }),
-}))
+vi.mock('react-i18next', () => {
+  const t = (key: string, params?: Record<string, unknown>) => {
+    if (params) {
+      let result = key
+      Object.keys(params).forEach(param => {
+        result = result.replace(`{{${param}}}`, String(params[param]))
+      })
+      return result
+    }
+    return key
+  }
+  const i18n = {
+    changeLanguage: vi.fn(() => Promise.resolve()),
+    language: 'pt-BR',
+  }
+  return {
+    useTranslation: () => ({ t, i18n, ready: true }),
+  }
+})
 
 vi.mock('@/lib/auth-client', () => ({
   authClient: {

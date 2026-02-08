@@ -29,6 +29,7 @@ Use these skills for common tasks:
 - `/dev` - Start the development environment
 - `/check` - Run lint and formatting checks
 - `/db-migrate` - Generate and apply database migrations
+- `/nx` - General guidelines for working with Nx
 
 ## MCPs
 

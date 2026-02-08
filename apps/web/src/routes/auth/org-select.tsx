@@ -1,6 +1,7 @@
 import { Button } from '@schedulizer/ui'
 import { AlertCircle, Building2, ChevronRight, Loader2, Users } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { CreateOrganizationForm } from '@/components/auth/create-organization-form'
 import { authClient } from '@/lib/auth-client'
@@ -14,6 +15,7 @@ interface SelectionError {
 }
 
 export function Component() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { data: organizations, isPending, error: fetchError } = authClient.useListOrganizations()
   const [selectionState, setSelectionState] = useState<SelectionState>('idle')
@@ -34,7 +36,7 @@ export function Component() {
             message: response.error.message,
           })
           setSelectionError({
-            message: getSelectionErrorMessage(response.error.status),
+            message: getSelectionErrorMessage(response.error.status, t),
             organizationId,
           })
           setSelectionState('error')
@@ -47,13 +49,13 @@ export function Component() {
           error: err instanceof Error ? err.message : 'Unknown error',
         })
         setSelectionError({
-          message: 'An unexpected error occurred. Please try again.',
+          message: t('orgSelect.errors.unexpectedError'),
           organizationId,
         })
         setSelectionState('error')
       }
     },
-    [navigate],
+    [navigate, t],
   )
 
   useEffect(() => {
@@ -75,8 +77,8 @@ export function Component() {
         data-testid="org-select-loading"
       >
         <Loader2 className="mb-4 h-8 w-8 animate-spin text-primary" aria-hidden="true" />
-        <h1 className="mb-2 text-xl font-semibold text-foreground">Loading organizations</h1>
-        <p className="text-muted-foreground">Please wait while we load your organizations…</p>
+        <h1 className="mb-2 text-xl font-semibold text-foreground">{t('orgSelect.loadingOrganizations')}</h1>
+        <p className="text-muted-foreground">{t('orgSelect.pleaseWaitLoading')}</p>
       </div>
     )
   }
@@ -91,12 +93,12 @@ export function Component() {
         <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
           <AlertCircle className="h-6 w-6 text-destructive" aria-hidden="true" />
         </div>
-        <h1 className="mb-2 text-xl font-semibold text-foreground">Failed to load organizations</h1>
+        <h1 className="mb-2 text-xl font-semibold text-foreground">{t('orgSelect.failedToLoad')}</h1>
         <p className="mb-6 text-muted-foreground" data-testid="org-select-fetch-error-message">
-          {fetchError.message || 'An error occurred while loading your organizations.'}
+          {fetchError.message || t('orgSelect.errorLoadingOrganizations')}
         </p>
         <Button onClick={() => window.location.reload()} variant="outline">
-          Try again
+          {t('orgSelect.tryAgain')}
         </Button>
       </div>
     )
@@ -109,8 +111,8 @@ export function Component() {
   return (
     <div className="rounded-lg border border-border bg-card p-8 shadow-sm" data-testid="org-select-list">
       <div className="mb-6 text-center">
-        <h1 className="text-xl font-semibold text-foreground">Select an organization</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Choose which organization you want to work with</p>
+        <h1 className="text-xl font-semibold text-foreground">{t('orgSelect.selectAnOrganization')}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t('orgSelect.chooseOrganization')}</p>
       </div>
       {selectionState === 'error' && selectionError ? (
         <div
@@ -120,7 +122,7 @@ export function Component() {
         >
           <span>{selectionError.message}</span>
           <Button variant="ghost" size="sm" onClick={handleRetry} className="text-destructive hover:text-destructive">
-            Retry
+            {t('orgSelect.retry')}
           </Button>
         </div>
       ) : null}
@@ -155,7 +157,7 @@ export function Component() {
                   <p className="font-medium text-foreground truncate">{org.name}</p>
                   <p className="flex items-center gap-1 text-sm text-muted-foreground">
                     <Users className="h-3 w-3" aria-hidden="true" />
-                    <span data-testid={`org-member-count-${org.id}`}>Organization</span>
+                    <span data-testid={`org-member-count-${org.id}`}>{t('orgSelect.organization')}</span>
                   </p>
                 </div>
                 <div className="shrink-0">

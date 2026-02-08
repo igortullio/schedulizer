@@ -3,14 +3,17 @@ import { Button, Input, Label } from '@schedulizer/ui'
 import { CheckCircle2, Loader2, Mail } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { signIn } from '@/lib/auth-client'
-import { type LoginFormData, loginSchema } from '@/schemas/login.schema'
+import { createLoginSchema, type LoginFormData } from '@/schemas/login.schema'
 
 type FormState = 'idle' | 'submitting' | 'success' | 'error'
 
 export function Component() {
+  const { t } = useTranslation()
   const [formState, setFormState] = useState<FormState>('idle')
   const [errorMessage, setErrorMessage] = useState<string>('')
+  const loginSchema = createLoginSchema(t)
   const {
     register,
     handleSubmit,
@@ -31,7 +34,7 @@ export function Component() {
         callbackURL: '/auth/verify',
       })
       if (response.error) {
-        setErrorMessage(response.error.message || 'Failed to send magic link. Please try again.')
+        setErrorMessage(response.error.message || t('login.errors.failedToSend'))
         setFormState('error')
         return
       }
@@ -40,7 +43,7 @@ export function Component() {
       console.error('Magic link request failed', {
         error: error instanceof Error ? error.message : 'Unknown error',
       })
-      setErrorMessage('An unexpected error occurred. Please try again.')
+      setErrorMessage(t('login.errors.unexpectedError'))
       setFormState('error')
     }
   }
@@ -61,11 +64,11 @@ export function Component() {
         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
           <CheckCircle2 className="h-6 w-6 text-green-600" aria-hidden="true" />
         </div>
-        <h1 className="mb-2 text-xl font-semibold text-foreground">Check your email</h1>
+        <h1 className="mb-2 text-xl font-semibold text-foreground">{t('login.checkYourEmail')}</h1>
         <p className="mb-4 text-muted-foreground">
-          We sent a magic link to <span className="font-medium text-foreground">{emailValue}</span>
+          {t('login.weSentMagicLink')} <span className="font-medium text-foreground">{emailValue}</span>
         </p>
-        <p className="text-sm text-muted-foreground">Click the link in the email to sign in to your account.</p>
+        <p className="text-sm text-muted-foreground">{t('login.clickLinkInEmail')}</p>
       </output>
     )
   }
@@ -73,13 +76,13 @@ export function Component() {
   return (
     <div className="rounded-lg border border-border bg-card p-8 shadow-sm">
       <div className="mb-6 text-center">
-        <h1 className="text-xl font-semibold text-foreground">Welcome back</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Enter your email to sign in to your account</p>
+        <h1 className="text-xl font-semibold text-foreground">{t('login.welcomeBack')}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t('login.enterEmail')}</p>
       </div>
       <form onSubmit={handleSubmit(handleLoginSubmit)} noValidate aria-label="Login form">
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t('login.email')}</Label>
             <div className="relative">
               <Mail
                 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
@@ -88,7 +91,7 @@ export function Component() {
               <Input
                 id="email"
                 type="email"
-                placeholder="name@example.com…"
+                placeholder={t('login.emailPlaceholder')}
                 autoComplete="email"
                 spellCheck={false}
                 aria-invalid={!!errors.email}
@@ -117,10 +120,10 @@ export function Component() {
             {formState === 'submitting' ? (
               <>
                 <Loader2 className="animate-spin" aria-hidden="true" />
-                <span>Sending magic link…</span>
+                <span>{t('login.sendingMagicLink')}</span>
               </>
             ) : (
-              'Continue with Email'
+              t('login.continueWithEmail')
             )}
           </Button>
         </div>

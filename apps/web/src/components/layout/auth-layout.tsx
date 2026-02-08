@@ -1,4 +1,5 @@
 import { Outlet } from 'react-router-dom'
+import { LanguageSelector } from '@/components/language-selector'
 
 const logoHeader = (
   <div className="mb-8 flex items-center gap-2">
@@ -31,6 +32,9 @@ export function AuthLayout() {
       className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-8"
       data-testid="auth-layout"
     >
+      <div className="absolute right-4 top-4">
+        <LanguageSelector />
+      </div>
       {logoHeader}
       <main className="w-full max-w-md" aria-label="Authentication content">
         <Outlet />

@@ -1,6 +1,8 @@
 import { Button } from '@schedulizer/ui'
+import type { TFunction } from 'i18next'
 import { AlertCircle, ArrowLeft, Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { authClient } from '@/lib/auth-client'
 
@@ -12,6 +14,7 @@ interface VerifyError {
 }
 
 export function Component() {
+  const { t } = useTranslation()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const [verifyState, setVerifyState] = useState<VerifyState>('verifying')
@@ -21,7 +24,7 @@ export function Component() {
   useEffect(() => {
     async function verifyMagicLink() {
       if (!token) {
-        setError({ message: 'Token not found in URL', code: 'MISSING_TOKEN' })
+        setError({ message: t('verify.errors.missingToken'), code: 'MISSING_TOKEN' })
         setVerifyState('error')
         return
       }
@@ -35,7 +38,7 @@ export function Component() {
             message: response.error.message,
           })
           setError({
-            message: getErrorMessage(response.error.code),
+            message: getErrorMessage(response.error.code, t),
             code: response.error.code,
           })
           setVerifyState('error')
@@ -47,12 +50,12 @@ export function Component() {
         console.error('Magic link verification failed', {
           error: err instanceof Error ? err.message : 'Unknown error',
         })
-        setError({ message: 'An unexpected error occurred. Please try again.', code: 'UNKNOWN' })
+        setError({ message: t('verify.errors.unexpectedError'), code: 'UNKNOWN' })
         setVerifyState('error')
       }
     }
     verifyMagicLink()
-  }, [token, navigate])
+  }, [token, navigate, t])
 
   if (verifyState === 'verifying') {
     return (
@@ -61,8 +64,8 @@ export function Component() {
         data-testid="verify-loading"
       >
         <Loader2 className="mb-4 h-8 w-8 animate-spin text-primary" aria-hidden="true" />
-        <h1 className="mb-2 text-xl font-semibold text-foreground">Verifying your link</h1>
-        <p className="text-muted-foreground">Please wait while we verify your magic link…</p>
+        <h1 className="mb-2 text-xl font-semibold text-foreground">{t('verify.verifying')}</h1>
+        <p className="text-muted-foreground">{t('verify.pleaseWait')}</p>
       </div>
     )
   }
@@ -77,14 +80,14 @@ export function Component() {
         <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
           <AlertCircle className="h-6 w-6 text-destructive" aria-hidden="true" />
         </div>
-        <h1 className="mb-2 text-xl font-semibold text-foreground">Verification failed</h1>
+        <h1 className="mb-2 text-xl font-semibold text-foreground">{t('verify.verificationFailed')}</h1>
         <p className="mb-6 text-muted-foreground" data-testid="verify-error-message">
-          {error?.message || 'An error occurred during verification.'}
+          {error?.message || t('verify.errors.genericError')}
         </p>
         <Button asChild variant="outline">
           <Link to="/auth/login" data-testid="back-to-login-link">
             <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
-            Back to login
+            {t('verify.backToLogin')}
           </Link>
         </Button>
       </div>
@@ -94,14 +97,14 @@ export function Component() {
   return null
 }
 
-function getErrorMessage(code?: string): string {
+function getErrorMessage(code: string | undefined, t: TFunction): string {
   const errorMessages: Record<string, string> = {
-    INVALID_TOKEN: 'This link is invalid. Please request a new one.',
-    EXPIRED_TOKEN: 'This link has expired. Please request a new one.',
-    TOKEN_NOT_FOUND: 'This link is invalid. Please request a new one.',
-    MISSING_TOKEN: 'No verification token was provided.',
+    INVALID_TOKEN: t('verify.errors.invalidToken'),
+    EXPIRED_TOKEN: t('verify.errors.expiredToken'),
+    TOKEN_NOT_FOUND: t('verify.errors.tokenNotFound'),
+    MISSING_TOKEN: t('verify.errors.missingToken'),
   }
-  return errorMessages[code || ''] || 'This link is invalid or has expired. Please request a new one.'
+  return errorMessages[code || ''] || t('verify.errors.defaultError')
 }
 
 export default Component

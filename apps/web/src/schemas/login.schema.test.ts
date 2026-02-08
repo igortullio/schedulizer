@@ -1,5 +1,10 @@
+import type { TFunction } from 'i18next'
 import { describe, expect, it } from 'vitest'
-import { loginSchema } from './login.schema'
+import { createLoginSchema } from './login.schema'
+
+const mockT = ((key: string) => key) as TFunction
+
+const loginSchema = createLoginSchema(mockT)
 
 describe('loginSchema', () => {
   describe('valid emails', () => {
@@ -39,7 +44,7 @@ describe('loginSchema', () => {
       const result = loginSchema.safeParse({ email: '' })
       expect(result.success).toBe(false)
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe('Email is required')
+        expect(result.error.issues[0].message).toBe('validation.emailRequired')
       }
     })
 
@@ -47,7 +52,7 @@ describe('loginSchema', () => {
       const result = loginSchema.safeParse({ email: 'testexample.com' })
       expect(result.success).toBe(false)
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe('Please enter a valid email address')
+        expect(result.error.issues[0].message).toBe('validation.invalidEmail')
       }
     })
 

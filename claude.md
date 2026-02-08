@@ -21,6 +21,7 @@ Use these rules for standars:
 - @.claude/rules/code-standards.md - Code standards
 - @.claude/rules/http.md - Creates a new backend route following the standard structure
 - @.claude/rules/logging.md - Logging best practices
+- @.claude/rules/commit.md - Commit standards and validations
 
 ## Skills
 
@@ -29,6 +30,7 @@ Use these skills for common tasks:
 - `/dev` - Start the development environment
 - `/check` - Run lint and formatting checks
 - `/db-migrate` - Generate and apply database migrations
+- `/nx` - General guidelines for working with Nx
 
 ## MCPs
 

@@ -4,6 +4,22 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Component as VerifyPage } from './verify'
 
+vi.mock('react-i18next', () => {
+  const t = (key: string) => key
+  const i18n = {
+    changeLanguage: vi.fn(() => Promise.resolve()),
+    language: 'pt-BR',
+  }
+  return {
+    useTranslation: () => ({ t, i18n, ready: true }),
+    Trans: ({ i18nKey }: { i18nKey: string }) => i18nKey,
+    initReactI18next: {
+      type: '3rdParty',
+      init: () => {},
+    },
+  }
+})
+
 vi.mock('@/lib/auth-client', () => ({
   authClient: {
     magicLink: {
@@ -49,8 +65,8 @@ describe('VerifyPage', () => {
       )
       renderWithRouter('/auth/verify?token=valid-token')
       expect(screen.getByTestId('verify-loading')).toBeInTheDocument()
-      expect(screen.getByText('Verifying your link')).toBeInTheDocument()
-      expect(screen.getByText('Please wait while we verify your magic link\u2026')).toBeInTheDocument()
+      expect(screen.getByText('verify.verifying')).toBeInTheDocument()
+      expect(screen.getByText('verify.pleaseWait')).toBeInTheDocument()
     })
 
     it('shows loading spinner animation', async () => {
@@ -79,7 +95,7 @@ describe('VerifyPage', () => {
       await waitFor(() => {
         expect(screen.getByTestId('verify-error')).toBeInTheDocument()
       })
-      expect(screen.getByTestId('verify-error-message')).toHaveTextContent('Token not found in URL')
+      expect(screen.getByTestId('verify-error-message')).toHaveTextContent('verify.errors.missingToken')
       expect(mockVerify).not.toHaveBeenCalled()
     })
 
@@ -88,7 +104,7 @@ describe('VerifyPage', () => {
       await waitFor(() => {
         expect(screen.getByTestId('verify-error')).toBeInTheDocument()
       })
-      expect(screen.getByTestId('verify-error-message')).toHaveTextContent('Token not found in URL')
+      expect(screen.getByTestId('verify-error-message')).toHaveTextContent('verify.errors.missingToken')
     })
   })
 
@@ -102,9 +118,7 @@ describe('VerifyPage', () => {
       await waitFor(() => {
         expect(screen.getByTestId('verify-error')).toBeInTheDocument()
       })
-      expect(screen.getByTestId('verify-error-message')).toHaveTextContent(
-        'This link is invalid. Please request a new one.',
-      )
+      expect(screen.getByTestId('verify-error-message')).toHaveTextContent('verify.errors.invalidToken')
     })
 
     it('displays error message when token is expired', async () => {
@@ -116,9 +130,7 @@ describe('VerifyPage', () => {
       await waitFor(() => {
         expect(screen.getByTestId('verify-error')).toBeInTheDocument()
       })
-      expect(screen.getByTestId('verify-error-message')).toHaveTextContent(
-        'This link has expired. Please request a new one.',
-      )
+      expect(screen.getByTestId('verify-error-message')).toHaveTextContent('verify.errors.expiredToken')
     })
 
     it('displays error message when token is not found', async () => {
@@ -130,9 +142,7 @@ describe('VerifyPage', () => {
       await waitFor(() => {
         expect(screen.getByTestId('verify-error')).toBeInTheDocument()
       })
-      expect(screen.getByTestId('verify-error-message')).toHaveTextContent(
-        'This link is invalid. Please request a new one.',
-      )
+      expect(screen.getByTestId('verify-error-message')).toHaveTextContent('verify.errors.tokenNotFound')
     })
 
     it('displays generic error message for unknown error codes', async () => {
@@ -144,9 +154,7 @@ describe('VerifyPage', () => {
       await waitFor(() => {
         expect(screen.getByTestId('verify-error')).toBeInTheDocument()
       })
-      expect(screen.getByTestId('verify-error-message')).toHaveTextContent(
-        'This link is invalid or has expired. Please request a new one.',
-      )
+      expect(screen.getByTestId('verify-error-message')).toHaveTextContent('verify.errors.defaultError')
     })
 
     it('handles network error during verification', async () => {
@@ -155,9 +163,7 @@ describe('VerifyPage', () => {
       await waitFor(() => {
         expect(screen.getByTestId('verify-error')).toBeInTheDocument()
       })
-      expect(screen.getByTestId('verify-error-message')).toHaveTextContent(
-        'An unexpected error occurred. Please try again.',
-      )
+      expect(screen.getByTestId('verify-error-message')).toHaveTextContent('verify.errors.unexpectedError')
     })
 
     it('handles non-Error exceptions during verification', async () => {
@@ -166,9 +172,7 @@ describe('VerifyPage', () => {
       await waitFor(() => {
         expect(screen.getByTestId('verify-error')).toBeInTheDocument()
       })
-      expect(screen.getByTestId('verify-error-message')).toHaveTextContent(
-        'An unexpected error occurred. Please try again.',
-      )
+      expect(screen.getByTestId('verify-error-message')).toHaveTextContent('verify.errors.unexpectedError')
     })
   })
 
@@ -184,7 +188,7 @@ describe('VerifyPage', () => {
       })
       const backToLoginLink = screen.getByTestId('back-to-login-link')
       expect(backToLoginLink).toBeInTheDocument()
-      expect(backToLoginLink).toHaveTextContent('Back to login')
+      expect(backToLoginLink).toHaveTextContent('verify.backToLogin')
       expect(backToLoginLink).toHaveAttribute('href', '/auth/login')
     })
 
@@ -247,7 +251,7 @@ describe('VerifyPage', () => {
         () => new Promise(resolve => setTimeout(() => resolve({ data: { session: {} }, error: null }), 100)),
       )
       renderWithRouter('/auth/verify?token=valid-token')
-      expect(screen.getByRole('heading', { name: /verifying your link/i })).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: 'verify.verifying' })).toBeInTheDocument()
     })
 
     it('error state has proper heading structure', async () => {
@@ -259,7 +263,7 @@ describe('VerifyPage', () => {
       await waitFor(() => {
         expect(screen.getByTestId('verify-error')).toBeInTheDocument()
       })
-      expect(screen.getByRole('heading', { name: /verification failed/i })).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: 'verify.verificationFailed' })).toBeInTheDocument()
     })
 
     it('icons have aria-hidden attribute', async () => {
@@ -302,9 +306,7 @@ describe('VerifyPage', () => {
       await waitFor(() => {
         expect(screen.getByTestId('verify-error')).toBeInTheDocument()
       })
-      expect(screen.getByTestId('verify-error-message')).toHaveTextContent(
-        'This link has expired. Please request a new one.',
-      )
+      expect(screen.getByTestId('verify-error-message')).toHaveTextContent('verify.errors.expiredToken')
       expect(screen.getByTestId('back-to-login-link')).toBeInTheDocument()
     })
 

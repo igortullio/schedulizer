@@ -3,6 +3,22 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Component as LoginPage } from './login'
 
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+    i18n: {
+      changeLanguage: vi.fn(() => Promise.resolve()),
+      language: 'pt-BR',
+    },
+    ready: true,
+  }),
+  Trans: ({ i18nKey }: { i18nKey: string }) => i18nKey,
+  initReactI18next: {
+    type: '3rdParty',
+    init: () => {},
+  },
+}))
+
 vi.mock('@/lib/auth-client', () => ({
   signIn: {
     magicLink: vi.fn(),
@@ -24,25 +40,25 @@ describe('LoginPage', () => {
       const emailInput = screen.getByTestId('email-input')
       expect(emailInput).toBeInTheDocument()
       expect(emailInput).toHaveAttribute('type', 'email')
-      expect(emailInput).toHaveAttribute('placeholder', 'name@example.com\u2026')
+      expect(emailInput).toHaveAttribute('placeholder', 'login.emailPlaceholder')
     })
 
     it('renders submit button correctly', () => {
       render(<LoginPage />)
       const submitButton = screen.getByTestId('submit-button')
       expect(submitButton).toBeInTheDocument()
-      expect(submitButton).toHaveTextContent('Continue with Email')
+      expect(submitButton).toHaveTextContent('login.continueWithEmail')
     })
 
     it('renders email label correctly', () => {
       render(<LoginPage />)
-      const label = screen.getByText('Email')
+      const label = screen.getByText('login.email')
       expect(label).toBeInTheDocument()
     })
 
     it('renders welcome heading', () => {
       render(<LoginPage />)
-      expect(screen.getByRole('heading', { name: /welcome back/i })).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: 'login.welcomeBack' })).toBeInTheDocument()
     })
   })
 
@@ -53,7 +69,7 @@ describe('LoginPage', () => {
       const submitButton = screen.getByTestId('submit-button')
       await user.click(submitButton)
       await waitFor(() => {
-        expect(screen.getByTestId('email-error')).toHaveTextContent('Email is required')
+        expect(screen.getByTestId('email-error')).toHaveTextContent('validation.emailRequired')
       })
     })
 
@@ -65,7 +81,7 @@ describe('LoginPage', () => {
       const submitButton = screen.getByTestId('submit-button')
       await user.click(submitButton)
       await waitFor(() => {
-        expect(screen.getByTestId('email-error')).toHaveTextContent('Please enter a valid email address')
+        expect(screen.getByTestId('email-error')).toHaveTextContent('validation.invalidEmail')
       })
     })
 
@@ -107,7 +123,7 @@ describe('LoginPage', () => {
       await user.type(emailInput, 'test@example.com')
       const submitButton = screen.getByTestId('submit-button')
       await user.click(submitButton)
-      expect(screen.getByText('Sending magic link\u2026')).toBeInTheDocument()
+      expect(screen.getByText('login.sendingMagicLink')).toBeInTheDocument()
     })
   })
 
@@ -123,7 +139,7 @@ describe('LoginPage', () => {
       await waitFor(() => {
         expect(screen.getByTestId('login-success')).toBeInTheDocument()
       })
-      expect(screen.getByText('Check your email')).toBeInTheDocument()
+      expect(screen.getByText('login.checkYourEmail')).toBeInTheDocument()
       expect(screen.getByText('test@example.com')).toBeInTheDocument()
     })
 
@@ -168,7 +184,7 @@ describe('LoginPage', () => {
       const submitButton = screen.getByTestId('submit-button')
       await user.click(submitButton)
       await waitFor(() => {
-        expect(screen.getByTestId('form-error')).toHaveTextContent('An unexpected error occurred')
+        expect(screen.getByTestId('form-error')).toHaveTextContent('login.errors.unexpectedError')
       })
     })
 

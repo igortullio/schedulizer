@@ -46,11 +46,22 @@
     "titleHighlight": "bolso",
     "subtitle": "Escolha o plano ideal para o seu negócio",
     "badge": "Mais popular",
+    "toggle": {
+      "ariaLabel": "Selecionar frequência de cobrança",
+      "monthly": "Mensal",
+      "yearly": "Anual",
+      "savings": "Economize {{percent}}%"
+    },
+    "period": {
+      "monthly": "/mês",
+      "yearly": "/mês"
+    },
+    "billedAnnually": "Cobrado {{total}}/ano",
+    "featuresLabel": "Recursos incluídos",
+    "ctaAriaLabel": "Começar agora com o plano {{plan}}",
     "plans": {
       "essential": {
         "name": "Essencial",
-        "price": "R$ 49,90",
-        "period": "/mês",
         "features": [
           "Agendamentos ilimitados",
           "Lembretes automáticos",
@@ -61,8 +72,6 @@
       },
       "professional": {
         "name": "Profissional",
-        "price": "R$ 99,90",
-        "period": "/mês",
         "features": [
           "Tudo do plano Essencial",
           "Múltiplos profissionais",

@@ -46,11 +46,22 @@
     "titleHighlight": "budget",
     "subtitle": "Choose the ideal plan for your business",
     "badge": "Most popular",
+    "toggle": {
+      "ariaLabel": "Select billing frequency",
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "savings": "Save {{percent}}%"
+    },
+    "period": {
+      "monthly": "/month",
+      "yearly": "/month"
+    },
+    "billedAnnually": "Billed {{total}}/year",
+    "featuresLabel": "Features included",
+    "ctaAriaLabel": "Get started with {{plan}} plan",
     "plans": {
       "essential": {
         "name": "Essential",
-        "price": "$49.90",
-        "period": "/month",
         "features": [
           "Unlimited appointments",
           "Automatic reminders",
@@ -61,8 +72,6 @@
       },
       "professional": {
         "name": "Professional",
-        "price": "$99.90",
-        "period": "/month",
         "features": [
           "Everything in Essential plan",
           "Multiple professionals",

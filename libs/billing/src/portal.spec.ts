@@ -26,7 +26,9 @@ describe('portal', () => {
         id: 'bps_123',
         url: 'https://billing.stripe.com/session/bps_123',
       }
-      vi.mocked(mockStripe.billingPortal.sessions.create).mockResolvedValue(mockSession as Stripe.BillingPortal.Session)
+      vi.mocked(mockStripe.billingPortal.sessions.create).mockResolvedValue(
+        mockSession as unknown as Stripe.Response<Stripe.BillingPortal.Session>,
+      )
       const result = await createPortalSession(mockStripe, params)
       expect(result.success).toBe(true)
       if (result.success) {
@@ -36,7 +38,9 @@ describe('portal', () => {
 
     it('calls Stripe with correct parameters', async () => {
       const mockSession = { id: 'bps_123', url: 'https://billing.stripe.com/session/bps_123' }
-      vi.mocked(mockStripe.billingPortal.sessions.create).mockResolvedValue(mockSession as Stripe.BillingPortal.Session)
+      vi.mocked(mockStripe.billingPortal.sessions.create).mockResolvedValue(
+        mockSession as unknown as Stripe.Response<Stripe.BillingPortal.Session>,
+      )
       await createPortalSession(mockStripe, params)
       expect(mockStripe.billingPortal.sessions.create).toHaveBeenCalledWith({
         customer: 'cus_123',
@@ -49,7 +53,7 @@ describe('portal', () => {
         type: 'invalid_request_error',
         message: 'No such customer: cus_invalid',
         code: 'resource_missing',
-      } as Stripe.errors.RawErrorType)
+      } as unknown as Stripe.StripeRawError)
       vi.mocked(mockStripe.billingPortal.sessions.create).mockRejectedValue(stripeError)
       const result = await createPortalSession(mockStripe, { ...params, customerId: 'cus_invalid' })
       expect(result.success).toBe(false)
@@ -62,7 +66,7 @@ describe('portal', () => {
       const stripeError = new Stripe.errors.StripeRateLimitError({
         type: 'rate_limit_error',
         message: 'Too many requests',
-      } as Stripe.errors.RawErrorType)
+      } as unknown as Stripe.StripeRawError)
       vi.mocked(mockStripe.billingPortal.sessions.create).mockRejectedValue(stripeError)
       const result = await createPortalSession(mockStripe, params)
       expect(result.success).toBe(false)

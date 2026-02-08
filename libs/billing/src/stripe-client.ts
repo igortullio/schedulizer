@@ -1,6 +1,6 @@
 import Stripe from 'stripe'
 
-const STRIPE_API_VERSION = '2025-01-27.acacia' as const
+const STRIPE_API_VERSION = '2025-02-24.acacia' as const
 
 let stripeInstance: Stripe | null = null
 

@@ -41,9 +41,11 @@ vi.mock('better-auth/node', () => ({
   fromNodeHeaders: vi.fn(() => ({})),
 }))
 
-const mockDbSelect = vi.fn()
-const mockDbInsert = vi.fn()
-const mockDbUpdate = vi.fn()
+const { mockDbSelect, mockDbInsert, mockDbUpdate } = vi.hoisted(() => ({
+  mockDbSelect: vi.fn(),
+  mockDbInsert: vi.fn(),
+  mockDbUpdate: vi.fn(),
+}))
 
 vi.mock('@schedulizer/db', () => ({
   createDb: vi.fn(() => ({
@@ -56,13 +58,17 @@ vi.mock('@schedulizer/db', () => ({
   },
 }))
 
-const mockCreateCheckoutSession = vi.fn()
-const mockCreatePortalSession = vi.fn()
-const mockVerifyWebhookSignature = vi.fn()
-const mockStripe = {
-  customers: { create: vi.fn(() => Promise.resolve({ id: 'cus_123' })) },
-  subscriptions: { retrieve: vi.fn() },
-}
+const { mockCreateCheckoutSession, mockCreatePortalSession, mockVerifyWebhookSignature, mockStripe } = vi.hoisted(
+  () => ({
+    mockCreateCheckoutSession: vi.fn(),
+    mockCreatePortalSession: vi.fn(),
+    mockVerifyWebhookSignature: vi.fn(),
+    mockStripe: {
+      customers: { create: vi.fn(() => Promise.resolve({ id: 'cus_123' })) },
+      subscriptions: { retrieve: vi.fn() },
+    },
+  }),
+)
 
 vi.mock('@schedulizer/billing', () => ({
   createCheckoutSession: (...args: unknown[]) => mockCreateCheckoutSession(...args),
@@ -89,7 +95,8 @@ function findRouteHandler(router: unknown, method: 'post' | 'get', path?: string
     if (path && r.route.path !== path) return false
     return true
   })
-  return route?.route?.stack?.[0]?.handle
+  const stack = route?.route?.stack ?? []
+  return stack[stack.length - 1]?.handle
 }
 
 describe('Billing Routes Integration', () => {
@@ -294,10 +301,7 @@ describe('Billing Routes Integration', () => {
     })
 
     it('should return 400 for missing Stripe signature', async () => {
-      const routes = (webhookRouter as { stack: RouteLayer[] }).stack
-      const webhookRoute = routes.find(r => r.route?.path === '/webhook' && r.route?.methods?.post)
-      const handlers = webhookRoute?.route?.stack ?? []
-      const handler = handlers.find(h => h.handle && h.handle.length >= 2)?.handle
+      const handler = findRouteHandler(webhookRouter, 'post', '/webhook')
       const { req, res } = createMockReqRes(Buffer.from('{}'), {})
       if (handler) {
         await handler(req, res, vi.fn())
@@ -313,10 +317,7 @@ describe('Billing Routes Integration', () => {
         success: false,
         error: { type: 'invalid_request', message: 'Signature verification failed' },
       })
-      const routes = (webhookRouter as { stack: RouteLayer[] }).stack
-      const webhookRoute = routes.find(r => r.route?.path === '/webhook' && r.route?.methods?.post)
-      const handlers = webhookRoute?.route?.stack ?? []
-      const handler = handlers.find(h => h.handle && h.handle.length >= 2)?.handle
+      const handler = findRouteHandler(webhookRouter, 'post', '/webhook')
       const { req, res } = createMockReqRes(Buffer.from('{}'), { 'stripe-signature': 'invalid_sig' })
       if (handler) {
         await handler(req, res, vi.fn())
@@ -350,10 +351,7 @@ describe('Billing Routes Integration', () => {
         cancel_at_period_end: false,
         items: { data: [{ price: { id: 'price_123', nickname: 'Professional' } }] },
       })
-      const routes = (webhookRouter as { stack: RouteLayer[] }).stack
-      const webhookRoute = routes.find(r => r.route?.path === '/webhook' && r.route?.methods?.post)
-      const handlers = webhookRoute?.route?.stack ?? []
-      const handler = handlers.find(h => h.handle && h.handle.length >= 2)?.handle
+      const handler = findRouteHandler(webhookRouter, 'post', '/webhook')
       const { req, res } = createMockReqRes(Buffer.from('{}'), { 'stripe-signature': 'valid_sig' })
       if (handler) {
         await handler(req, res, vi.fn())
@@ -381,10 +379,7 @@ describe('Billing Routes Integration', () => {
           },
         },
       })
-      const routes = (webhookRouter as { stack: RouteLayer[] }).stack
-      const webhookRoute = routes.find(r => r.route?.path === '/webhook' && r.route?.methods?.post)
-      const handlers = webhookRoute?.route?.stack ?? []
-      const handler = handlers.find(h => h.handle && h.handle.length >= 2)?.handle
+      const handler = findRouteHandler(webhookRouter, 'post', '/webhook')
       const { req, res } = createMockReqRes(Buffer.from('{}'), { 'stripe-signature': 'valid_sig' })
       if (handler) {
         await handler(req, res, vi.fn())
@@ -414,10 +409,7 @@ describe('Billing Routes Integration', () => {
           },
         },
       })
-      const routes = (webhookRouter as { stack: RouteLayer[] }).stack
-      const webhookRoute = routes.find(r => r.route?.path === '/webhook' && r.route?.methods?.post)
-      const handlers = webhookRoute?.route?.stack ?? []
-      const handler = handlers.find(h => h.handle && h.handle.length >= 2)?.handle
+      const handler = findRouteHandler(webhookRouter, 'post', '/webhook')
       const { req, res } = createMockReqRes(Buffer.from('{}'), { 'stripe-signature': 'valid_sig' })
       if (handler) {
         await handler(req, res, vi.fn())

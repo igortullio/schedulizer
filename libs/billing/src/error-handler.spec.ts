@@ -9,7 +9,7 @@ describe('error-handler', () => {
         type: 'card_error',
         message: 'Your card was declined',
         code: 'card_declined',
-      } as Stripe.errors.RawErrorType)
+      } as unknown as Stripe.StripeRawError)
       const result = handleStripeError(error)
       expect(result.success).toBe(false)
       if (!result.success) {
@@ -24,7 +24,7 @@ describe('error-handler', () => {
         type: 'invalid_request_error',
         message: 'Invalid parameter',
         code: 'parameter_invalid',
-      } as Stripe.errors.RawErrorType)
+      } as unknown as Stripe.StripeRawError)
       const result = handleStripeError(error)
       expect(result.success).toBe(false)
       if (!result.success) {
@@ -36,7 +36,7 @@ describe('error-handler', () => {
       const error = new Stripe.errors.StripeAPIError({
         type: 'api_error',
         message: 'API error',
-      } as Stripe.errors.RawErrorType)
+      } as unknown as Stripe.StripeRawError)
       const result = handleStripeError(error)
       expect(result.success).toBe(false)
       if (!result.success) {
@@ -48,7 +48,7 @@ describe('error-handler', () => {
       const error = new Stripe.errors.StripeConnectionError({
         type: 'connection_error',
         message: 'Connection failed',
-      } as Stripe.errors.RawErrorType)
+      } as unknown as Stripe.StripeRawError)
       const result = handleStripeError(error)
       expect(result.success).toBe(false)
       if (!result.success) {
@@ -60,7 +60,7 @@ describe('error-handler', () => {
       const error = new Stripe.errors.StripeAuthenticationError({
         type: 'authentication_error',
         message: 'Invalid API key',
-      } as Stripe.errors.RawErrorType)
+      } as unknown as Stripe.StripeRawError)
       const result = handleStripeError(error)
       expect(result.success).toBe(false)
       if (!result.success) {
@@ -72,7 +72,7 @@ describe('error-handler', () => {
       const error = new Stripe.errors.StripeRateLimitError({
         type: 'rate_limit_error',
         message: 'Too many requests',
-      } as Stripe.errors.RawErrorType)
+      } as unknown as Stripe.StripeRawError)
       const result = handleStripeError(error)
       expect(result.success).toBe(false)
       if (!result.success) {

@@ -127,7 +127,7 @@ export function Component() {
         </div>
       ) : null}
       <ul className="space-y-2" aria-label="Organizations">
-        {organizations.map(org => {
+        {organizations.map((org: { id: string; name: string; logo?: string | null }) => {
           const isSelecting = selectionState === 'selecting' && selectedOrgId === org.id
           return (
             <li key={org.id}>

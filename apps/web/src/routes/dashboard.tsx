@@ -38,9 +38,7 @@ export function Component() {
             <div>
               <p className="text-sm text-muted-foreground">Active organization</p>
               <p className="font-medium text-foreground">{activeOrg?.name ?? 'None'}</p>
-              {activeOrg?.slug ? (
-                <p className="text-xs text-muted-foreground">{activeOrg.slug}</p>
-              ) : null}
+              {activeOrg?.slug ? <p className="text-xs text-muted-foreground">{activeOrg.slug}</p> : null}
             </div>
           </div>
         </div>

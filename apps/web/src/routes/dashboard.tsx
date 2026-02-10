@@ -23,6 +23,9 @@ export function Component() {
   if (!session) {
     return <Navigate to="/auth/login" replace />
   }
+  if (!activeOrg) {
+    return <Navigate to="/auth/org-select" replace />
+  }
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4">
       <div className="w-full max-w-md rounded-lg border border-border bg-card p-8 shadow-sm">

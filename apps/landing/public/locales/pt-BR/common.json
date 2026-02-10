@@ -104,9 +104,9 @@
     "copyright": "© {{year}} Schedulizer. Todos os direitos reservados."
   },
   "leadForm": {
-    "title": "Comece",
-    "titleHighlight": "agora",
-    "subtitle": "Preencha o formulário e entraremos em contato em breve",
+    "title": "Tem",
+    "titleHighlight": "dúvidas?",
+    "subtitle": "Preencha o formulário e entraremos em contato",
     "labels": {
       "name": "Nome completo",
       "email": "E-mail",

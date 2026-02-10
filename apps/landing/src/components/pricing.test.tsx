@@ -3,6 +3,12 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Pricing } from './pricing'
 
+vi.mock('@schedulizer/env/client', () => ({
+  clientEnv: {
+    webUrl: 'https://app.schedulizer.com',
+  },
+}))
+
 const translations = {
   'pt-BR': {
     'pricing.title': 'Planos que cabem no seu',
@@ -231,36 +237,6 @@ describe('Pricing Component', () => {
     })
   })
 
-  describe('Plan Selection', () => {
-    it('should call onPlanSelect with essential and frequency when Essential plan CTA is clicked', async () => {
-      const user = userEvent.setup()
-      const onPlanSelect = vi.fn()
-      render(<Pricing onPlanSelect={onPlanSelect} />)
-      const essentialButton = screen.getAllByText('Começar agora')[0]
-      await user.click(essentialButton)
-      expect(onPlanSelect).toHaveBeenCalledWith('essential', 'monthly')
-    })
-
-    it('should call onPlanSelect with professional and frequency when Professional plan CTA is clicked', async () => {
-      const user = userEvent.setup()
-      const onPlanSelect = vi.fn()
-      render(<Pricing onPlanSelect={onPlanSelect} />)
-      const professionalButton = screen.getAllByText('Começar agora')[1]
-      await user.click(professionalButton)
-      expect(onPlanSelect).toHaveBeenCalledWith('professional', 'monthly')
-    })
-
-    it('should pass yearly frequency when yearly is selected', async () => {
-      const user = userEvent.setup()
-      const onPlanSelect = vi.fn()
-      render(<Pricing onPlanSelect={onPlanSelect} />)
-      await user.click(screen.getByText('Anual'))
-      const essentialButton = screen.getAllByText('Começar agora')[0]
-      await user.click(essentialButton)
-      expect(onPlanSelect).toHaveBeenCalledWith('essential', 'yearly')
-    })
-  })
-
   describe('Billing Toggle', () => {
     it('should render billing toggle', () => {
       render(<Pricing />)
@@ -331,8 +307,7 @@ describe('Pricing Component', () => {
 
     it('should be keyboard navigable', async () => {
       const user = userEvent.setup()
-      const onPlanSelect = vi.fn()
-      render(<Pricing onPlanSelect={onPlanSelect} />)
+      render(<Pricing />)
       const yearlyRadio = screen.getByRole('radio', { name: 'Anual' })
       await user.click(yearlyRadio)
       expect(screen.getByText('Economize 15%')).toBeInTheDocument()

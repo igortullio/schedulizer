@@ -1,16 +1,16 @@
+import { clientEnv } from '@schedulizer/env/client'
 import { Button } from '@schedulizer/ui'
 import { Check, Star } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import type { BillingFrequency, PlanConfig, PlanId } from './pricing-data'
+import type { BillingFrequency, PlanConfig } from './pricing-data'
 import { formatPrice, getMonthlyEquivalent, PRICING_CONFIG } from './pricing-data'
 
 interface PricingCardProps {
   plan: PlanConfig
   frequency: BillingFrequency
-  onSelect: (planId: PlanId) => void
 }
 
-export function PricingCard({ plan, frequency, onSelect }: PricingCardProps) {
+export function PricingCard({ plan, frequency }: PricingCardProps) {
   const { t, i18n } = useTranslation()
   const locale = PRICING_CONFIG.locale[i18n.language as keyof typeof PRICING_CONFIG.locale] || 'pt-BR'
   const currency = PRICING_CONFIG.currency[i18n.language as keyof typeof PRICING_CONFIG.currency] || 'BRL'
@@ -20,6 +20,10 @@ export function PricingCard({ plan, frequency, onSelect }: PricingCardProps) {
   const planData = t(`pricing.plans.${plan.planId}`, { returnObjects: true }) as {
     name: string
     features: string[]
+  }
+  function handleClick() {
+    const webUrl = clientEnv.webUrl ?? ''
+    window.location.href = `${webUrl}/pricing?plan=${plan.planId}&frequency=${frequency}`
   }
   return (
     <article
@@ -70,7 +74,7 @@ export function PricingCard({ plan, frequency, onSelect }: PricingCardProps) {
         }`}
         size="lg"
         variant={plan.recommended ? 'default' : 'outline'}
-        onClick={() => onSelect(plan.planId)}
+        onClick={handleClick}
         aria-label={t('pricing.ctaAriaLabel', { plan: planData.name })}
       >
         {t('pricing.cta')}

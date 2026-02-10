@@ -2,20 +2,13 @@ import { Check } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PricingCard } from './pricing-card'
-import type { BillingFrequency, PlanId } from './pricing-data'
+import type { BillingFrequency } from './pricing-data'
 import { PLANS } from './pricing-data'
 import { PricingToggle } from './pricing-toggle'
 
-interface PricingSectionProps {
-  onPlanSelect?: (planId: PlanId, frequency: BillingFrequency) => void
-}
-
-export function PricingSection({ onPlanSelect }: PricingSectionProps) {
+export function PricingSection() {
   const { t } = useTranslation()
   const [frequency, setFrequency] = useState<BillingFrequency>('monthly')
-  const handlePlanSelect = (planId: PlanId) => {
-    onPlanSelect?.(planId, frequency)
-  }
   return (
     <section className="px-4 py-20 md:py-28" aria-labelledby="pricing-title">
       <div className="mx-auto max-w-5xl">
@@ -31,7 +24,7 @@ export function PricingSection({ onPlanSelect }: PricingSectionProps) {
         </div>
         <div className="grid gap-8 md:grid-cols-2">
           {PLANS.map(plan => (
-            <PricingCard key={plan.planId} plan={plan} frequency={frequency} onSelect={handlePlanSelect} />
+            <PricingCard key={plan.planId} plan={plan} frequency={frequency} />
           ))}
         </div>
         <div className="mt-12 flex flex-wrap items-center justify-center gap-8 text-sm text-muted-foreground">

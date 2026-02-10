@@ -104,9 +104,9 @@
     "copyright": "© {{year}} Schedulizer. All rights reserved."
   },
   "leadForm": {
-    "title": "Get started",
-    "titleHighlight": "now",
-    "subtitle": "Fill out the form and we will contact you soon",
+    "title": "Have",
+    "titleHighlight": "questions?",
+    "subtitle": "Fill out the form and we'll get back to you",
     "labels": {
       "name": "Full name",
       "email": "Email",

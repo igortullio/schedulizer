@@ -4,6 +4,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { PricingCard } from './pricing-card'
 import type { PlanConfig } from './pricing-data'
 
+const { mockWebUrl } = vi.hoisted(() => ({ mockWebUrl: 'https://app.schedulizer.com' }))
+
+vi.mock('@schedulizer/env/client', () => ({
+  clientEnv: {
+    webUrl: mockWebUrl,
+  },
+}))
+
 const translations = {
   'pt-BR': {
     'pricing.badge': 'Mais popular',
@@ -83,84 +91,94 @@ describe('PricingCard Component', () => {
 
   beforeEach(() => {
     currentLanguage = 'pt-BR'
+    Object.defineProperty(window, 'location', {
+      writable: true,
+      value: { href: '' },
+    })
   })
 
   it('should render plan name', () => {
-    render(<PricingCard plan={essentialPlan} frequency="monthly" onSelect={() => {}} />)
+    render(<PricingCard plan={essentialPlan} frequency="monthly" />)
     expect(screen.getByText('Essencial')).toBeInTheDocument()
   })
 
   it('should render monthly price for monthly frequency', () => {
-    render(<PricingCard plan={essentialPlan} frequency="monthly" onSelect={() => {}} />)
+    render(<PricingCard plan={essentialPlan} frequency="monthly" />)
     expect(screen.getByText(/R\$\s*49,90/)).toBeInTheDocument()
   })
 
   it('should render period text', () => {
-    render(<PricingCard plan={essentialPlan} frequency="monthly" onSelect={() => {}} />)
+    render(<PricingCard plan={essentialPlan} frequency="monthly" />)
     expect(screen.getByText('/mês')).toBeInTheDocument()
   })
 
   it('should render features list', () => {
-    render(<PricingCard plan={essentialPlan} frequency="monthly" onSelect={() => {}} />)
+    render(<PricingCard plan={essentialPlan} frequency="monthly" />)
     expect(screen.getByText('Agendamentos ilimitados')).toBeInTheDocument()
     expect(screen.getByText('Lembretes automáticos')).toBeInTheDocument()
   })
 
   it('should render CTA button', () => {
-    render(<PricingCard plan={essentialPlan} frequency="monthly" onSelect={() => {}} />)
+    render(<PricingCard plan={essentialPlan} frequency="monthly" />)
     expect(screen.getByRole('button', { name: /Começar agora/i })).toBeInTheDocument()
   })
 
-  it('should call onSelect when CTA button is clicked', async () => {
+  it('should redirect to web pricing page when CTA button is clicked', async () => {
     const user = userEvent.setup()
-    const onSelect = vi.fn()
-    render(<PricingCard plan={essentialPlan} frequency="monthly" onSelect={onSelect} />)
+    render(<PricingCard plan={essentialPlan} frequency="monthly" />)
     await user.click(screen.getByRole('button'))
-    expect(onSelect).toHaveBeenCalledWith('essential')
+    expect(window.location.href).toBe(`${mockWebUrl}/pricing?plan=essential&frequency=monthly`)
+  })
+
+  it('should redirect with yearly frequency when yearly is selected', async () => {
+    const user = userEvent.setup()
+    render(<PricingCard plan={professionalPlan} frequency="yearly" />)
+    await user.click(screen.getByRole('button'))
+    expect(window.location.href).toBe(`${mockWebUrl}/pricing?plan=professional&frequency=yearly`)
   })
 
   it('should show recommended badge for recommended plans', () => {
-    render(<PricingCard plan={professionalPlan} frequency="monthly" onSelect={() => {}} />)
+    render(<PricingCard plan={professionalPlan} frequency="monthly" />)
     expect(screen.getByText('Mais popular')).toBeInTheDocument()
   })
 
   it('should not show recommended badge for non-recommended plans', () => {
-    render(<PricingCard plan={essentialPlan} frequency="monthly" onSelect={() => {}} />)
+    render(<PricingCard plan={essentialPlan} frequency="monthly" />)
     expect(screen.queryByText('Mais popular')).not.toBeInTheDocument()
   })
 
   it('should show yearly equivalent price for yearly frequency', () => {
-    render(<PricingCard plan={essentialPlan} frequency="yearly" onSelect={() => {}} />)
+    render(<PricingCard plan={essentialPlan} frequency="yearly" />)
     expect(screen.getByText(/R\$\s*42,4/)).toBeInTheDocument()
   })
 
   it('should show billed annually text for yearly frequency', () => {
-    render(<PricingCard plan={essentialPlan} frequency="yearly" onSelect={() => {}} />)
+    render(<PricingCard plan={essentialPlan} frequency="yearly" />)
     expect(screen.getByText(/Cobrado/)).toBeInTheDocument()
     expect(screen.getByText(/ano/)).toBeInTheDocument()
   })
 
   it('should not show billed annually text for monthly frequency', () => {
-    render(<PricingCard plan={essentialPlan} frequency="monthly" onSelect={() => {}} />)
+    render(<PricingCard plan={essentialPlan} frequency="monthly" />)
     expect(screen.queryByText(/Cobrado/)).not.toBeInTheDocument()
   })
 
   it('should render in English when language is en', () => {
     currentLanguage = 'en'
-    render(<PricingCard plan={essentialPlan} frequency="monthly" onSelect={() => {}} />)
+    render(<PricingCard plan={essentialPlan} frequency="monthly" />)
     expect(screen.getByText('Essential')).toBeInTheDocument()
     expect(screen.getByText('Unlimited appointments')).toBeInTheDocument()
     expect(screen.getByText('Get started')).toBeInTheDocument()
   })
 
   it('should have proper accessibility attributes', () => {
-    render(<PricingCard plan={essentialPlan} frequency="monthly" onSelect={() => {}} />)
+    render(<PricingCard plan={essentialPlan} frequency="monthly" />)
     expect(screen.getByRole('article')).toBeInTheDocument()
     expect(screen.getByRole('list')).toHaveAttribute('aria-label', 'Recursos incluídos')
   })
 
   it('should render professional plan features', () => {
-    render(<PricingCard plan={professionalPlan} frequency="monthly" onSelect={() => {}} />)
+    render(<PricingCard plan={professionalPlan} frequency="monthly" />)
     expect(screen.getByText('Profissional')).toBeInTheDocument()
     expect(screen.getByText('Tudo do plano Essencial')).toBeInTheDocument()
     expect(screen.getByText('Múltiplos profissionais')).toBeInTheDocument()

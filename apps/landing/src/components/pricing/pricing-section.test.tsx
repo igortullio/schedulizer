@@ -3,6 +3,12 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { PricingSection } from './pricing-section'
 
+vi.mock('@schedulizer/env/client', () => ({
+  clientEnv: {
+    webUrl: 'https://app.schedulizer.com',
+  },
+}))
+
 const translations = {
   'pt-BR': {
     'pricing.title': 'Planos que cabem no seu',
@@ -132,25 +138,6 @@ describe('PricingSection Component', () => {
     await user.click(screen.getByText('Anual'))
     expect(screen.getByText('Economize 15%')).toBeInTheDocument()
     expect(screen.getAllByText(/Cobrado/).length).toBeGreaterThan(0)
-  })
-
-  it('should call onPlanSelect with plan and frequency when CTA is clicked', async () => {
-    const user = userEvent.setup()
-    const onPlanSelect = vi.fn()
-    render(<PricingSection onPlanSelect={onPlanSelect} />)
-    const ctaButtons = screen.getAllByText('Começar agora')
-    await user.click(ctaButtons[0])
-    expect(onPlanSelect).toHaveBeenCalledWith('essential', 'monthly')
-  })
-
-  it('should call onPlanSelect with yearly frequency when toggle is yearly', async () => {
-    const user = userEvent.setup()
-    const onPlanSelect = vi.fn()
-    render(<PricingSection onPlanSelect={onPlanSelect} />)
-    await user.click(screen.getByText('Anual'))
-    const ctaButtons = screen.getAllByText('Começar agora')
-    await user.click(ctaButtons[1])
-    expect(onPlanSelect).toHaveBeenCalledWith('professional', 'yearly')
   })
 
   it('should render in English when language is en', () => {

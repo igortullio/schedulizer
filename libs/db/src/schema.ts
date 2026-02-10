@@ -22,6 +22,9 @@ export const sessions = pgTable('sessions', {
   userId: uuid('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
+  activeOrganizationId: uuid('active_organization_id').references(() => organizations.id, {
+    onDelete: 'set null',
+  }),
 })
 
 export const accounts = pgTable('accounts', {
@@ -145,4 +148,34 @@ export const leads = pgTable('leads', {
   phone: varchar('phone', { length: 20 }).notNull(),
   planInterest: planInterestEnum('plan_interest').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
+// Subscription status enum matching Stripe subscription statuses
+export const subscriptionStatusEnum = pgEnum('subscription_status', [
+  'incomplete',
+  'incomplete_expired',
+  'trialing',
+  'active',
+  'past_due',
+  'canceled',
+  'unpaid',
+  'paused',
+])
+
+// Subscriptions table for billing management
+export const subscriptions = pgTable('subscriptions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  organizationId: uuid('organization_id')
+    .notNull()
+    .references(() => organizations.id, { onDelete: 'cascade' }),
+  stripeCustomerId: text('stripe_customer_id').notNull(),
+  stripeSubscriptionId: text('stripe_subscription_id').unique(),
+  stripePriceId: text('stripe_price_id'),
+  status: subscriptionStatusEnum('status').notNull().default('trialing'),
+  plan: text('plan'),
+  currentPeriodStart: timestamp('current_period_start', { withTimezone: true }),
+  currentPeriodEnd: timestamp('current_period_end', { withTimezone: true }),
+  cancelAtPeriodEnd: boolean('cancel_at_period_end').notNull().default(false),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 })

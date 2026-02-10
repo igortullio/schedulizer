@@ -3,6 +3,12 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Pricing } from './pricing'
 
+vi.mock('@schedulizer/env/client', () => ({
+  clientEnv: {
+    webUrl: 'https://app.schedulizer.com',
+  },
+}))
+
 const translations = {
   'pt-BR': {
     'pricing.title': 'Planos que cabem no seu',
@@ -10,10 +16,17 @@ const translations = {
     'pricing.subtitle': 'Escolha o plano ideal para o seu negócio',
     'pricing.badge': 'Mais popular',
     'pricing.cta': 'Começar agora',
+    'pricing.toggle.ariaLabel': 'Selecionar frequência de cobrança',
+    'pricing.toggle.monthly': 'Mensal',
+    'pricing.toggle.yearly': 'Anual',
+    'pricing.toggle.savings': 'Economize {{percent}}%',
+    'pricing.period.monthly': '/mês',
+    'pricing.period.yearly': '/mês',
+    'pricing.billedAnnually': 'Cobrado {{total}}/ano',
+    'pricing.featuresLabel': 'Recursos incluídos',
+    'pricing.ctaAriaLabel': 'Começar agora com o plano {{plan}}',
     'pricing.plans.essential': {
       name: 'Essencial',
-      price: 'R$ 49,90',
-      period: '/mês',
       features: [
         'Agendamentos ilimitados',
         'Lembretes automáticos',
@@ -24,8 +37,6 @@ const translations = {
     },
     'pricing.plans.professional': {
       name: 'Profissional',
-      price: 'R$ 99,90',
-      period: '/mês',
       features: [
         'Tudo do plano Essencial',
         'Múltiplos profissionais',
@@ -45,10 +56,17 @@ const translations = {
     'pricing.subtitle': 'Choose the ideal plan for your business',
     'pricing.badge': 'Most popular',
     'pricing.cta': 'Get started',
+    'pricing.toggle.ariaLabel': 'Select billing frequency',
+    'pricing.toggle.monthly': 'Monthly',
+    'pricing.toggle.yearly': 'Yearly',
+    'pricing.toggle.savings': 'Save {{percent}}%',
+    'pricing.period.monthly': '/month',
+    'pricing.period.yearly': '/month',
+    'pricing.billedAnnually': 'Billed {{total}}/year',
+    'pricing.featuresLabel': 'Features included',
+    'pricing.ctaAriaLabel': 'Get started with {{plan}} plan',
     'pricing.plans.essential': {
       name: 'Essential',
-      price: '$49.90',
-      period: '/month',
       features: [
         'Unlimited appointments',
         'Automatic reminders',
@@ -59,8 +77,6 @@ const translations = {
     },
     'pricing.plans.professional': {
       name: 'Professional',
-      price: '$99.90',
-      period: '/month',
       features: [
         'Everything in Essential plan',
         'Multiple professionals',
@@ -78,12 +94,26 @@ const translations = {
 
 let currentLanguage = 'pt-BR'
 
-const mockT = (key: string, options?: { returnObjects?: boolean }) => {
+const mockT = (key: string, options?: { returnObjects?: boolean; total?: string; plan?: string; percent?: number }) => {
   const translation = translations[currentLanguage as keyof typeof translations]
+  const value = translation[key as keyof typeof translation]
   if (options?.returnObjects) {
-    return translation[key as keyof typeof translation]
+    return value
   }
-  return translation[key as keyof typeof translation] || key
+  if (typeof value === 'string') {
+    let result = value
+    if (options?.total) {
+      result = result.replace('{{total}}', options.total)
+    }
+    if (options?.plan) {
+      result = result.replace('{{plan}}', options.plan)
+    }
+    if (options?.percent !== undefined) {
+      result = result.replace('{{percent}}', String(options.percent))
+    }
+    return result
+  }
+  return value || key
 }
 
 vi.mock('react-i18next', () => ({
@@ -131,14 +161,14 @@ describe('Pricing Component', () => {
     it('should render Essential plan in Portuguese', () => {
       render(<Pricing />)
       expect(screen.getByText('Essencial')).toBeInTheDocument()
-      expect(screen.getByText('R$ 49,90')).toBeInTheDocument()
+      expect(screen.getByText(/R\$\s*49,90/)).toBeInTheDocument()
       expect(screen.getByText('Agendamentos ilimitados')).toBeInTheDocument()
     })
 
     it('should render Professional plan in Portuguese', () => {
       render(<Pricing />)
       expect(screen.getByText('Profissional')).toBeInTheDocument()
-      expect(screen.getByText('R$ 99,90')).toBeInTheDocument()
+      expect(screen.getByText(/R\$\s*99,90/)).toBeInTheDocument()
       expect(screen.getByText('Tudo do plano Essencial')).toBeInTheDocument()
     })
 
@@ -146,7 +176,7 @@ describe('Pricing Component', () => {
       currentLanguage = 'en'
       render(<Pricing />)
       expect(screen.getByText('Essential')).toBeInTheDocument()
-      expect(screen.getByText('$49.90')).toBeInTheDocument()
+      expect(screen.getByText(/\$49\.90/)).toBeInTheDocument()
       expect(screen.getByText('Unlimited appointments')).toBeInTheDocument()
     })
 
@@ -154,7 +184,7 @@ describe('Pricing Component', () => {
       currentLanguage = 'en'
       render(<Pricing />)
       expect(screen.getByText('Professional')).toBeInTheDocument()
-      expect(screen.getByText('$99.90')).toBeInTheDocument()
+      expect(screen.getByText(/\$99\.90/)).toBeInTheDocument()
       expect(screen.getByText('Everything in Essential plan')).toBeInTheDocument()
     })
 
@@ -200,7 +230,6 @@ describe('Pricing Component', () => {
     it('should not have hardcoded English strings in Portuguese mode', () => {
       const { container } = render(<Pricing />)
       const text = container.textContent || ''
-
       expect(text).not.toContain('Plans that fit your')
       expect(text).not.toContain('Most popular')
       expect(text).toContain('Planos que cabem no seu')
@@ -208,27 +237,25 @@ describe('Pricing Component', () => {
     })
   })
 
-  describe('Plan Selection', () => {
-    it('should call onPlanSelect with essential when Essential plan CTA is clicked', async () => {
-      const user = userEvent.setup()
-      const onPlanSelect = vi.fn()
-      render(<Pricing onPlanSelect={onPlanSelect} />)
-
-      const essentialButton = screen.getAllByText('Começar agora')[0]
-      await user.click(essentialButton)
-
-      expect(onPlanSelect).toHaveBeenCalledWith('essential')
+  describe('Billing Toggle', () => {
+    it('should render billing toggle', () => {
+      render(<Pricing />)
+      expect(screen.getByText('Mensal')).toBeInTheDocument()
+      expect(screen.getByText('Anual')).toBeInTheDocument()
     })
 
-    it('should call onPlanSelect with professional when Professional plan CTA is clicked', async () => {
+    it('should show savings badge when yearly is selected', async () => {
       const user = userEvent.setup()
-      const onPlanSelect = vi.fn()
-      render(<Pricing onPlanSelect={onPlanSelect} />)
+      render(<Pricing />)
+      await user.click(screen.getByText('Anual'))
+      expect(screen.getByText('Economize 15%')).toBeInTheDocument()
+    })
 
-      const professionalButton = screen.getAllByText('Começar agora')[1]
-      await user.click(professionalButton)
-
-      expect(onPlanSelect).toHaveBeenCalledWith('professional')
+    it('should update prices when switching to yearly', async () => {
+      const user = userEvent.setup()
+      render(<Pricing />)
+      await user.click(screen.getByText('Anual'))
+      expect(screen.getAllByText(/Cobrado/).length).toBeGreaterThan(0)
     })
   })
 
@@ -262,6 +289,28 @@ describe('Pricing Component', () => {
       expect(screen.getByText('Sem taxa de configuração')).toBeInTheDocument()
       expect(screen.getByText('Cancele quando quiser')).toBeInTheDocument()
       expect(screen.getByText('14 dias grátis')).toBeInTheDocument()
+    })
+  })
+
+  describe('Accessibility', () => {
+    it('should have proper section accessibility', () => {
+      render(<Pricing />)
+      const section = screen.getByRole('region')
+      expect(section).toHaveAttribute('aria-labelledby', 'pricing-title')
+    })
+
+    it('should have proper fieldset for toggle', () => {
+      render(<Pricing />)
+      const fieldset = screen.getByRole('group')
+      expect(fieldset).toBeInTheDocument()
+    })
+
+    it('should be keyboard navigable', async () => {
+      const user = userEvent.setup()
+      render(<Pricing />)
+      const yearlyRadio = screen.getByRole('radio', { name: 'Anual' })
+      await user.click(yearlyRadio)
+      expect(screen.getByText('Economize 15%')).toBeInTheDocument()
     })
   })
 })

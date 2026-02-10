@@ -9,6 +9,8 @@ const serverEnvSchema = z.object({
   FRONTEND_URL: z.url(),
   RESEND_API_KEY: z.string(),
   TURNSTILE_SECRET_KEY: z.string().optional(),
+  STRIPE_SECRET_KEY: z.string().startsWith('sk_'),
+  STRIPE_WEBHOOK_SECRET: z.string().startsWith('whsec_'),
 })
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>
@@ -29,6 +31,8 @@ function createServerEnv() {
     frontendUrl: result.data.FRONTEND_URL,
     resendApiKey: result.data.RESEND_API_KEY,
     turnstileSecretKey: result.data.TURNSTILE_SECRET_KEY ?? undefined,
+    stripeSecretKey: result.data.STRIPE_SECRET_KEY,
+    stripeWebhookSecret: result.data.STRIPE_WEBHOOK_SECRET,
   } as const
 }
 

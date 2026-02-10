@@ -16,7 +16,11 @@ vi.mock('react-i18next', () => {
 })
 
 vi.mock('@/components/auth/create-organization-form', () => ({
-  CreateOrganizationForm: () => <div data-testid="org-create-form">Create Organization Form</div>,
+  CreateOrganizationForm: ({ redirect }: { redirect?: string | null }) => (
+    <div data-testid="org-create-form" data-redirect={redirect ?? ''}>
+      Create Organization Form
+    </div>
+  ),
 }))
 
 vi.mock('@/lib/auth-client', () => ({
@@ -60,6 +64,16 @@ function renderWithRouter() {
         <Route path="/auth/org-select" element={<OrgSelectPage />} />
         <Route path="/auth/login" element={<div data-testid="login-page">Login Page</div>} />
         <Route path="/" element={<div data-testid="dashboard-page">Dashboard Page</div>} />
+      </Routes>
+    </MemoryRouter>,
+  )
+}
+
+function renderWithRedirect(redirect: string) {
+  return render(
+    <MemoryRouter initialEntries={[`/auth/org-select?redirect=${encodeURIComponent(redirect)}`]}>
+      <Routes>
+        <Route path="/auth/org-select" element={<OrgSelectPage />} />
       </Routes>
     </MemoryRouter>,
   )
@@ -189,6 +203,22 @@ describe('OrgSelectPage', () => {
       })
     })
 
+    it('auto-selects and redirects to redirect param when present', async () => {
+      mockSetActive.mockResolvedValueOnce({ data: {}, error: null })
+      mockOrgList({
+        data: [mockOrganizations[0]],
+        isPending: false,
+        error: null,
+      })
+      renderWithRedirect('/pricing')
+      await waitFor(() => {
+        expect(mockSetActive).toHaveBeenCalledWith({ organizationId: 'org-1' })
+      })
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/pricing', { replace: true })
+      })
+    })
+
     it('does not auto-select when user has multiple organizations', () => {
       mockOrgList({
         data: mockOrganizations,
@@ -237,6 +267,21 @@ describe('OrgSelectPage', () => {
       await user.click(screen.getByTestId('org-item-org-1'))
       await waitFor(() => {
         expect(mockNavigate).toHaveBeenCalledWith('/dashboard', { replace: true })
+      })
+    })
+
+    it('redirects to redirect param after successful selection', async () => {
+      const user = userEvent.setup()
+      mockSetActive.mockResolvedValueOnce({ data: {}, error: null })
+      mockOrgList({
+        data: mockOrganizations,
+        isPending: false,
+        error: null,
+      })
+      renderWithRedirect('/pricing')
+      await user.click(screen.getByTestId('org-item-org-1'))
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/pricing', { replace: true })
       })
     })
 
@@ -431,6 +476,12 @@ describe('OrgSelectPage', () => {
       mockOrgList({ data: [], isPending: false, error: null })
       renderWithRouter()
       expect(screen.getByTestId('org-create-form')).toBeInTheDocument()
+    })
+
+    it('passes redirect prop to CreateOrganizationForm', () => {
+      mockOrgList({ data: [], isPending: false, error: null })
+      renderWithRedirect('/pricing')
+      expect(screen.getByTestId('org-create-form')).toHaveAttribute('data-redirect', '/pricing')
     })
 
     it('shows creation form when data is null and not pending', () => {

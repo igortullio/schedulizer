@@ -22,6 +22,18 @@ vi.mock('@/routes/auth/org-select', () => ({
   Component: () => <div data-testid="org-select-page">Org Select Page</div>,
 }))
 
+vi.mock('@/routes/pricing', () => ({
+  Component: () => <div data-testid="pricing-page">Pricing Page</div>,
+}))
+
+vi.mock('@/routes/checkout/success', () => ({
+  Component: () => <div data-testid="checkout-success-page">Checkout Success Page</div>,
+}))
+
+vi.mock('@/routes/checkout/cancel', () => ({
+  Component: () => <div data-testid="checkout-cancel-page">Checkout Cancel Page</div>,
+}))
+
 describe('Router Configuration', () => {
   describe('Route Structure', () => {
     it('should have auth routes defined', async () => {
@@ -45,6 +57,24 @@ describe('Router Configuration', () => {
       expect(childPaths).toContain('login')
       expect(childPaths).toContain('verify')
       expect(childPaths).toContain('org-select')
+    })
+
+    it('should have /pricing route', async () => {
+      const { router } = await import('./router')
+      const pricingRoute = router.routes.find(route => route.path === '/pricing')
+      expect(pricingRoute).toBeDefined()
+    })
+
+    it('should have /checkout/success route', async () => {
+      const { router } = await import('./router')
+      const successRoute = router.routes.find(route => route.path === '/checkout/success')
+      expect(successRoute).toBeDefined()
+    })
+
+    it('should have /checkout/cancel route', async () => {
+      const { router } = await import('./router')
+      const cancelRoute = router.routes.find(route => route.path === '/checkout/cancel')
+      expect(cancelRoute).toBeDefined()
     })
   })
 

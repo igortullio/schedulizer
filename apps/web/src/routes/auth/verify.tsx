@@ -20,6 +20,7 @@ export function Component() {
   const [verifyState, setVerifyState] = useState<VerifyState>('verifying')
   const [error, setError] = useState<VerifyError | null>(null)
   const token = searchParams.get('token')
+  const redirect = searchParams.get('redirect')
 
   useEffect(() => {
     async function verifyMagicLink() {
@@ -45,7 +46,8 @@ export function Component() {
           return
         }
         setVerifyState('success')
-        navigate('/auth/org-select', { replace: true })
+        const orgSelectUrl = redirect ? `/auth/org-select?redirect=${encodeURIComponent(redirect)}` : '/auth/org-select'
+        navigate(orgSelectUrl, { replace: true })
       } catch (err) {
         console.error('Magic link verification failed', {
           error: err instanceof Error ? err.message : 'Unknown error',
@@ -55,7 +57,7 @@ export function Component() {
       }
     }
     verifyMagicLink()
-  }, [token, navigate, t])
+  }, [token, redirect, navigate, t])
 
   if (verifyState === 'verifying') {
     return (

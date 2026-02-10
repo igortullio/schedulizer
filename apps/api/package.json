@@ -9,6 +9,7 @@
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "resend": "^6.9.1",
+    "router": "^2.2.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {

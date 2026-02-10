@@ -199,15 +199,31 @@ describe('Translation Files', () => {
       expect(ptBRCommon.pricing.plans.professional).toBeDefined()
     })
 
-    it('should have price and period for each plan', () => {
-      expect(enCommon.pricing.plans.essential.price).toBeTruthy()
-      expect(enCommon.pricing.plans.essential.period).toBeTruthy()
-      expect(enCommon.pricing.plans.professional.price).toBeTruthy()
-      expect(enCommon.pricing.plans.professional.period).toBeTruthy()
-      expect(ptBRCommon.pricing.plans.essential.price).toBeTruthy()
-      expect(ptBRCommon.pricing.plans.essential.period).toBeTruthy()
-      expect(ptBRCommon.pricing.plans.professional.price).toBeTruthy()
-      expect(ptBRCommon.pricing.plans.professional.period).toBeTruthy()
+    it('should have name and features for each plan', () => {
+      expect(enCommon.pricing.plans.essential.name).toBeTruthy()
+      expect(enCommon.pricing.plans.essential.features).toBeTruthy()
+      expect(enCommon.pricing.plans.professional.name).toBeTruthy()
+      expect(enCommon.pricing.plans.professional.features).toBeTruthy()
+      expect(ptBRCommon.pricing.plans.essential.name).toBeTruthy()
+      expect(ptBRCommon.pricing.plans.essential.features).toBeTruthy()
+      expect(ptBRCommon.pricing.plans.professional.name).toBeTruthy()
+      expect(ptBRCommon.pricing.plans.professional.features).toBeTruthy()
+    })
+
+    it('should have period translations for monthly and yearly', () => {
+      expect(enCommon.pricing.period.monthly).toBeTruthy()
+      expect(enCommon.pricing.period.yearly).toBeTruthy()
+      expect(ptBRCommon.pricing.period.monthly).toBeTruthy()
+      expect(ptBRCommon.pricing.period.yearly).toBeTruthy()
+    })
+
+    it('should have toggle translations', () => {
+      expect(enCommon.pricing.toggle.monthly).toBeTruthy()
+      expect(enCommon.pricing.toggle.yearly).toBeTruthy()
+      expect(enCommon.pricing.toggle.savings).toBeTruthy()
+      expect(ptBRCommon.pricing.toggle.monthly).toBeTruthy()
+      expect(ptBRCommon.pricing.toggle.yearly).toBeTruthy()
+      expect(ptBRCommon.pricing.toggle.savings).toBeTruthy()
     })
   })
 

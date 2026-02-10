@@ -47,10 +47,10 @@ vi.mock('react-router-dom', async () => {
   }
 })
 
-function renderForm() {
+function renderForm(redirect?: string | null) {
   return render(
     <MemoryRouter>
-      <CreateOrganizationForm />
+      <CreateOrganizationForm redirect={redirect} />
     </MemoryRouter>,
   )
 }
@@ -204,6 +204,51 @@ describe('CreateOrganizationForm', () => {
       expect(mockSetActive).toHaveBeenCalledWith({ organizationId: 'new-org-1' })
     })
     expect(mockNavigate).not.toHaveBeenCalled()
+  })
+
+  it('navigates to redirect param after successful creation', async () => {
+    const user = userEvent.setup()
+    mockCreate.mockResolvedValueOnce({
+      data: { id: 'new-org-1', name: 'My Business', slug: 'my-business' },
+      error: null,
+    })
+    mockSetActive.mockResolvedValueOnce({ data: {}, error: null })
+    renderForm('/pricing')
+    await user.type(screen.getByTestId('org-name-input'), 'My Business')
+    await user.click(screen.getByTestId('org-create-button'))
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith('/pricing', { replace: true })
+    })
+  })
+
+  it('falls back to dashboard when redirect is absent', async () => {
+    const user = userEvent.setup()
+    mockCreate.mockResolvedValueOnce({
+      data: { id: 'new-org-1', name: 'My Business', slug: 'my-business' },
+      error: null,
+    })
+    mockSetActive.mockResolvedValueOnce({ data: {}, error: null })
+    renderForm()
+    await user.type(screen.getByTestId('org-name-input'), 'My Business')
+    await user.click(screen.getByTestId('org-create-button'))
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith('/dashboard', { replace: true })
+    })
+  })
+
+  it('falls back to dashboard when redirect does not start with /', async () => {
+    const user = userEvent.setup()
+    mockCreate.mockResolvedValueOnce({
+      data: { id: 'new-org-1', name: 'My Business', slug: 'my-business' },
+      error: null,
+    })
+    mockSetActive.mockResolvedValueOnce({ data: {}, error: null })
+    renderForm('https://evil.com')
+    await user.type(screen.getByTestId('org-name-input'), 'My Business')
+    await user.click(screen.getByTestId('org-create-button'))
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith('/dashboard', { replace: true })
+    })
   })
 
   it('has proper heading structure', () => {

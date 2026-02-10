@@ -13,6 +13,9 @@
       "path": "../../libs/shared/types"
     },
     {
+      "path": "../../libs/billing"
+    },
+    {
       "path": "../../libs/db"
     },
     {

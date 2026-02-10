@@ -1,0 +1,148 @@
+{
+  "pricing": {
+    "title": "Choose your plan",
+    "subtitle": "Start your 14-day free trial. No credit card required.",
+    "backToDashboard": "Back to Dashboard",
+    "toggle": {
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "savings": "Save {{percent}}%"
+    },
+    "period": {
+      "monthly": "/month"
+    },
+    "billedYearly": "{{price}} billed yearly",
+    "recommended": "Recommended",
+    "cta": "Get Started",
+    "plans": {
+      "essential": {
+        "name": "Essential",
+        "description": "Perfect for small businesses getting started",
+        "features": {
+          "teamMembers": "Up to 5 team members",
+          "basicScheduling": "Basic scheduling",
+          "emailNotifications": "Email notifications",
+          "customerSupport": "Customer support",
+          "advancedAnalytics": "Advanced analytics",
+          "apiAccess": "API access"
+        }
+      },
+      "professional": {
+        "name": "Professional",
+        "description": "For growing teams that need more power",
+        "features": {
+          "unlimitedTeam": "Unlimited team members",
+          "advancedScheduling": "Advanced scheduling",
+          "emailSmsNotifications": "Email & SMS notifications",
+          "prioritySupport": "Priority support",
+          "advancedAnalytics": "Advanced analytics",
+          "apiAccess": "API access"
+        }
+      }
+    },
+    "trustBadges": {
+      "noSetupFees": "No setup fees",
+      "cancelAnytime": "Cancel anytime",
+      "freeTrial": "14-day free trial"
+    }
+  },
+  "checkout": {
+    "processing": "Processing...",
+    "connectionError": "Failed to connect to payment service. Please try again.",
+    "sessionError": "Failed to create checkout session",
+    "success": {
+      "title": "Payment Successful!",
+      "description": "Thank you for subscribing to Schedulizer",
+      "message": "Your subscription is now active. You can start using all premium features immediately.",
+      "transactionId": "Transaction ID: {{sessionId}}",
+      "goToDashboard": "Go to Dashboard"
+    },
+    "cancel": {
+      "title": "Payment Cancelled",
+      "description": "Your payment was not completed",
+      "message": "Don't worry, no charges were made. You can try again whenever you're ready.",
+      "tryAgain": "Try Again",
+      "goToDashboard": "Go to Dashboard"
+    }
+  },
+  "subscription": {
+    "title": "Subscription Management",
+    "description": "Manage your subscription, payment method, and billing history.",
+    "backToDashboard": "Back to Dashboard",
+    "cancelSubscription": "Cancel Subscription",
+    "card": {
+      "noSubscription": {
+        "title": "No Active Subscription",
+        "description": "You don't have an active subscription yet",
+        "message": "Subscribe to a plan to unlock all features and start scheduling.",
+        "cta": "Subscribe Now"
+      },
+      "currentPlan": "Your current subscription plan",
+      "noBillingPeriod": "No billing period",
+      "nextBilling": "Next billing: {{date}}",
+      "cancelWarning": "Your subscription will be canceled at the end of the current billing period.",
+      "manageSubscription": "Manage Subscription",
+      "status": {
+        "active": "Active",
+        "trialing": "Trial",
+        "past_due": "Past Due",
+        "canceled": "Canceled",
+        "unpaid": "Unpaid",
+        "incomplete": "Incomplete",
+        "incomplete_expired": "Expired",
+        "paused": "Paused"
+      }
+    },
+    "paymentMethod": {
+      "title": "Payment Method",
+      "description": "Manage your payment information",
+      "cardOnFile": "Card on file",
+      "managedViaStripe": "Managed via Stripe",
+      "updatePaymentMethod": "Update Payment Method"
+    },
+    "billingHistory": {
+      "title": "Billing History",
+      "description": "Your past invoices and payment history",
+      "empty": "No invoices yet",
+      "errorLoading": "Failed to load billing history",
+      "tryAgain": "Try Again",
+      "columns": {
+        "date": "Date",
+        "amount": "Amount",
+        "status": "Status",
+        "invoice": "Invoice"
+      }
+    },
+    "updatePlanDialog": {
+      "title": "Change Subscription Plan",
+      "description": "You will be redirected to the Stripe Customer Portal to manage your subscription and change your plan.",
+      "portalInfo": "In the Customer Portal, you can:",
+      "portalFeatures": {
+        "upgrade": "Upgrade or downgrade your plan",
+        "switchBilling": "Switch between monthly and yearly billing",
+        "viewPricing": "View plan features and pricing"
+      },
+      "continueToPortal": "Continue to Portal"
+    },
+    "cancelDialog": {
+      "title": "Cancel Subscription",
+      "description": "Are you sure you want to cancel your subscription?",
+      "warning": "Your subscription will remain active until <strong>{{date}}</strong>. After this date, you will lose access to premium features.",
+      "warningFallback": "Your subscription will remain active until the end of the current period. After this date, you will lose access to premium features.",
+      "reactivateInfo": "You can reactivate your subscription at any time before the cancellation takes effect.",
+      "keepSubscription": "Keep Subscription",
+      "confirmCancel": "Cancel Subscription",
+      "canceling": "Canceling..."
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "loggedInAs": "Logged in as",
+    "unknown": "Unknown",
+    "activeOrganization": "Active organization",
+    "none": "None",
+    "subscription": "Subscription",
+    "manageBilling": "Manage billing",
+    "signOut": "Sign out"
+  }
+}

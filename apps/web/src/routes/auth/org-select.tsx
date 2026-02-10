@@ -1,8 +1,8 @@
 import { Button } from '@schedulizer/ui'
 import { AlertCircle, Building2, ChevronRight, Loader2, Users } from 'lucide-react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { CreateOrganizationForm } from '@/components/auth/create-organization-form'
 import { authClient } from '@/lib/auth-client'
 import { getSelectionErrorMessage } from './org-select.utils'
@@ -17,10 +17,13 @@ interface SelectionError {
 export function Component() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const redirect = searchParams.get('redirect')
   const { data: organizations, isPending, error: fetchError } = authClient.useListOrganizations()
   const [selectionState, setSelectionState] = useState<SelectionState>('idle')
   const [selectionError, setSelectionError] = useState<SelectionError | null>(null)
   const [selectedOrgId, setSelectedOrgId] = useState<string | null>(null)
+  const autoSelectTriggered = useRef(false)
 
   const handleSelectOrganization = useCallback(
     async (organizationId: string) => {
@@ -42,7 +45,8 @@ export function Component() {
           setSelectionState('error')
           return
         }
-        navigate('/dashboard', { replace: true })
+        const destination = redirect?.startsWith('/') ? redirect : '/dashboard'
+        navigate(destination, { replace: true })
       } catch (err) {
         console.error('Failed to set active organization', {
           organizationId,
@@ -55,13 +59,15 @@ export function Component() {
         setSelectionState('error')
       }
     },
-    [navigate, t],
+    [navigate, redirect, t],
   )
 
   useEffect(() => {
     if (isPending) return
     if (!organizations || organizations.length === 0) return
     if (organizations.length !== 1) return
+    if (autoSelectTriggered.current) return
+    autoSelectTriggered.current = true
     handleSelectOrganization(organizations[0].id)
   }, [organizations, isPending, handleSelectOrganization])
 
@@ -105,7 +111,7 @@ export function Component() {
   }
 
   if (!organizations || organizations.length === 0) {
-    return <CreateOrganizationForm />
+    return <CreateOrganizationForm redirect={redirect} />
   }
 
   return (
@@ -127,7 +133,7 @@ export function Component() {
         </div>
       ) : null}
       <ul className="space-y-2" aria-label="Organizations">
-        {organizations.map(org => {
+        {organizations.map((org: { id: string; name: string; logo?: string | null }) => {
           const isSelecting = selectionState === 'selecting' && selectedOrgId === org.id
           return (
             <li key={org.id}>

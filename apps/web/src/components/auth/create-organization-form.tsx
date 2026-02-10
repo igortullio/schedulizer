@@ -31,7 +31,11 @@ function getCreationErrorMessage(code: string | undefined, t: TFunction): string
   return t('orgCreate.errors.failedToCreate')
 }
 
-export function CreateOrganizationForm() {
+interface CreateOrganizationFormProps {
+  redirect?: string | null
+}
+
+export function CreateOrganizationForm({ redirect }: CreateOrganizationFormProps) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [creationState, setCreationState] = useState<CreationState>('idle')
@@ -72,7 +76,8 @@ export function CreateOrganizationForm() {
         setCreationState('error')
         return
       }
-      navigate('/dashboard', { replace: true })
+      const destination = redirect?.startsWith('/') ? redirect : '/dashboard'
+      navigate(destination, { replace: true })
     } catch (err) {
       console.error('Failed to create organization', {
         error: err instanceof Error ? err.message : 'Unknown error',

@@ -7,14 +7,31 @@ import { Component as PricingPage } from './pricing'
 const mockUseSession = vi.fn()
 const mockNavigate = vi.fn()
 
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+    i18n: { language: 'en', changeLanguage: vi.fn() },
+    ready: true,
+  }),
+  Trans: ({ i18nKey }: { i18nKey: string }) => i18nKey,
+  initReactI18next: { type: '3rdParty', init: () => {} },
+}))
+
 vi.mock('@/lib/auth-client', () => ({
   useSession: () => mockUseSession(),
+  authClient: {
+    useActiveOrganization: () => ({ data: { id: 'org-1', name: 'Test Org' }, isPending: false }),
+  },
 }))
 
 vi.mock('@schedulizer/env/client', () => ({
   clientEnv: {
     apiUrl: 'http://localhost:3000',
   },
+}))
+
+vi.mock('@/lib/format', () => ({
+  formatPrice: (amount: number) => `$${amount.toFixed(2)}`,
 }))
 
 vi.mock('react-router-dom', async () => {
@@ -48,13 +65,12 @@ describe('PricingPage', () => {
   describe('rendering', () => {
     it('renders pricing heading', () => {
       renderWithRouter()
-      expect(screen.getByRole('heading', { name: /choose your plan/i })).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: 'pricing.title' })).toBeInTheDocument()
     })
 
     it('renders free trial message', () => {
       renderWithRouter()
-      const freeTrialElements = screen.getAllByText(/14-day free trial/i)
-      expect(freeTrialElements.length).toBeGreaterThan(0)
+      expect(screen.getByText('pricing.trustBadges.freeTrial')).toBeInTheDocument()
     })
 
     it('renders both plan cards', () => {
@@ -76,49 +92,49 @@ describe('PricingPage', () => {
 
     it('renders trust badges', () => {
       renderWithRouter()
-      expect(screen.getByText(/no setup fees/i)).toBeInTheDocument()
-      expect(screen.getByText(/cancel anytime/i)).toBeInTheDocument()
+      expect(screen.getByText('pricing.trustBadges.noSetupFees')).toBeInTheDocument()
+      expect(screen.getByText('pricing.trustBadges.cancelAnytime')).toBeInTheDocument()
     })
   })
 
   describe('billing frequency toggle', () => {
     it('monthly is selected by default', () => {
       renderWithRouter()
-      const monthlyRadio = screen.getByRole('radio', { name: /monthly/i })
+      const monthlyRadio = screen.getByRole('radio', { name: /pricing\.toggle\.monthly/i })
       expect(monthlyRadio).toBeChecked()
     })
 
     it('switches to yearly when clicked', async () => {
       const user = userEvent.setup()
       renderWithRouter()
-      const yearlyRadio = screen.getByRole('radio', { name: /yearly/i })
+      const yearlyRadio = screen.getByRole('radio', { name: /pricing\.toggle\.yearly/i })
       await user.click(yearlyRadio)
       expect(yearlyRadio).toBeChecked()
-      expect(screen.getByRole('radio', { name: /monthly/i })).not.toBeChecked()
+      expect(screen.getByRole('radio', { name: /pricing\.toggle\.monthly/i })).not.toBeChecked()
     })
 
     it('shows save percentage on yearly toggle', () => {
       renderWithRouter()
-      expect(screen.getByText(/save 15%/i)).toBeInTheDocument()
+      expect(screen.getByText('pricing.toggle.savings')).toBeInTheDocument()
     })
   })
 
   describe('plan features', () => {
     it('displays Essential plan features', () => {
       renderWithRouter()
-      expect(screen.getByText(/up to 5 team members/i)).toBeInTheDocument()
-      expect(screen.getByText(/basic scheduling/i)).toBeInTheDocument()
+      expect(screen.getByText('pricing.plans.essential.features.teamMembers')).toBeInTheDocument()
+      expect(screen.getByText('pricing.plans.essential.features.basicScheduling')).toBeInTheDocument()
     })
 
     it('displays Professional plan features', () => {
       renderWithRouter()
-      expect(screen.getByText(/unlimited team members/i)).toBeInTheDocument()
-      expect(screen.getByText(/advanced scheduling/i)).toBeInTheDocument()
+      expect(screen.getByText('pricing.plans.professional.features.unlimitedTeam')).toBeInTheDocument()
+      expect(screen.getByText('pricing.plans.professional.features.advancedScheduling')).toBeInTheDocument()
     })
 
     it('shows recommended badge on Professional plan', () => {
       renderWithRouter()
-      expect(screen.getByText('Recommended')).toBeInTheDocument()
+      expect(screen.getByText('pricing.recommended')).toBeInTheDocument()
     })
   })
 
@@ -142,8 +158,8 @@ describe('PricingPage', () => {
   describe('accessibility', () => {
     it('has radio inputs for billing frequency toggle', () => {
       renderWithRouter()
-      expect(screen.getByRole('radio', { name: /monthly/i })).toBeInTheDocument()
-      expect(screen.getByRole('radio', { name: /yearly/i })).toBeInTheDocument()
+      expect(screen.getByRole('radio', { name: /pricing\.toggle\.monthly/i })).toBeInTheDocument()
+      expect(screen.getByRole('radio', { name: /pricing\.toggle\.yearly/i })).toBeInTheDocument()
     })
 
     it('radio inputs are properly grouped', () => {

@@ -1,20 +1,20 @@
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@schedulizer/ui'
 import { Check } from 'lucide-react'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { CheckoutButton } from '@/components/checkout'
+import { formatPrice } from '@/lib/format'
 
 type BillingFrequency = 'monthly' | 'yearly'
 
 interface PlanFeature {
-  text: string
+  key: string
   included: boolean
 }
 
 interface Plan {
   id: string
-  name: string
-  description: string
   monthlyPrice: number
   yearlyPrice: number
   priceIds: {
@@ -30,61 +30,57 @@ const ANNUAL_DISCOUNT_PERCENT = 15
 const PLANS: Plan[] = [
   {
     id: 'essential',
-    name: 'Essential',
-    description: 'Perfect for small businesses getting started',
     monthlyPrice: 49.9,
     yearlyPrice: 49.9 * 12 * (1 - ANNUAL_DISCOUNT_PERCENT / 100),
     priceIds: {
-      monthly: 'price_essential_monthly',
-      yearly: 'price_essential_yearly',
+      monthly: 'price_1SybQZPugjn24Xymd9cBoSIp',
+      yearly: 'price_1SzFNsPugjn24Xym53OVA3eA',
     },
     features: [
-      { text: 'Up to 5 team members', included: true },
-      { text: 'Basic scheduling', included: true },
-      { text: 'Email notifications', included: true },
-      { text: 'Customer support', included: true },
-      { text: 'Advanced analytics', included: false },
-      { text: 'API access', included: false },
+      { key: 'teamMembers', included: true },
+      { key: 'basicScheduling', included: true },
+      { key: 'emailNotifications', included: true },
+      { key: 'customerSupport', included: true },
+      { key: 'advancedAnalytics', included: false },
+      { key: 'apiAccess', included: false },
     ],
   },
   {
     id: 'professional',
-    name: 'Professional',
-    description: 'For growing teams that need more power',
     monthlyPrice: 99.9,
     yearlyPrice: 99.9 * 12 * (1 - ANNUAL_DISCOUNT_PERCENT / 100),
     priceIds: {
-      monthly: 'price_professional_monthly',
-      yearly: 'price_professional_yearly',
+      monthly: 'price_1SybR3Pugjn24Xym0eo3tdkG',
+      yearly: 'price_1SzFMdPugjn24Xym6BOEhk8p',
     },
     features: [
-      { text: 'Unlimited team members', included: true },
-      { text: 'Advanced scheduling', included: true },
-      { text: 'Email & SMS notifications', included: true },
-      { text: 'Priority support', included: true },
-      { text: 'Advanced analytics', included: true },
-      { text: 'API access', included: true },
+      { key: 'unlimitedTeam', included: true },
+      { key: 'advancedScheduling', included: true },
+      { key: 'emailSmsNotifications', included: true },
+      { key: 'prioritySupport', included: true },
+      { key: 'advancedAnalytics', included: true },
+      { key: 'apiAccess', included: true },
     ],
     recommended: true,
   },
 ]
 
-function formatPrice(amount: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount)
-}
-
 function getMonthlyEquivalent(yearlyPrice: number): number {
   return yearlyPrice / 12
 }
 
+function getInitialFrequency(param: string | null): BillingFrequency {
+  if (param === 'yearly' || param === 'monthly') return param
+  return 'monthly'
+}
+
 export function Component() {
+  const { t, i18n } = useTranslation('billing')
   const navigate = useNavigate()
-  const [frequency, setFrequency] = useState<BillingFrequency>('monthly')
+  const [searchParams] = useSearchParams()
+  const planParam = searchParams.get('plan')
+  const frequencyParam = searchParams.get('frequency')
+  const [frequency, setFrequency] = useState<BillingFrequency>(getInitialFrequency(frequencyParam))
   const isYearly = frequency === 'yearly'
   function handleBackToDashboard() {
     navigate('/dashboard')
@@ -94,12 +90,12 @@ export function Component() {
       <div className="mx-auto max-w-5xl">
         <div className="mb-4">
           <Button variant="ghost" onClick={handleBackToDashboard} data-testid="back-button">
-            &larr; Back to Dashboard
+            &larr; {t('pricing.backToDashboard')}
           </Button>
         </div>
         <div className="mb-12 text-center">
-          <h1 className="mb-4 text-3xl font-bold tracking-tight text-foreground md:text-4xl">Choose your plan</h1>
-          <p className="mb-8 text-lg text-muted-foreground">Start your 14-day free trial. No credit card required.</p>
+          <h1 className="mb-4 text-3xl font-bold tracking-tight text-foreground md:text-4xl">{t('pricing.title')}</h1>
+          <p className="mb-8 text-lg text-muted-foreground">{t('pricing.subtitle')}</p>
           <div className="inline-flex items-center rounded-lg bg-muted p-1">
             <label
               className={`cursor-pointer rounded-md px-4 py-2 text-sm font-medium transition-colors ${
@@ -117,7 +113,7 @@ export function Component() {
                 onChange={() => setFrequency('monthly')}
                 className="sr-only"
               />
-              Monthly
+              {t('pricing.toggle.monthly')}
             </label>
             <label
               className={`cursor-pointer rounded-md px-4 py-2 text-sm font-medium transition-colors ${
@@ -135,9 +131,9 @@ export function Component() {
                 onChange={() => setFrequency('yearly')}
                 className="sr-only"
               />
-              Yearly
+              {t('pricing.toggle.yearly')}
               <span className="ml-2 rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">
-                Save {ANNUAL_DISCOUNT_PERCENT}%
+                {t('pricing.toggle.savings', { percent: ANNUAL_DISCOUNT_PERCENT })}
               </span>
             </label>
           </div>
@@ -147,27 +143,35 @@ export function Component() {
             const price = isYearly ? plan.yearlyPrice : plan.monthlyPrice
             const monthlyEquivalent = isYearly ? getMonthlyEquivalent(plan.yearlyPrice) : plan.monthlyPrice
             const priceId = isYearly ? plan.priceIds.yearly : plan.priceIds.monthly
+            const isHighlighted = planParam === plan.id
+            const planName = t(`pricing.plans.${plan.id}.name` as 'pricing.plans.essential.name') as string
             return (
               <Card
                 key={plan.id}
-                className={`relative ${plan.recommended ? 'border-primary shadow-lg' : ''}`}
+                className={`relative ${plan.recommended ? 'border-primary shadow-lg' : ''} ${isHighlighted ? 'ring-2 ring-primary' : ''}`}
                 data-testid={`plan-card-${plan.id}`}
               >
                 {plan.recommended ? (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                     <span className="rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
-                      Recommended
+                      {t('pricing.recommended')}
                     </span>
                   </div>
                 ) : null}
                 <CardHeader className="text-center">
-                  <CardTitle className="text-xl">{plan.name}</CardTitle>
-                  <CardDescription>{plan.description}</CardDescription>
+                  <CardTitle className="text-xl">{planName}</CardTitle>
+                  <CardDescription>
+                    {t(`pricing.plans.${plan.id}.description` as 'pricing.plans.essential.description')}
+                  </CardDescription>
                   <div className="mt-4">
-                    <span className="text-4xl font-bold text-foreground">{formatPrice(monthlyEquivalent)}</span>
-                    <span className="text-muted-foreground">/month</span>
+                    <span className="text-4xl font-bold text-foreground">
+                      {formatPrice(monthlyEquivalent, i18n.language)}
+                    </span>
+                    <span className="text-muted-foreground">{t('pricing.period.monthly')}</span>
                     {isYearly ? (
-                      <p className="mt-1 text-sm text-muted-foreground">{formatPrice(price)} billed yearly</p>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {t('pricing.billedYearly', { price: formatPrice(price, i18n.language) })}
+                      </p>
                     ) : null}
                   </div>
                 </CardHeader>
@@ -175,7 +179,7 @@ export function Component() {
                   <ul className="mb-6 space-y-3">
                     {plan.features.map(feature => (
                       <li
-                        key={feature.text}
+                        key={feature.key}
                         className={`flex items-center gap-2 ${
                           feature.included ? 'text-foreground' : 'text-muted-foreground line-through'
                         }`}
@@ -184,18 +188,20 @@ export function Component() {
                           className={`h-4 w-4 ${feature.included ? 'text-primary' : 'text-muted-foreground'}`}
                           aria-hidden="true"
                         />
-                        {feature.text}
+                        {t(
+                          `pricing.plans.${plan.id}.features.${feature.key}` as 'pricing.plans.essential.features.teamMembers',
+                        )}
                       </li>
                     ))}
                   </ul>
                   <CheckoutButton
                     priceId={priceId}
-                    planName={plan.name}
+                    planName={planName}
                     className="w-full"
                     variant={plan.recommended ? 'default' : 'outline'}
                     data-testid={`checkout-button-${plan.id}`}
                   >
-                    Get Started
+                    {t('pricing.cta')}
                   </CheckoutButton>
                 </CardContent>
               </Card>
@@ -205,15 +211,15 @@ export function Component() {
         <div className="mt-12 flex flex-wrap items-center justify-center gap-8 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <Check className="h-5 w-5 text-primary" aria-hidden="true" />
-            <span>No setup fees</span>
+            <span>{t('pricing.trustBadges.noSetupFees')}</span>
           </div>
           <div className="flex items-center gap-2">
             <Check className="h-5 w-5 text-primary" aria-hidden="true" />
-            <span>Cancel anytime</span>
+            <span>{t('pricing.trustBadges.cancelAnytime')}</span>
           </div>
           <div className="flex items-center gap-2">
             <Check className="h-5 w-5 text-primary" aria-hidden="true" />
-            <span>14-day free trial</span>
+            <span>{t('pricing.trustBadges.freeTrial')}</span>
           </div>
         </div>
       </div>

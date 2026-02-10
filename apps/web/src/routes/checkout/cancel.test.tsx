@@ -4,6 +4,16 @@ import { MemoryRouter, useNavigate } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Component as CancelPage } from './cancel'
 
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+    i18n: { language: 'en', changeLanguage: vi.fn() },
+    ready: true,
+  }),
+  Trans: ({ i18nKey }: { i18nKey: string }) => i18nKey,
+  initReactI18next: { type: '3rdParty', init: () => {} },
+}))
+
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom')
   return {
@@ -31,27 +41,27 @@ describe('CheckoutCancelPage', () => {
   describe('rendering', () => {
     it('renders cancelled heading', () => {
       renderWithRouter()
-      expect(screen.getByRole('heading', { name: /payment cancelled/i })).toBeInTheDocument()
+      expect(screen.getByText('checkout.cancel.title')).toBeInTheDocument()
     })
 
     it('renders not completed message', () => {
       renderWithRouter()
-      expect(screen.getByText(/your payment was not completed/i)).toBeInTheDocument()
+      expect(screen.getByText('checkout.cancel.description')).toBeInTheDocument()
     })
 
     it('renders no charges message', () => {
       renderWithRouter()
-      expect(screen.getByText(/no charges were made/i)).toBeInTheDocument()
+      expect(screen.getByText('checkout.cancel.message')).toBeInTheDocument()
     })
 
     it('renders try again button', () => {
       renderWithRouter()
-      expect(screen.getByTestId('try-again')).toHaveTextContent('Try Again')
+      expect(screen.getByTestId('try-again')).toHaveTextContent('checkout.cancel.tryAgain')
     })
 
     it('renders go to dashboard button', () => {
       renderWithRouter()
-      expect(screen.getByTestId('go-to-dashboard')).toHaveTextContent('Go to Dashboard')
+      expect(screen.getByTestId('go-to-dashboard')).toHaveTextContent('checkout.cancel.goToDashboard')
     })
 
     it('renders x circle icon', () => {

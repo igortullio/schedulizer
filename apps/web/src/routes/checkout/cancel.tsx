@@ -1,8 +1,10 @@
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@schedulizer/ui'
 import { XCircle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
 export function Component() {
+  const { t } = useTranslation('billing')
   const navigate = useNavigate()
   function handleTryAgain() {
     navigate('/pricing', { replace: false })
@@ -17,19 +19,17 @@ export function Component() {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
             <XCircle className="h-10 w-10 text-red-600" aria-hidden="true" />
           </div>
-          <CardTitle className="text-2xl">Payment Cancelled</CardTitle>
-          <CardDescription>Your payment was not completed</CardDescription>
+          <CardTitle className="text-2xl">{t('checkout.cancel.title')}</CardTitle>
+          <CardDescription>{t('checkout.cancel.description')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            Don&apos;t worry, no charges were made. You can try again whenever you&apos;re ready.
-          </p>
+          <p className="text-sm text-muted-foreground">{t('checkout.cancel.message')}</p>
           <div className="flex flex-col gap-2">
             <Button onClick={handleTryAgain} className="w-full" data-testid="try-again">
-              Try Again
+              {t('checkout.cancel.tryAgain')}
             </Button>
             <Button onClick={handleGoToDashboard} variant="outline" className="w-full" data-testid="go-to-dashboard">
-              Go to Dashboard
+              {t('checkout.cancel.goToDashboard')}
             </Button>
           </div>
         </CardContent>

@@ -2,7 +2,9 @@ import { clientEnv } from '@schedulizer/env/client'
 import { Button, type ButtonProps } from '@schedulizer/ui'
 import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
-import { useSession } from '@/lib/auth-client'
+import { useTranslation } from 'react-i18next'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { authClient, useSession } from '@/lib/auth-client'
 
 type CheckoutState = 'idle' | 'loading' | 'error'
 
@@ -32,13 +34,25 @@ function isCheckoutError(response: CheckoutResponse): response is CheckoutErrorR
 }
 
 export function CheckoutButton({ priceId, planName, children, disabled, ...props }: CheckoutButtonProps) {
+  const { t } = useTranslation('billing')
   const { data: session, isPending: sessionPending } = useSession()
+  const { data: activeOrg, isPending: orgPending } = authClient.useActiveOrganization()
+  const navigate = useNavigate()
+  const location = useLocation()
   const [state, setState] = useState<CheckoutState>('idle')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const isAuthenticated = !!session?.user
-  const isDisabled = disabled || !isAuthenticated || sessionPending || state === 'loading'
+  const isDisabled = disabled || sessionPending || orgPending || state === 'loading'
   async function handleCheckout() {
-    if (!isAuthenticated) return
+    const currentUrl = `${location.pathname}${location.search}`
+    if (!isAuthenticated) {
+      navigate(`/auth/login?redirect=${encodeURIComponent(currentUrl)}`)
+      return
+    }
+    if (!activeOrg) {
+      navigate(`/auth/org-select?redirect=${encodeURIComponent(currentUrl)}`)
+      return
+    }
     setState('loading')
     setErrorMessage(null)
     try {
@@ -58,7 +72,7 @@ export function CheckoutButton({ priceId, planName, children, disabled, ...props
       })
       const data: CheckoutResponse = await response.json()
       if (!response.ok || isCheckoutError(data)) {
-        const errorData = isCheckoutError(data) ? data : { error: { message: 'Failed to create checkout session' } }
+        const errorData = isCheckoutError(data) ? data : { error: { message: t('checkout.sessionError'), code: '' } }
         console.error('Checkout failed', { priceId, planName, error: errorData.error.message })
         setErrorMessage(errorData.error.message)
         setState('error')
@@ -72,7 +86,7 @@ export function CheckoutButton({ priceId, planName, children, disabled, ...props
         planName,
         error: err instanceof Error ? err.message : 'Unknown error',
       })
-      setErrorMessage('Failed to connect to payment service. Please try again.')
+      setErrorMessage(t('checkout.connectionError'))
       setState('error')
     }
   }
@@ -82,7 +96,7 @@ export function CheckoutButton({ priceId, planName, children, disabled, ...props
         {state === 'loading' ? (
           <>
             <Loader2 className="animate-spin" aria-hidden="true" />
-            <span>Processing...</span>
+            <span>{t('checkout.processing')}</span>
           </>
         ) : (
           children
@@ -91,11 +105,6 @@ export function CheckoutButton({ priceId, planName, children, disabled, ...props
       {state === 'error' && errorMessage ? (
         <p className="mt-2 text-sm text-destructive" role="alert" data-testid="checkout-error">
           {errorMessage}
-        </p>
-      ) : null}
-      {!isAuthenticated && !sessionPending ? (
-        <p className="mt-2 text-sm text-muted-foreground" data-testid="checkout-auth-hint">
-          Please sign in to subscribe
         </p>
       ) : null}
     </div>

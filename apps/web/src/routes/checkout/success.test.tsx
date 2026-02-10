@@ -4,6 +4,16 @@ import { MemoryRouter, useNavigate } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Component as SuccessPage } from './success'
 
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+    i18n: { language: 'en', changeLanguage: vi.fn() },
+    ready: true,
+  }),
+  Trans: ({ i18nKey }: { i18nKey: string }) => i18nKey,
+  initReactI18next: { type: '3rdParty', init: () => {} },
+}))
+
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom')
   return {
@@ -31,22 +41,22 @@ describe('CheckoutSuccessPage', () => {
   describe('rendering', () => {
     it('renders success heading', () => {
       renderWithRouter()
-      expect(screen.getByRole('heading', { name: /payment successful/i })).toBeInTheDocument()
+      expect(screen.getByText('checkout.success.title')).toBeInTheDocument()
     })
 
     it('renders thank you message', () => {
       renderWithRouter()
-      expect(screen.getByText(/thank you for subscribing/i)).toBeInTheDocument()
+      expect(screen.getByText('checkout.success.description')).toBeInTheDocument()
     })
 
     it('renders subscription active message', () => {
       renderWithRouter()
-      expect(screen.getByText(/your subscription is now active/i)).toBeInTheDocument()
+      expect(screen.getByText('checkout.success.message')).toBeInTheDocument()
     })
 
     it('renders go to dashboard button', () => {
       renderWithRouter()
-      expect(screen.getByTestId('go-to-dashboard')).toHaveTextContent('Go to Dashboard')
+      expect(screen.getByTestId('go-to-dashboard')).toHaveTextContent('checkout.success.goToDashboard')
     })
 
     it('renders check circle icon', () => {
@@ -59,7 +69,7 @@ describe('CheckoutSuccessPage', () => {
   describe('session id display', () => {
     it('displays session id when present in URL', () => {
       renderWithRouter('/checkout/success?session_id=cs_test_123')
-      expect(screen.getByTestId('session-id')).toHaveTextContent('Transaction ID: cs_test_123')
+      expect(screen.getByTestId('session-id')).toHaveTextContent('checkout.success.transactionId')
     })
 
     it('does not display session id when not present', () => {

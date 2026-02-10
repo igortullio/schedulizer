@@ -4,9 +4,25 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { CheckoutButton } from './checkout-button'
 
 const mockUseSession = vi.fn()
+const mockUseActiveOrganization = vi.fn()
+const mockNavigate = vi.fn()
+const mockLocation = { pathname: '/pricing', search: '' }
+
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+    i18n: { language: 'en', changeLanguage: vi.fn() },
+    ready: true,
+  }),
+  Trans: ({ i18nKey }: { i18nKey: string }) => i18nKey,
+  initReactI18next: { type: '3rdParty', init: () => {} },
+}))
 
 vi.mock('@/lib/auth-client', () => ({
   useSession: () => mockUseSession(),
+  authClient: {
+    useActiveOrganization: () => mockUseActiveOrganization(),
+  },
 }))
 
 vi.mock('@schedulizer/env/client', () => ({
@@ -14,6 +30,15 @@ vi.mock('@schedulizer/env/client', () => ({
     apiUrl: 'http://localhost:3000',
   },
 }))
+
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom')
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+    useLocation: () => mockLocation,
+  }
+})
 
 const mockFetch = vi.fn()
 global.fetch = mockFetch
@@ -25,6 +50,10 @@ describe('CheckoutButton', () => {
     vi.clearAllMocks()
     mockUseSession.mockReturnValue({
       data: { user: { id: 'user-1', email: 'test@example.com' } },
+      isPending: false,
+    })
+    mockUseActiveOrganization.mockReturnValue({
+      data: { id: 'org-1', name: 'Test Org' },
       isPending: false,
     })
     Object.defineProperty(window, 'location', {
@@ -54,10 +83,54 @@ describe('CheckoutButton', () => {
   })
 
   describe('authentication state', () => {
-    it('disables button when user is not authenticated', () => {
+    it('redirects to login when unauthenticated user clicks button', async () => {
+      const user = userEvent.setup()
       mockUseSession.mockReturnValue({
         data: null,
         isPending: false,
+      })
+      render(
+        <CheckoutButton priceId="price_123" planName="Essential">
+          Get Started
+        </CheckoutButton>,
+      )
+      await user.click(screen.getByTestId('checkout-button'))
+      expect(mockNavigate).toHaveBeenCalledWith('/auth/login?redirect=%2Fpricing')
+    })
+
+    it('does not show auth hint when user is not authenticated', () => {
+      mockUseSession.mockReturnValue({
+        data: null,
+        isPending: false,
+      })
+      render(
+        <CheckoutButton priceId="price_123" planName="Essential">
+          Get Started
+        </CheckoutButton>,
+      )
+      expect(screen.queryByTestId('checkout-auth-hint')).not.toBeInTheDocument()
+    })
+
+    it('redirects to org-select when authenticated but no active org', async () => {
+      const user = userEvent.setup()
+      mockUseActiveOrganization.mockReturnValue({
+        data: null,
+        isPending: false,
+      })
+      render(
+        <CheckoutButton priceId="price_123" planName="Essential">
+          Get Started
+        </CheckoutButton>,
+      )
+      await user.click(screen.getByTestId('checkout-button'))
+      expect(mockNavigate).toHaveBeenCalledWith('/auth/org-select?redirect=%2Fpricing')
+      expect(mockFetch).not.toHaveBeenCalled()
+    })
+
+    it('disables button while active org is loading', () => {
+      mockUseActiveOrganization.mockReturnValue({
+        data: null,
+        isPending: true,
       })
       render(
         <CheckoutButton priceId="price_123" planName="Essential">
@@ -65,19 +138,6 @@ describe('CheckoutButton', () => {
         </CheckoutButton>,
       )
       expect(screen.getByTestId('checkout-button')).toBeDisabled()
-    })
-
-    it('shows auth hint when user is not authenticated', () => {
-      mockUseSession.mockReturnValue({
-        data: null,
-        isPending: false,
-      })
-      render(
-        <CheckoutButton priceId="price_123" planName="Essential">
-          Get Started
-        </CheckoutButton>,
-      )
-      expect(screen.getByTestId('checkout-auth-hint')).toHaveTextContent('Please sign in to subscribe')
     })
 
     it('disables button while session is loading', () => {
@@ -102,13 +162,17 @@ describe('CheckoutButton', () => {
       expect(screen.getByTestId('checkout-button')).not.toBeDisabled()
     })
 
-    it('does not show auth hint when user is authenticated', () => {
+    it('button is not disabled when user is not authenticated', () => {
+      mockUseSession.mockReturnValue({
+        data: null,
+        isPending: false,
+      })
       render(
         <CheckoutButton priceId="price_123" planName="Essential">
           Get Started
         </CheckoutButton>,
       )
-      expect(screen.queryByTestId('checkout-auth-hint')).not.toBeInTheDocument()
+      expect(screen.getByTestId('checkout-button')).not.toBeDisabled()
     })
   })
 
@@ -134,7 +198,7 @@ describe('CheckoutButton', () => {
         </CheckoutButton>,
       )
       await user.click(screen.getByTestId('checkout-button'))
-      expect(screen.getByText('Processing...')).toBeInTheDocument()
+      expect(screen.getByText('checkout.processing')).toBeInTheDocument()
     })
 
     it('disables button during loading', async () => {
@@ -224,6 +288,24 @@ describe('CheckoutButton', () => {
       })
     })
 
+    it('shows error message when API returns NO_ACTIVE_ORG', async () => {
+      const user = userEvent.setup()
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        json: () => Promise.resolve({ error: { message: 'No active organization selected', code: 'NO_ACTIVE_ORG' } }),
+      })
+      render(
+        <CheckoutButton priceId="price_123" planName="Essential">
+          Get Started
+        </CheckoutButton>,
+      )
+      await user.click(screen.getByTestId('checkout-button'))
+      await waitFor(() => {
+        expect(screen.getByTestId('checkout-error')).toHaveTextContent('No active organization selected')
+      })
+      expect(mockNavigate).not.toHaveBeenCalled()
+    })
+
     it('shows generic error on network failure', async () => {
       const user = userEvent.setup()
       mockFetch.mockRejectedValueOnce(new Error('Network error'))
@@ -234,7 +316,7 @@ describe('CheckoutButton', () => {
       )
       await user.click(screen.getByTestId('checkout-button'))
       await waitFor(() => {
-        expect(screen.getByTestId('checkout-error')).toHaveTextContent('Failed to connect to payment service')
+        expect(screen.getByTestId('checkout-error')).toHaveTextContent('checkout.connectionError')
       })
     })
 

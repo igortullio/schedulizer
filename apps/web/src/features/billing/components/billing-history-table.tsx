@@ -15,6 +15,8 @@ import {
   TableRow,
 } from '@schedulizer/ui'
 import { Download, ExternalLink } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { formatCurrency, formatDateShort } from '@/lib/format'
 import type { Invoice } from '../types'
 
 interface BillingHistoryTableProps {
@@ -36,21 +38,6 @@ function getInvoiceStatusVariant(status: string): StatusVariant {
     uncollectible: 'destructive',
   }
   return statusVariants[status as InvoiceStatus] ?? 'secondary'
-}
-
-function formatCurrency(amount: number, currency: string): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency.toUpperCase(),
-  }).format(amount / 100)
-}
-
-function formatDate(timestamp: number): string {
-  return new Date(timestamp * 1000).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
 }
 
 function BillingHistoryTableSkeleton() {
@@ -87,30 +74,32 @@ function BillingHistoryTableSkeleton() {
 }
 
 function EmptyInvoices() {
+  const { t } = useTranslation('billing')
   return (
     <Card data-testid="billing-history-empty">
       <CardHeader>
-        <CardTitle>Billing History</CardTitle>
-        <CardDescription>Your past invoices and payment history</CardDescription>
+        <CardTitle>{t('subscription.billingHistory.title')}</CardTitle>
+        <CardDescription>{t('subscription.billingHistory.description')}</CardDescription>
       </CardHeader>
       <CardContent>
-        <p className="text-center text-sm text-muted-foreground">No invoices yet</p>
+        <p className="text-center text-sm text-muted-foreground">{t('subscription.billingHistory.empty')}</p>
       </CardContent>
     </Card>
   )
 }
 
 function ErrorState({ onRetry }: { onRetry: () => void }) {
+  const { t } = useTranslation('billing')
   return (
     <Card data-testid="billing-history-error">
       <CardHeader>
-        <CardTitle>Billing History</CardTitle>
-        <CardDescription>Your past invoices and payment history</CardDescription>
+        <CardTitle>{t('subscription.billingHistory.title')}</CardTitle>
+        <CardDescription>{t('subscription.billingHistory.description')}</CardDescription>
       </CardHeader>
       <CardContent className="text-center">
-        <p className="mb-4 text-sm text-destructive">Failed to load billing history</p>
+        <p className="mb-4 text-sm text-destructive">{t('subscription.billingHistory.errorLoading')}</p>
         <Button onClick={onRetry} variant="outline" data-testid="retry-button">
-          Try Again
+          {t('subscription.billingHistory.tryAgain')}
         </Button>
       </CardContent>
     </Card>
@@ -118,6 +107,7 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
 }
 
 export function BillingHistoryTable({ invoices, isLoading, error, onRetry }: BillingHistoryTableProps) {
+  const { t, i18n } = useTranslation('billing')
   if (isLoading) {
     return <BillingHistoryTableSkeleton />
   }
@@ -130,25 +120,25 @@ export function BillingHistoryTable({ invoices, isLoading, error, onRetry }: Bil
   return (
     <Card data-testid="billing-history-table">
       <CardHeader>
-        <CardTitle>Billing History</CardTitle>
-        <CardDescription>Your past invoices and payment history</CardDescription>
+        <CardTitle>{t('subscription.billingHistory.title')}</CardTitle>
+        <CardDescription>{t('subscription.billingHistory.description')}</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Amount</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Invoice</TableHead>
+              <TableHead>{t('subscription.billingHistory.columns.date')}</TableHead>
+              <TableHead>{t('subscription.billingHistory.columns.amount')}</TableHead>
+              <TableHead>{t('subscription.billingHistory.columns.status')}</TableHead>
+              <TableHead className="text-right">{t('subscription.billingHistory.columns.invoice')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {invoices.map(invoice => (
               <TableRow key={invoice.id} data-testid={`invoice-row-${invoice.id}`}>
-                <TableCell data-testid="invoice-date">{formatDate(invoice.created)}</TableCell>
+                <TableCell data-testid="invoice-date">{formatDateShort(invoice.created, i18n.language)}</TableCell>
                 <TableCell data-testid="invoice-amount">
-                  {formatCurrency(invoice.amountPaid || invoice.amountDue, invoice.currency)}
+                  {formatCurrency(invoice.amountPaid || invoice.amountDue, invoice.currency, i18n.language)}
                 </TableCell>
                 <TableCell>
                   <Badge variant={getInvoiceStatusVariant(invoice.status ?? '')} data-testid="invoice-status">

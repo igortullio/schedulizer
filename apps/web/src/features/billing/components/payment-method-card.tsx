@@ -1,5 +1,6 @@
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton } from '@schedulizer/ui'
 import { CreditCard, Loader2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 interface PaymentMethodCardProps {
   onManagePayment: () => void
@@ -29,23 +30,24 @@ function PaymentMethodCardSkeleton() {
 }
 
 export function PaymentMethodCard({ onManagePayment, isLoading, isPortalLoading }: PaymentMethodCardProps) {
+  const { t } = useTranslation('billing')
   if (isLoading) {
     return <PaymentMethodCardSkeleton />
   }
   return (
     <Card data-testid="payment-method-card">
       <CardHeader>
-        <CardTitle>Payment Method</CardTitle>
-        <CardDescription>Manage your payment information</CardDescription>
+        <CardTitle>{t('subscription.paymentMethod.title')}</CardTitle>
+        <CardDescription>{t('subscription.paymentMethod.description')}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center gap-3 rounded-md border border-border p-3">
           <CreditCard className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
           <div className="flex-1">
             <p className="text-sm font-medium text-foreground" data-testid="payment-method-info">
-              Card on file
+              {t('subscription.paymentMethod.cardOnFile')}
             </p>
-            <p className="text-xs text-muted-foreground">Managed via Stripe</p>
+            <p className="text-xs text-muted-foreground">{t('subscription.paymentMethod.managedViaStripe')}</p>
           </div>
         </div>
         <Button
@@ -61,7 +63,7 @@ export function PaymentMethodCard({ onManagePayment, isLoading, isPortalLoading 
               <span>Loading...</span>
             </>
           ) : (
-            'Update Payment Method'
+            t('subscription.paymentMethod.updatePaymentMethod')
           )}
         </Button>
       </CardContent>

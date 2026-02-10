@@ -4,6 +4,21 @@ import { describe, expect, it, vi } from 'vitest'
 import type { Invoice } from '../types'
 import { BillingHistoryTable } from './billing-history-table'
 
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+    i18n: { language: 'en', changeLanguage: vi.fn() },
+    ready: true,
+  }),
+  Trans: ({ i18nKey }: { i18nKey: string }) => i18nKey,
+  initReactI18next: { type: '3rdParty', init: () => {} },
+}))
+
+vi.mock('@/lib/format', () => ({
+  formatCurrency: (amountInCents: number, currency: string) => `$${(amountInCents / 100).toFixed(2)}`,
+  formatDateShort: (timestamp: number) => `date-${timestamp}`,
+}))
+
 const mockInvoices: Invoice[] = [
   {
     id: 'inv_1',
@@ -45,7 +60,7 @@ describe('BillingHistoryTable', () => {
     it('renders error state when there is an error', () => {
       render(<BillingHistoryTable invoices={[]} isLoading={false} error="Failed to load" onRetry={vi.fn()} />)
       expect(screen.getByTestId('billing-history-error')).toBeInTheDocument()
-      expect(screen.getByText('Failed to load billing history')).toBeInTheDocument()
+      expect(screen.getByText('subscription.billingHistory.errorLoading')).toBeInTheDocument()
     })
 
     it('calls onRetry when retry button is clicked', async () => {
@@ -61,7 +76,7 @@ describe('BillingHistoryTable', () => {
     it('renders empty state when no invoices', () => {
       render(<BillingHistoryTable invoices={[]} isLoading={false} error={null} onRetry={vi.fn()} />)
       expect(screen.getByTestId('billing-history-empty')).toBeInTheDocument()
-      expect(screen.getByText('No invoices yet')).toBeInTheDocument()
+      expect(screen.getByText('subscription.billingHistory.empty')).toBeInTheDocument()
     })
   })
 

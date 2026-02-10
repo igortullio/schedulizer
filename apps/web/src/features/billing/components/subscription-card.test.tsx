@@ -4,6 +4,20 @@ import { describe, expect, it, vi } from 'vitest'
 import type { Subscription } from '../types'
 import { SubscriptionCard } from './subscription-card'
 
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+    i18n: { language: 'en', changeLanguage: vi.fn() },
+    ready: true,
+  }),
+  Trans: ({ i18nKey }: { i18nKey: string }) => i18nKey,
+  initReactI18next: { type: '3rdParty', init: () => {} },
+}))
+
+vi.mock('@/lib/format', () => ({
+  formatDate: (dateString: string | null) => (dateString ? 'formatted-date' : 'N/A'),
+}))
+
 const mockActiveSubscription: Subscription = {
   id: 'sub-1',
   organizationId: 'org-1',
@@ -60,7 +74,7 @@ describe('SubscriptionCard', () => {
         />,
       )
       expect(screen.getByTestId('subscription-card-empty')).toBeInTheDocument()
-      expect(screen.getByText('No Active Subscription')).toBeInTheDocument()
+      expect(screen.getByText('subscription.card.noSubscription.title')).toBeInTheDocument()
     })
 
     it('calls onManageSubscription when subscribe button is clicked', async () => {
@@ -91,7 +105,7 @@ describe('SubscriptionCard', () => {
       )
       expect(screen.getByTestId('subscription-card')).toBeInTheDocument()
       expect(screen.getByTestId('plan-name')).toHaveTextContent('Professional')
-      expect(screen.getByTestId('subscription-status')).toHaveTextContent('Active')
+      expect(screen.getByTestId('subscription-status')).toHaveTextContent('subscription.card.status.active')
     })
 
     it('displays billing period correctly', () => {
@@ -129,7 +143,7 @@ describe('SubscriptionCard', () => {
           isPortalLoading={false}
         />,
       )
-      expect(screen.getByTestId('subscription-status')).toHaveTextContent('Active')
+      expect(screen.getByTestId('subscription-status')).toHaveTextContent('subscription.card.status.active')
     })
 
     it('shows trial badge for trialing subscription', () => {
@@ -141,7 +155,7 @@ describe('SubscriptionCard', () => {
           isPortalLoading={false}
         />,
       )
-      expect(screen.getByTestId('subscription-status')).toHaveTextContent('Trial')
+      expect(screen.getByTestId('subscription-status')).toHaveTextContent('subscription.card.status.trialing')
     })
 
     it('shows past due badge for past_due subscription', () => {
@@ -153,7 +167,7 @@ describe('SubscriptionCard', () => {
           isPortalLoading={false}
         />,
       )
-      expect(screen.getByTestId('subscription-status')).toHaveTextContent('Past Due')
+      expect(screen.getByTestId('subscription-status')).toHaveTextContent('subscription.card.status.past_due')
     })
   })
 

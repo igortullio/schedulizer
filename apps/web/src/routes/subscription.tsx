@@ -1,6 +1,7 @@
 import { Button } from '@schedulizer/ui'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Navigate, useNavigate } from 'react-router-dom'
 import {
   BillingHistoryTable,
@@ -15,6 +16,7 @@ import {
 import { useSession } from '@/lib/auth-client'
 
 export function Component() {
+  const { t } = useTranslation('billing')
   const navigate = useNavigate()
   const { data: session, isPending: sessionPending } = useSession()
   const { subscription, state: subscriptionState } = useSubscription()
@@ -65,12 +67,12 @@ export function Component() {
         <div className="mb-6">
           <Button variant="ghost" onClick={handleBackToDashboard} data-testid="back-button">
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            Back to Dashboard
+            {t('subscription.backToDashboard')}
           </Button>
         </div>
         <div className="mb-8">
-          <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">Subscription Management</h1>
-          <p className="mt-2 text-muted-foreground">Manage your subscription, payment method, and billing history.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">{t('subscription.title')}</h1>
+          <p className="mt-2 text-muted-foreground">{t('subscription.description')}</p>
         </div>
         <div className="grid gap-6 md:grid-cols-2">
           <SubscriptionCard
@@ -93,7 +95,7 @@ export function Component() {
               className="text-destructive hover:bg-destructive/10 hover:text-destructive"
               data-testid="cancel-subscription-trigger"
             >
-              Cancel Subscription
+              {t('subscription.cancelSubscription')}
             </Button>
           </div>
         ) : null}

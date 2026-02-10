@@ -1,5 +1,7 @@
 import { Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton } from '@schedulizer/ui'
 import { CalendarDays, CreditCard, Loader2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { formatDate } from '@/lib/format'
 import type { Subscription, SubscriptionStatus } from '../types'
 
 interface SubscriptionCardProps {
@@ -23,29 +25,6 @@ function getStatusVariant(status: SubscriptionStatus): StatusVariant {
     paused: 'secondary',
   }
   return statusVariants[status]
-}
-
-function getStatusLabel(status: SubscriptionStatus): string {
-  const statusLabels: Record<SubscriptionStatus, string> = {
-    active: 'Active',
-    trialing: 'Trial',
-    past_due: 'Past Due',
-    canceled: 'Canceled',
-    unpaid: 'Unpaid',
-    incomplete: 'Incomplete',
-    incomplete_expired: 'Expired',
-    paused: 'Paused',
-  }
-  return statusLabels[status]
-}
-
-function formatDate(dateString: string | null): string {
-  if (!dateString) return 'N/A'
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
 }
 
 function formatPlanName(plan: string | null): string {
@@ -79,18 +58,17 @@ function SubscriptionCardSkeleton() {
 }
 
 function NoSubscriptionCard({ onManageSubscription }: { onManageSubscription: () => void }) {
+  const { t } = useTranslation('billing')
   return (
     <Card data-testid="subscription-card-empty">
       <CardHeader>
-        <CardTitle>No Active Subscription</CardTitle>
-        <CardDescription>You don't have an active subscription yet</CardDescription>
+        <CardTitle>{t('subscription.card.noSubscription.title')}</CardTitle>
+        <CardDescription>{t('subscription.card.noSubscription.description')}</CardDescription>
       </CardHeader>
       <CardContent>
-        <p className="mb-4 text-sm text-muted-foreground">
-          Subscribe to a plan to unlock all features and start scheduling.
-        </p>
+        <p className="mb-4 text-sm text-muted-foreground">{t('subscription.card.noSubscription.message')}</p>
         <Button onClick={onManageSubscription} className="w-full" data-testid="subscribe-button">
-          Subscribe Now
+          {t('subscription.card.noSubscription.cta')}
         </Button>
       </CardContent>
     </Card>
@@ -103,6 +81,7 @@ export function SubscriptionCard({
   onManageSubscription,
   isPortalLoading,
 }: SubscriptionCardProps) {
+  const { t, i18n } = useTranslation('billing')
   if (isLoading) {
     return <SubscriptionCardSkeleton />
   }
@@ -116,23 +95,25 @@ export function SubscriptionCard({
         <div className="flex items-center justify-between">
           <CardTitle data-testid="plan-name">{formatPlanName(subscription.plan)}</CardTitle>
           <Badge variant={getStatusVariant(subscription.status)} data-testid="subscription-status">
-            {getStatusLabel(subscription.status)}
+            {t(`subscription.card.status.${subscription.status}` as 'subscription.card.status.active')}
           </Badge>
         </div>
-        <CardDescription>Your current subscription plan</CardDescription>
+        <CardDescription>{t('subscription.card.currentPlan')}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center gap-3 text-sm">
           <CalendarDays className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
           <span data-testid="billing-period">
             {subscription.currentPeriodStart && subscription.currentPeriodEnd
-              ? `${formatDate(subscription.currentPeriodStart)} - ${formatDate(subscription.currentPeriodEnd)}`
-              : 'No billing period'}
+              ? `${formatDate(subscription.currentPeriodStart, i18n.language)} - ${formatDate(subscription.currentPeriodEnd, i18n.language)}`
+              : t('subscription.card.noBillingPeriod')}
           </span>
         </div>
         <div className="flex items-center gap-3 text-sm">
           <CreditCard className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
-          <span data-testid="next-billing">Next billing: {formatDate(subscription.currentPeriodEnd)}</span>
+          <span data-testid="next-billing">
+            {t('subscription.card.nextBilling', { date: formatDate(subscription.currentPeriodEnd, i18n.language) })}
+          </span>
         </div>
         {showCancelWarning ? (
           <div
@@ -140,7 +121,7 @@ export function SubscriptionCard({
             data-testid="cancel-warning"
             role="alert"
           >
-            Your subscription will be canceled at the end of the current billing period.
+            {t('subscription.card.cancelWarning')}
           </div>
         ) : null}
         <Button
@@ -156,7 +137,7 @@ export function SubscriptionCard({
               <span>Loading...</span>
             </>
           ) : (
-            'Manage Subscription'
+            t('subscription.card.manageSubscription')
           )}
         </Button>
       </CardContent>

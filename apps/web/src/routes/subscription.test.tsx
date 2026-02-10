@@ -10,6 +10,16 @@ const mockUseSubscription = vi.fn()
 const mockUseBillingHistory = vi.fn()
 const mockUseCustomerPortal = vi.fn()
 
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+    i18n: { language: 'en', changeLanguage: vi.fn() },
+    ready: true,
+  }),
+  Trans: ({ i18nKey }: { i18nKey: string }) => i18nKey,
+  initReactI18next: { type: '3rdParty', init: () => {} },
+}))
+
 vi.mock('@/lib/auth-client', () => ({
   useSession: () => mockUseSession(),
 }))
@@ -176,14 +186,14 @@ describe('SubscriptionPage', () => {
         isPending: false,
       })
       renderWithRouter(<SubscriptionPage />)
-      expect(screen.queryByText('Subscription Management')).not.toBeInTheDocument()
+      expect(screen.queryByText('subscription.title')).not.toBeInTheDocument()
     })
   })
 
   describe('authenticated state', () => {
     it('renders subscription management page', () => {
       renderWithRouter(<SubscriptionPage />)
-      expect(screen.getByText('Subscription Management')).toBeInTheDocument()
+      expect(screen.getByText('subscription.title')).toBeInTheDocument()
     })
 
     it('renders subscription card', () => {

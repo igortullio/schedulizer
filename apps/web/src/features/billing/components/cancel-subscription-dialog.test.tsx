@@ -3,14 +3,21 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { CancelSubscriptionDialog } from './cancel-subscription-dialog'
 
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+    i18n: { language: 'en', changeLanguage: vi.fn() },
+    ready: true,
+  }),
+  Trans: ({ i18nKey }: { i18nKey: string }) => i18nKey,
+  initReactI18next: { type: '3rdParty', init: () => {} },
+}))
+
+vi.mock('@/lib/format', () => ({
+  formatDate: (dateString: string | null) => (dateString ? 'formatted-date' : 'N/A'),
+}))
+
 const TEST_PERIOD_END = '2024-02-15T12:00:00Z'
-function getExpectedDateText(dateString: string): string {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-}
 
 describe('CancelSubscriptionDialog', () => {
   describe('when closed', () => {
@@ -40,7 +47,7 @@ describe('CancelSubscriptionDialog', () => {
         />,
       )
       expect(screen.getByTestId('cancel-subscription-dialog')).toBeInTheDocument()
-      expect(screen.getByRole('heading', { name: /Cancel Subscription/i })).toBeInTheDocument()
+      expect(screen.getByText('subscription.cancelDialog.title')).toBeInTheDocument()
     })
 
     it('displays warning about cancellation', () => {
@@ -53,10 +60,10 @@ describe('CancelSubscriptionDialog', () => {
           periodEnd={TEST_PERIOD_END}
         />,
       )
-      expect(screen.getByText(/Your subscription will remain active until/)).toBeInTheDocument()
+      expect(screen.getByText('subscription.cancelDialog.warning')).toBeInTheDocument()
     })
 
-    it('displays period end date', () => {
+    it('displays reactivate info', () => {
       render(
         <CancelSubscriptionDialog
           isOpen={true}
@@ -66,8 +73,7 @@ describe('CancelSubscriptionDialog', () => {
           periodEnd={TEST_PERIOD_END}
         />,
       )
-      const expectedDate = getExpectedDateText(TEST_PERIOD_END)
-      expect(screen.getByText(new RegExp(expectedDate))).toBeInTheDocument()
+      expect(screen.getByText('subscription.cancelDialog.reactivateInfo')).toBeInTheDocument()
     })
 
     it('calls onClose when keep subscription button is clicked', async () => {
@@ -126,7 +132,7 @@ describe('CancelSubscriptionDialog', () => {
           periodEnd={TEST_PERIOD_END}
         />,
       )
-      expect(screen.getByText('Canceling...')).toBeInTheDocument()
+      expect(screen.getByText('subscription.cancelDialog.canceling')).toBeInTheDocument()
     })
   })
 })

@@ -8,6 +8,7 @@ import {
   DialogTitle,
 } from '@schedulizer/ui'
 import { Loader2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 interface UpdatePlanDialogProps {
   isOpen: boolean
@@ -17,26 +18,25 @@ interface UpdatePlanDialogProps {
 }
 
 export function UpdatePlanDialog({ isOpen, onClose, onConfirm, isLoading }: UpdatePlanDialogProps) {
+  const { t } = useTranslation('billing')
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent data-testid="update-plan-dialog">
         <DialogHeader>
-          <DialogTitle>Change Subscription Plan</DialogTitle>
-          <DialogDescription>
-            You will be redirected to the Stripe Customer Portal to manage your subscription and change your plan.
-          </DialogDescription>
+          <DialogTitle>{t('subscription.updatePlanDialog.title')}</DialogTitle>
+          <DialogDescription>{t('subscription.updatePlanDialog.description')}</DialogDescription>
         </DialogHeader>
         <div className="py-4">
-          <p className="text-sm text-muted-foreground">In the Customer Portal, you can:</p>
+          <p className="text-sm text-muted-foreground">{t('subscription.updatePlanDialog.portalInfo')}</p>
           <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-muted-foreground">
-            <li>Upgrade or downgrade your plan</li>
-            <li>Switch between monthly and yearly billing</li>
-            <li>View plan features and pricing</li>
+            <li>{t('subscription.updatePlanDialog.portalFeatures.upgrade')}</li>
+            <li>{t('subscription.updatePlanDialog.portalFeatures.switchBilling')}</li>
+            <li>{t('subscription.updatePlanDialog.portalFeatures.viewPricing')}</li>
           </ul>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={isLoading} data-testid="cancel-update-button">
-            Cancel
+            {t('buttons.cancel', { ns: 'common' })}
           </Button>
           <Button onClick={onConfirm} disabled={isLoading} data-testid="confirm-update-button">
             {isLoading ? (
@@ -45,7 +45,7 @@ export function UpdatePlanDialog({ isOpen, onClose, onConfirm, isLoading }: Upda
                 <span>Loading...</span>
               </>
             ) : (
-              'Continue to Portal'
+              t('subscription.updatePlanDialog.continueToPortal')
             )}
           </Button>
         </DialogFooter>

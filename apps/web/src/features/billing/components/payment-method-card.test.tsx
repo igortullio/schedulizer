@@ -3,6 +3,16 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { PaymentMethodCard } from './payment-method-card'
 
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+    i18n: { language: 'en', changeLanguage: vi.fn() },
+    ready: true,
+  }),
+  Trans: ({ i18nKey }: { i18nKey: string }) => i18nKey,
+  initReactI18next: { type: '3rdParty', init: () => {} },
+}))
+
 describe('PaymentMethodCard', () => {
   describe('loading state', () => {
     it('renders skeleton when loading', () => {
@@ -15,12 +25,12 @@ describe('PaymentMethodCard', () => {
     it('renders card correctly', () => {
       render(<PaymentMethodCard onManagePayment={vi.fn()} isLoading={false} isPortalLoading={false} />)
       expect(screen.getByTestId('payment-method-card')).toBeInTheDocument()
-      expect(screen.getByText('Payment Method')).toBeInTheDocument()
+      expect(screen.getByText('subscription.paymentMethod.title')).toBeInTheDocument()
     })
 
     it('displays payment method info', () => {
       render(<PaymentMethodCard onManagePayment={vi.fn()} isLoading={false} isPortalLoading={false} />)
-      expect(screen.getByTestId('payment-method-info')).toHaveTextContent('Card on file')
+      expect(screen.getByTestId('payment-method-info')).toHaveTextContent('subscription.paymentMethod.cardOnFile')
     })
   })
 

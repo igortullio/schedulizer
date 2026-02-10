@@ -280,6 +280,19 @@ router.get('/invoices', async (req, res) => {
   }
 })
 
+interface SubscriptionItemPeriod {
+  current_period_start: number
+  current_period_end: number
+}
+
+function getSubscriptionPeriodDates(subscription: Stripe.Subscription) {
+  const item = subscription.items.data[0] as unknown as SubscriptionItemPeriod
+  return {
+    currentPeriodStart: new Date(item.current_period_start * 1000),
+    currentPeriodEnd: new Date(item.current_period_end * 1000),
+  }
+}
+
 async function handleCheckoutSessionCompleted(checkoutSession: Stripe.Checkout.Session) {
   const organizationId = checkoutSession.metadata?.organizationId
   if (!organizationId) {
@@ -298,6 +311,7 @@ async function handleCheckoutSessionCompleted(checkoutSession: Stripe.Checkout.S
     return
   }
   const stripeSubscription = await stripe.subscriptions.retrieve(subscriptionId)
+  const periodDates = getSubscriptionPeriodDates(stripeSubscription)
   await db
     .update(schema.subscriptions)
     .set({
@@ -305,8 +319,8 @@ async function handleCheckoutSessionCompleted(checkoutSession: Stripe.Checkout.S
       stripePriceId: stripeSubscription.items.data[0]?.price.id,
       status: stripeSubscription.status,
       plan: stripeSubscription.items.data[0]?.price.nickname ?? null,
-      currentPeriodStart: new Date(stripeSubscription.current_period_start * 1000),
-      currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
+      currentPeriodStart: periodDates.currentPeriodStart,
+      currentPeriodEnd: periodDates.currentPeriodEnd,
       cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
       updatedAt: new Date(),
     })
@@ -319,6 +333,7 @@ async function handleCheckoutSessionCompleted(checkoutSession: Stripe.Checkout.S
 }
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
+  const periodDates = getSubscriptionPeriodDates(subscription)
   const organizationId = subscription.metadata?.organizationId
   if (!organizationId) {
     const existingSubscription = await db
@@ -338,8 +353,8 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
         stripePriceId: subscription.items.data[0]?.price.id,
         status: subscription.status,
         plan: subscription.items.data[0]?.price.nickname ?? null,
-        currentPeriodStart: new Date(subscription.current_period_start * 1000),
-        currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+        currentPeriodStart: periodDates.currentPeriodStart,
+        currentPeriodEnd: periodDates.currentPeriodEnd,
         cancelAtPeriodEnd: subscription.cancel_at_period_end,
         updatedAt: new Date(),
       })
@@ -357,8 +372,8 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
       stripePriceId: subscription.items.data[0]?.price.id,
       status: subscription.status,
       plan: subscription.items.data[0]?.price.nickname ?? null,
-      currentPeriodStart: new Date(subscription.current_period_start * 1000),
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      currentPeriodStart: periodDates.currentPeriodStart,
+      currentPeriodEnd: periodDates.currentPeriodEnd,
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
       updatedAt: new Date(),
     })

@@ -346,10 +346,16 @@ describe('Billing Routes Integration', () => {
       mockStripe.subscriptions.retrieve.mockResolvedValue({
         id: 'sub_123',
         status: 'active',
-        current_period_start: 1704067200,
-        current_period_end: 1706745600,
         cancel_at_period_end: false,
-        items: { data: [{ price: { id: 'price_123', nickname: 'Professional' } }] },
+        items: {
+          data: [
+            {
+              price: { id: 'price_123', nickname: 'Professional' },
+              current_period_start: 1704067200,
+              current_period_end: 1706745600,
+            },
+          ],
+        },
       })
       const handler = findRouteHandler(webhookRouter, 'post', '/webhook')
       const { req, res } = createMockReqRes(Buffer.from('{}'), { 'stripe-signature': 'valid_sig' })
@@ -371,10 +377,16 @@ describe('Billing Routes Integration', () => {
               id: 'sub_123',
               status: 'active',
               metadata: { organizationId: 'org-123' },
-              current_period_start: 1704067200,
-              current_period_end: 1706745600,
               cancel_at_period_end: false,
-              items: { data: [{ price: { id: 'price_123', nickname: 'Professional' } }] },
+              items: {
+                data: [
+                  {
+                    price: { id: 'price_123', nickname: 'Professional' },
+                    current_period_start: 1704067200,
+                    current_period_end: 1706745600,
+                  },
+                ],
+              },
             },
           },
         },

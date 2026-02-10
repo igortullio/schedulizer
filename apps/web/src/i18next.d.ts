@@ -1,6 +1,7 @@
 import 'i18next'
 
 import auth from '../public/locales/pt-BR/auth.json'
+import billing from '../public/locales/pt-BR/billing.json'
 import common from '../public/locales/pt-BR/common.json'
 
 declare module 'i18next' {
@@ -8,6 +9,7 @@ declare module 'i18next' {
     defaultNS: 'auth'
     resources: {
       auth: typeof auth
+      billing: typeof billing
       common: typeof common
     }
     returnNull: false

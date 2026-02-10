@@ -1,0 +1,148 @@
+{
+  "pricing": {
+    "title": "Escolha seu plano",
+    "subtitle": "Comece seu teste grátis de 14 dias. Sem necessidade de cartão de crédito.",
+    "backToDashboard": "Voltar ao Painel",
+    "toggle": {
+      "monthly": "Mensal",
+      "yearly": "Anual",
+      "savings": "Economize {{percent}}%"
+    },
+    "period": {
+      "monthly": "/mês"
+    },
+    "billedYearly": "{{price}} cobrado anualmente",
+    "recommended": "Recomendado",
+    "cta": "Começar Agora",
+    "plans": {
+      "essential": {
+        "name": "Essencial",
+        "description": "Perfeito para pequenos negócios começando",
+        "features": {
+          "teamMembers": "Até 5 membros da equipe",
+          "basicScheduling": "Agendamento básico",
+          "emailNotifications": "Notificações por e-mail",
+          "customerSupport": "Suporte ao cliente",
+          "advancedAnalytics": "Análises avançadas",
+          "apiAccess": "Acesso à API"
+        }
+      },
+      "professional": {
+        "name": "Profissional",
+        "description": "Para equipes em crescimento que precisam de mais poder",
+        "features": {
+          "unlimitedTeam": "Membros da equipe ilimitados",
+          "advancedScheduling": "Agendamento avançado",
+          "emailSmsNotifications": "Notificações por e-mail e SMS",
+          "prioritySupport": "Suporte prioritário",
+          "advancedAnalytics": "Análises avançadas",
+          "apiAccess": "Acesso à API"
+        }
+      }
+    },
+    "trustBadges": {
+      "noSetupFees": "Sem taxas de configuração",
+      "cancelAnytime": "Cancele quando quiser",
+      "freeTrial": "14 dias de teste grátis"
+    }
+  },
+  "checkout": {
+    "processing": "Processando...",
+    "connectionError": "Falha ao conectar com o serviço de pagamento. Tente novamente.",
+    "sessionError": "Falha ao criar sessão de checkout",
+    "success": {
+      "title": "Pagamento Realizado!",
+      "description": "Obrigado por assinar o Schedulizer",
+      "message": "Sua assinatura está ativa. Você pode começar a usar todos os recursos premium imediatamente.",
+      "transactionId": "ID da Transação: {{sessionId}}",
+      "goToDashboard": "Ir para o Painel"
+    },
+    "cancel": {
+      "title": "Pagamento Cancelado",
+      "description": "Seu pagamento não foi concluído",
+      "message": "Não se preocupe, nenhuma cobrança foi feita. Você pode tentar novamente quando estiver pronto.",
+      "tryAgain": "Tentar Novamente",
+      "goToDashboard": "Ir para o Painel"
+    }
+  },
+  "subscription": {
+    "title": "Gerenciamento de Assinatura",
+    "description": "Gerencie sua assinatura, método de pagamento e histórico de cobrança.",
+    "backToDashboard": "Voltar ao Painel",
+    "cancelSubscription": "Cancelar Assinatura",
+    "card": {
+      "noSubscription": {
+        "title": "Sem Assinatura Ativa",
+        "description": "Você ainda não tem uma assinatura ativa",
+        "message": "Assine um plano para desbloquear todos os recursos e começar a agendar.",
+        "cta": "Assinar Agora"
+      },
+      "currentPlan": "Seu plano de assinatura atual",
+      "noBillingPeriod": "Sem período de cobrança",
+      "nextBilling": "Próxima cobrança: {{date}}",
+      "cancelWarning": "Sua assinatura será cancelada ao final do período de cobrança atual.",
+      "manageSubscription": "Gerenciar Assinatura",
+      "status": {
+        "active": "Ativo",
+        "trialing": "Teste",
+        "past_due": "Atrasado",
+        "canceled": "Cancelado",
+        "unpaid": "Não Pago",
+        "incomplete": "Incompleto",
+        "incomplete_expired": "Expirado",
+        "paused": "Pausado"
+      }
+    },
+    "paymentMethod": {
+      "title": "Método de Pagamento",
+      "description": "Gerencie suas informações de pagamento",
+      "cardOnFile": "Cartão cadastrado",
+      "managedViaStripe": "Gerenciado via Stripe",
+      "updatePaymentMethod": "Atualizar Método de Pagamento"
+    },
+    "billingHistory": {
+      "title": "Histórico de Cobrança",
+      "description": "Suas faturas anteriores e histórico de pagamento",
+      "empty": "Nenhuma fatura ainda",
+      "errorLoading": "Falha ao carregar histórico de cobrança",
+      "tryAgain": "Tentar Novamente",
+      "columns": {
+        "date": "Data",
+        "amount": "Valor",
+        "status": "Status",
+        "invoice": "Fatura"
+      }
+    },
+    "updatePlanDialog": {
+      "title": "Alterar Plano de Assinatura",
+      "description": "Você será redirecionado ao Portal do Cliente Stripe para gerenciar sua assinatura e alterar seu plano.",
+      "portalInfo": "No Portal do Cliente, você pode:",
+      "portalFeatures": {
+        "upgrade": "Fazer upgrade ou downgrade do seu plano",
+        "switchBilling": "Alternar entre cobrança mensal e anual",
+        "viewPricing": "Ver recursos e preços dos planos"
+      },
+      "continueToPortal": "Continuar para o Portal"
+    },
+    "cancelDialog": {
+      "title": "Cancelar Assinatura",
+      "description": "Tem certeza que deseja cancelar sua assinatura?",
+      "warning": "Sua assinatura permanecerá ativa até <strong>{{date}}</strong>. Após esta data, você perderá acesso aos recursos premium.",
+      "warningFallback": "Sua assinatura permanecerá ativa até o final do período atual. Após esta data, você perderá acesso aos recursos premium.",
+      "reactivateInfo": "Você pode reativar sua assinatura a qualquer momento antes do cancelamento entrar em vigor.",
+      "keepSubscription": "Manter Assinatura",
+      "confirmCancel": "Cancelar Assinatura",
+      "canceling": "Cancelando..."
+    }
+  },
+  "dashboard": {
+    "title": "Painel",
+    "loggedInAs": "Logado como",
+    "unknown": "Desconhecido",
+    "activeOrganization": "Organização ativa",
+    "none": "Nenhuma",
+    "subscription": "Assinatura",
+    "manageBilling": "Gerenciar cobrança",
+    "signOut": "Sair"
+  }
+}

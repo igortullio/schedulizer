@@ -4,14 +4,15 @@ import { CheckCircle2, Loader2, Mail } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { useSearchParams } from 'react-router-dom'
-import { signIn } from '@/lib/auth-client'
+import { Navigate, useSearchParams } from 'react-router-dom'
+import { signIn, useSession } from '@/lib/auth-client'
 import { createLoginSchema, type LoginFormData } from '@/schemas/login.schema'
 
 type FormState = 'idle' | 'submitting' | 'success' | 'error'
 
 export function Component() {
   const { t } = useTranslation()
+  const { data: session, isPending } = useSession()
   const [searchParams] = useSearchParams()
   const redirect = searchParams.get('redirect')
   const [formState, setFormState] = useState<FormState>('idle')
@@ -59,6 +60,9 @@ export function Component() {
     }
   }
 
+  if (!isPending && session) {
+    return <Navigate to="/dashboard" replace />
+  }
   if (formState === 'success') {
     return (
       <output

@@ -24,6 +24,7 @@ vi.mock('@/lib/auth-client', () => ({
   signIn: {
     magicLink: vi.fn(),
   },
+  useSession: () => ({ data: null, isPending: false }),
 }))
 
 import { signIn } from '@/lib/auth-client'

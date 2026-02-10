@@ -1,7 +1,7 @@
 import { Button } from '@schedulizer/ui'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 import {
   BillingHistoryTable,
   CancelSubscriptionDialog,
@@ -57,8 +57,7 @@ export function Component() {
     )
   }
   if (!session) {
-    navigate('/auth/login', { replace: true })
-    return null
+    return <Navigate to="/auth/login" replace />
   }
   return (
     <div className="min-h-screen bg-background px-4 py-8">

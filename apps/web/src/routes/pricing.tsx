@@ -1,9 +1,8 @@
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@schedulizer/ui'
-import { Check, Loader2 } from 'lucide-react'
+import { Check } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { CheckoutButton } from '@/components/checkout'
-import { useSession } from '@/lib/auth-client'
 
 type BillingFrequency = 'monthly' | 'yearly'
 
@@ -85,22 +84,10 @@ function getMonthlyEquivalent(yearlyPrice: number): number {
 
 export function Component() {
   const navigate = useNavigate()
-  const { data: session, isPending: sessionPending } = useSession()
   const [frequency, setFrequency] = useState<BillingFrequency>('monthly')
   const isYearly = frequency === 'yearly'
   function handleBackToDashboard() {
     navigate('/dashboard')
-  }
-  if (sessionPending) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
-      </div>
-    )
-  }
-  if (!session) {
-    navigate('/auth/login', { replace: true })
-    return null
   }
   return (
     <div className="min-h-screen bg-background px-4 py-12">

@@ -170,13 +170,13 @@ describe('SubscriptionPage', () => {
   })
 
   describe('unauthenticated state', () => {
-    it('redirects to login when not authenticated', () => {
+    it('does not render subscription content when not authenticated', () => {
       mockUseSession.mockReturnValue({
         data: null,
         isPending: false,
       })
       renderWithRouter(<SubscriptionPage />)
-      expect(mockNavigate).toHaveBeenCalledWith('/auth/login', { replace: true })
+      expect(screen.queryByText('Subscription Management')).not.toBeInTheDocument()
     })
   })
 

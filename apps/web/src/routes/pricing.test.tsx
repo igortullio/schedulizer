@@ -137,26 +137,6 @@ describe('PricingPage', () => {
       await user.click(screen.getByTestId('back-button'))
       expect(mockNavigate).toHaveBeenCalledWith('/dashboard')
     })
-
-    it('redirects to login when not authenticated', () => {
-      mockUseSession.mockReturnValue({
-        data: null,
-        isPending: false,
-      })
-      renderWithRouter()
-      expect(mockNavigate).toHaveBeenCalledWith('/auth/login', { replace: true })
-    })
-  })
-
-  describe('loading state', () => {
-    it('shows loading spinner while session is pending', () => {
-      mockUseSession.mockReturnValue({
-        data: null,
-        isPending: true,
-      })
-      renderWithRouter()
-      expect(screen.queryByRole('heading', { name: /choose your plan/i })).not.toBeInTheDocument()
-    })
   })
 
   describe('accessibility', () => {

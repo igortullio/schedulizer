@@ -22,6 +22,9 @@ export const sessions = pgTable('sessions', {
   userId: uuid('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
+  activeOrganizationId: uuid('active_organization_id').references(() => organizations.id, {
+    onDelete: 'set null',
+  }),
 })
 
 export const accounts = pgTable('accounts', {

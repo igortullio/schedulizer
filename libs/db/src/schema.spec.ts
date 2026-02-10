@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { leads, planInterestEnum, subscriptionStatusEnum, subscriptions } from './schema'
+import { leads, planInterestEnum, sessions, subscriptionStatusEnum, subscriptions } from './schema'
 
 describe('Leads Schema', () => {
   it('should compile schema without TypeScript errors', () => {
@@ -142,5 +142,25 @@ describe('Subscriptions Schema', () => {
     const migrationPath = resolve(__dirname, '../drizzle/0002_unique_thundra.sql')
     const migrationContent = readFileSync(migrationPath, 'utf-8')
     expect(migrationContent).toContain('UNIQUE')
+  })
+})
+
+describe('Sessions Schema', () => {
+  it('should have activeOrganizationId column', () => {
+    expect(sessions).toHaveProperty('activeOrganizationId')
+  })
+
+  it('should have generated migration file for activeOrganizationId', () => {
+    const migrationPath = resolve(__dirname, '../drizzle/0003_fearless_johnny_storm.sql')
+    expect(existsSync(migrationPath)).toBe(true)
+  })
+
+  it('should have migration SQL with ALTER TABLE adding active_organization_id', () => {
+    const migrationPath = resolve(__dirname, '../drizzle/0003_fearless_johnny_storm.sql')
+    const migrationContent = readFileSync(migrationPath, 'utf-8')
+    expect(migrationContent).toContain('ALTER TABLE "sessions"')
+    expect(migrationContent).toContain('"active_organization_id" uuid')
+    expect(migrationContent).toContain('REFERENCES "public"."organizations"("id")')
+    expect(migrationContent).toContain('ON DELETE set null')
   })
 })

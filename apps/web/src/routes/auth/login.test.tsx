@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Component as LoginPage } from './login'
 
@@ -36,7 +37,11 @@ describe('LoginPage', () => {
 
   describe('rendering', () => {
     it('renders email input field correctly', () => {
-      render(<LoginPage />)
+      render(
+        <MemoryRouter>
+          <LoginPage />
+        </MemoryRouter>,
+      )
       const emailInput = screen.getByTestId('email-input')
       expect(emailInput).toBeInTheDocument()
       expect(emailInput).toHaveAttribute('type', 'email')
@@ -44,20 +49,32 @@ describe('LoginPage', () => {
     })
 
     it('renders submit button correctly', () => {
-      render(<LoginPage />)
+      render(
+        <MemoryRouter>
+          <LoginPage />
+        </MemoryRouter>,
+      )
       const submitButton = screen.getByTestId('submit-button')
       expect(submitButton).toBeInTheDocument()
       expect(submitButton).toHaveTextContent('login.continueWithEmail')
     })
 
     it('renders email label correctly', () => {
-      render(<LoginPage />)
+      render(
+        <MemoryRouter>
+          <LoginPage />
+        </MemoryRouter>,
+      )
       const label = screen.getByText('login.email')
       expect(label).toBeInTheDocument()
     })
 
     it('renders welcome heading', () => {
-      render(<LoginPage />)
+      render(
+        <MemoryRouter>
+          <LoginPage />
+        </MemoryRouter>,
+      )
       expect(screen.getByRole('heading', { name: 'login.welcomeBack' })).toBeInTheDocument()
     })
   })
@@ -65,7 +82,11 @@ describe('LoginPage', () => {
   describe('form validation', () => {
     it('shows error for empty email submission', async () => {
       const user = userEvent.setup()
-      render(<LoginPage />)
+      render(
+        <MemoryRouter>
+          <LoginPage />
+        </MemoryRouter>,
+      )
       const submitButton = screen.getByTestId('submit-button')
       await user.click(submitButton)
       await waitFor(() => {
@@ -75,7 +96,11 @@ describe('LoginPage', () => {
 
     it('shows error for invalid email format', async () => {
       const user = userEvent.setup()
-      render(<LoginPage />)
+      render(
+        <MemoryRouter>
+          <LoginPage />
+        </MemoryRouter>,
+      )
       const emailInput = screen.getByTestId('email-input')
       await user.type(emailInput, 'invalid-email')
       const submitButton = screen.getByTestId('submit-button')
@@ -88,7 +113,11 @@ describe('LoginPage', () => {
     it('does not show validation error for valid email', async () => {
       const user = userEvent.setup()
       mockMagicLink.mockResolvedValueOnce({ data: null, error: null })
-      render(<LoginPage />)
+      render(
+        <MemoryRouter>
+          <LoginPage />
+        </MemoryRouter>,
+      )
       const emailInput = screen.getByTestId('email-input')
       await user.type(emailInput, 'test@example.com')
       const submitButton = screen.getByTestId('submit-button')
@@ -105,7 +134,11 @@ describe('LoginPage', () => {
       mockMagicLink.mockImplementation(
         () => new Promise(resolve => setTimeout(() => resolve({ data: null, error: null }), 100)),
       )
-      render(<LoginPage />)
+      render(
+        <MemoryRouter>
+          <LoginPage />
+        </MemoryRouter>,
+      )
       const emailInput = screen.getByTestId('email-input')
       await user.type(emailInput, 'test@example.com')
       const submitButton = screen.getByTestId('submit-button')
@@ -118,7 +151,11 @@ describe('LoginPage', () => {
       mockMagicLink.mockImplementation(
         () => new Promise(resolve => setTimeout(() => resolve({ data: null, error: null }), 100)),
       )
-      render(<LoginPage />)
+      render(
+        <MemoryRouter>
+          <LoginPage />
+        </MemoryRouter>,
+      )
       const emailInput = screen.getByTestId('email-input')
       await user.type(emailInput, 'test@example.com')
       const submitButton = screen.getByTestId('submit-button')
@@ -131,7 +168,11 @@ describe('LoginPage', () => {
     it('shows success message after magic link is sent', async () => {
       const user = userEvent.setup()
       mockMagicLink.mockResolvedValueOnce({ data: null, error: null })
-      render(<LoginPage />)
+      render(
+        <MemoryRouter>
+          <LoginPage />
+        </MemoryRouter>,
+      )
       const emailInput = screen.getByTestId('email-input')
       await user.type(emailInput, 'test@example.com')
       const submitButton = screen.getByTestId('submit-button')
@@ -146,7 +187,11 @@ describe('LoginPage', () => {
     it('hides form after successful submission', async () => {
       const user = userEvent.setup()
       mockMagicLink.mockResolvedValueOnce({ data: null, error: null })
-      render(<LoginPage />)
+      render(
+        <MemoryRouter>
+          <LoginPage />
+        </MemoryRouter>,
+      )
       const emailInput = screen.getByTestId('email-input')
       await user.type(emailInput, 'test@example.com')
       const submitButton = screen.getByTestId('submit-button')
@@ -165,7 +210,11 @@ describe('LoginPage', () => {
         data: null,
         error: { message: 'Rate limit exceeded', status: 429, statusText: 'Too Many Requests' },
       })
-      render(<LoginPage />)
+      render(
+        <MemoryRouter>
+          <LoginPage />
+        </MemoryRouter>,
+      )
       const emailInput = screen.getByTestId('email-input')
       await user.type(emailInput, 'test@example.com')
       const submitButton = screen.getByTestId('submit-button')
@@ -178,7 +227,11 @@ describe('LoginPage', () => {
     it('shows generic error message on unexpected failure', async () => {
       const user = userEvent.setup()
       mockMagicLink.mockRejectedValueOnce(new Error('Network error'))
-      render(<LoginPage />)
+      render(
+        <MemoryRouter>
+          <LoginPage />
+        </MemoryRouter>,
+      )
       const emailInput = screen.getByTestId('email-input')
       await user.type(emailInput, 'test@example.com')
       const submitButton = screen.getByTestId('submit-button')
@@ -194,7 +247,11 @@ describe('LoginPage', () => {
         data: null,
         error: { message: 'Failed', status: 500, statusText: 'Server Error' },
       })
-      render(<LoginPage />)
+      render(
+        <MemoryRouter>
+          <LoginPage />
+        </MemoryRouter>,
+      )
       const emailInput = screen.getByTestId('email-input')
       await user.type(emailInput, 'test@example.com')
       const submitButton = screen.getByTestId('submit-button')
@@ -211,19 +268,31 @@ describe('LoginPage', () => {
 
   describe('accessibility', () => {
     it('has proper form aria-label', () => {
-      render(<LoginPage />)
+      render(
+        <MemoryRouter>
+          <LoginPage />
+        </MemoryRouter>,
+      )
       expect(screen.getByRole('form', { name: /login form/i })).toBeInTheDocument()
     })
 
     it('has email input with autocomplete attribute', () => {
-      render(<LoginPage />)
+      render(
+        <MemoryRouter>
+          <LoginPage />
+        </MemoryRouter>,
+      )
       const emailInput = screen.getByTestId('email-input')
       expect(emailInput).toHaveAttribute('autocomplete', 'email')
     })
 
     it('associates error message with input via aria-describedby', async () => {
       const user = userEvent.setup()
-      render(<LoginPage />)
+      render(
+        <MemoryRouter>
+          <LoginPage />
+        </MemoryRouter>,
+      )
       const submitButton = screen.getByTestId('submit-button')
       await user.click(submitButton)
       await waitFor(() => {
@@ -235,7 +304,11 @@ describe('LoginPage', () => {
 
     it('has error message with role alert', async () => {
       const user = userEvent.setup()
-      render(<LoginPage />)
+      render(
+        <MemoryRouter>
+          <LoginPage />
+        </MemoryRouter>,
+      )
       const submitButton = screen.getByTestId('submit-button')
       await user.click(submitButton)
       await waitFor(() => {
@@ -247,7 +320,11 @@ describe('LoginPage', () => {
     it('success state uses semantic output element', async () => {
       const user = userEvent.setup()
       mockMagicLink.mockResolvedValueOnce({ data: null, error: null })
-      render(<LoginPage />)
+      render(
+        <MemoryRouter>
+          <LoginPage />
+        </MemoryRouter>,
+      )
       const emailInput = screen.getByTestId('email-input')
       await user.type(emailInput, 'test@example.com')
       const submitButton = screen.getByTestId('submit-button')
@@ -263,7 +340,11 @@ describe('LoginPage', () => {
     it('calls signIn.magicLink with correct parameters', async () => {
       const user = userEvent.setup()
       mockMagicLink.mockResolvedValueOnce({ data: null, error: null })
-      render(<LoginPage />)
+      render(
+        <MemoryRouter>
+          <LoginPage />
+        </MemoryRouter>,
+      )
       const emailInput = screen.getByTestId('email-input')
       await user.type(emailInput, 'test@example.com')
       const submitButton = screen.getByTestId('submit-button')
@@ -284,7 +365,11 @@ describe('LoginPage', () => {
           error: { message: 'Failed', status: 500, statusText: 'Server Error' },
         })
         .mockResolvedValueOnce({ data: null, error: null })
-      render(<LoginPage />)
+      render(
+        <MemoryRouter>
+          <LoginPage />
+        </MemoryRouter>,
+      )
       const emailInput = screen.getByTestId('email-input')
       await user.type(emailInput, 'test@example.com')
       const submitButton = screen.getByTestId('submit-button')

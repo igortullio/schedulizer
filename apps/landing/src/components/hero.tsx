@@ -1,4 +1,4 @@
-import { Button } from '@schedulizer/ui'
+import { Button } from '@igortullio-ui/react'
 import { Calendar, Clock, Sparkles } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 

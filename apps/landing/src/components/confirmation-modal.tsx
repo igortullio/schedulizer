@@ -1,4 +1,4 @@
-import { Button, Dialog, DialogContent, DialogDescription, DialogTitle } from '@schedulizer/ui'
+import { Button, Dialog, DialogContent, DialogDescription, DialogTitle } from '@igortullio-ui/react'
 import { CheckCircle } from 'lucide-react'
 
 interface ConfirmationModalProps {

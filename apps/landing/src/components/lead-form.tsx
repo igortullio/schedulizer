@@ -1,6 +1,6 @@
+import { Button, Input } from '@igortullio-ui/react'
 import { clientEnv } from '@schedulizer/env/client'
 import type { CreateLeadRequest } from '@schedulizer/shared-types'
-import { Button, Input } from '@schedulizer/ui'
 import { Send } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'

@@ -250,6 +250,9 @@ describe('CheckoutButton', () => {
           }),
         )
       })
+      await waitFor(() => {
+        expect(window.location.href).toBe('https://checkout.stripe.com/session')
+      })
     })
 
     it('redirects to checkout URL on success', async () => {

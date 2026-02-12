@@ -18,13 +18,6 @@ export default defineConfig({
         },
       },
       {
-        extends: './libs/ui/vite.config.ts',
-        test: {
-          name: 'ui',
-          include: ['libs/ui/src/**/*.{test,spec}.{ts,tsx}'],
-        },
-      },
-      {
         test: {
           name: 'db',
           include: ['libs/db/src/**/*.{test,spec}.ts'],

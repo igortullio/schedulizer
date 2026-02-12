@@ -14,10 +14,7 @@ export function PricingSection() {
       <div className="mx-auto max-w-5xl">
         <div className="mb-12 text-center">
           <h2 id="pricing-title" className="mb-4 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-            {t('pricing.title')}{' '}
-            <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              {t('pricing.titleHighlight')}
-            </span>
+            {t('pricing.title')} <span className="gradient-text">{t('pricing.titleHighlight')}</span>
           </h2>
           <p className="mb-8 text-lg text-muted-foreground">{t('pricing.subtitle')}</p>
           <PricingToggle frequency={frequency} onFrequencyChange={setFrequency} />

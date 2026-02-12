@@ -83,7 +83,7 @@ export function App() {
         </div>
       </header>
 
-      <main className="pt-24">
+      <main className="gradient-hero overflow-hidden pt-24">
         <Hero onCtaClick={handleGetStarted} />
 
         <div id="benefits">

@@ -2,7 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
 /* UI lib theme (Tailwind, shadcn, animations, colors) */
-@import "../../../node_modules/@igortullio-ui/react/src/index.css";
+@import "@igortullio-ui/react/source.css";
 
 /* Smooth scrolling */
 html {
@@ -14,9 +14,21 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'Poppins', system-ui, sans-serif;
 }
 
+/* Gradient text utility */
+:root {
+  --gradient-highlight: oklch(0.80 0.130 65);
+}
+
+.gradient-text {
+  background: linear-gradient(to right, var(--primary), var(--gradient-highlight));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 /* Glassmorphism utilities */
 .glass {
-  background: oklch(1 0 0 / 0.7);
+  background: oklch(0.997 0.003 70 / 0.7);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid oklch(1 0 0 / 0.2);

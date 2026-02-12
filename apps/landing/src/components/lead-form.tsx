@@ -122,10 +122,7 @@ export function LeadForm({ onSuccess, defaultPlanInterest }: LeadFormProps) {
         <div className="mx-auto max-w-xl">
           <div className="mb-12 text-center">
             <h2 className="mb-4 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-              {t('leadForm.title')}{' '}
-              <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                {t('leadForm.titleHighlight')}
-              </span>
+              {t('leadForm.title')} <span className="gradient-text">{t('leadForm.titleHighlight')}</span>
             </h2>
             <p className="text-lg text-muted-foreground">{t('leadForm.subtitle')}</p>
           </div>

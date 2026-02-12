@@ -1,4 +1,4 @@
-import { Button } from '@schedulizer/ui'
+import { Button } from '@igortullio-ui/react'
 import { Building2, CreditCard, LogOut, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Navigate, useNavigate } from 'react-router-dom'

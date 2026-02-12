@@ -1,4 +1,4 @@
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton } from '@schedulizer/ui'
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton } from '@igortullio-ui/react'
 import { CreditCard, Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 

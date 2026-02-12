@@ -6,7 +6,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@schedulizer/ui'
+} from '@igortullio-ui/react'
 import { AlertTriangle, Loader2 } from 'lucide-react'
 import { Trans, useTranslation } from 'react-i18next'
 import { formatDate } from '@/lib/format'

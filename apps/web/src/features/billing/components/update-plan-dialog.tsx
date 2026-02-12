@@ -6,7 +6,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@schedulizer/ui'
+} from '@igortullio-ui/react'
 import { Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 

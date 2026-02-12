@@ -1,4 +1,4 @@
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@schedulizer/ui'
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@igortullio-ui/react'
 import { XCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'

@@ -1,4 +1,4 @@
-import { Button } from '@schedulizer/ui'
+import { Button } from '@igortullio-ui/react'
 import { AlertCircle, Building2, ChevronRight, Loader2, Users } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'

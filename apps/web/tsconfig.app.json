@@ -41,6 +41,9 @@
   "references": [
     {
       "path": "../../libs/shared/env"
+    },
+    {
+      "path": "../../libs/ui"
     }
   ]
 }

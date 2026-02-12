@@ -90,8 +90,9 @@ describe('CheckoutCancelPage', () => {
   describe('accessibility', () => {
     it('has proper heading hierarchy', () => {
       renderWithRouter()
-      const heading = screen.getByRole('heading', { level: 3 })
-      expect(heading).toBeInTheDocument()
+      const title = screen.getByText('checkout.cancel.title')
+      expect(title).toBeInTheDocument()
+      expect(title).toHaveAttribute('data-slot', 'card-title')
     })
 
     it('has x icon with aria-hidden', () => {

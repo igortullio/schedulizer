@@ -1,4 +1,13 @@
-import { Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton } from '@schedulizer/ui'
+import {
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Skeleton,
+} from '@igortullio-ui/react'
 import { CalendarDays, CreditCard, Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { formatDate } from '@/lib/format'
@@ -11,20 +20,28 @@ interface SubscriptionCardProps {
   isPortalLoading: boolean
 }
 
-type StatusVariant = 'success' | 'warning' | 'destructive' | 'secondary' | 'default'
+type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'outline'
 
-function getStatusVariant(status: SubscriptionStatus): StatusVariant {
-  const statusVariants: Record<SubscriptionStatus, StatusVariant> = {
-    active: 'success',
-    trialing: 'secondary',
-    past_due: 'warning',
-    canceled: 'destructive',
-    unpaid: 'destructive',
-    incomplete: 'warning',
-    incomplete_expired: 'destructive',
-    paused: 'secondary',
+interface StatusBadgeConfig {
+  variant: BadgeVariant
+  className?: string
+}
+
+const SUCCESS_BADGE_CLASS = 'border-transparent bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100'
+const WARNING_BADGE_CLASS = 'border-transparent bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100'
+
+function getStatusBadgeConfig(status: SubscriptionStatus): StatusBadgeConfig {
+  const statusConfigs: Record<SubscriptionStatus, StatusBadgeConfig> = {
+    active: { variant: 'default', className: SUCCESS_BADGE_CLASS },
+    trialing: { variant: 'secondary' },
+    past_due: { variant: 'default', className: WARNING_BADGE_CLASS },
+    canceled: { variant: 'destructive' },
+    unpaid: { variant: 'destructive' },
+    incomplete: { variant: 'default', className: WARNING_BADGE_CLASS },
+    incomplete_expired: { variant: 'destructive' },
+    paused: { variant: 'secondary' },
   }
-  return statusVariants[status]
+  return statusConfigs[status]
 }
 
 function formatPlanName(plan: string | null): string {
@@ -89,12 +106,13 @@ export function SubscriptionCard({
     return <NoSubscriptionCard onManageSubscription={onManageSubscription} />
   }
   const showCancelWarning = subscription.cancelAtPeriodEnd && subscription.status === 'active'
+  const statusBadge = getStatusBadgeConfig(subscription.status)
   return (
     <Card data-testid="subscription-card">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle data-testid="plan-name">{formatPlanName(subscription.plan)}</CardTitle>
-          <Badge variant={getStatusVariant(subscription.status)} data-testid="subscription-status">
+          <Badge variant={statusBadge.variant} className={statusBadge.className} data-testid="subscription-status">
             {t(`subscription.card.status.${subscription.status}` as 'subscription.card.status.active')}
           </Badge>
         </div>

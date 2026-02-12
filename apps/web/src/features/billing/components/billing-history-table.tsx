@@ -13,7 +13,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@schedulizer/ui'
+} from '@igortullio-ui/react'
 import { Download, ExternalLink } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { formatCurrency, formatDateShort } from '@/lib/format'
@@ -27,17 +27,25 @@ interface BillingHistoryTableProps {
 }
 
 type InvoiceStatus = 'paid' | 'open' | 'draft' | 'void' | 'uncollectible'
-type StatusVariant = 'success' | 'warning' | 'secondary' | 'destructive'
+type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'outline'
 
-function getInvoiceStatusVariant(status: string): StatusVariant {
-  const statusVariants: Record<InvoiceStatus, StatusVariant> = {
-    paid: 'success',
-    open: 'warning',
-    draft: 'secondary',
-    void: 'destructive',
-    uncollectible: 'destructive',
+interface StatusBadgeConfig {
+  variant: BadgeVariant
+  className?: string
+}
+
+const SUCCESS_BADGE_CLASS = 'border-transparent bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100'
+const WARNING_BADGE_CLASS = 'border-transparent bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100'
+
+function getInvoiceStatusBadgeConfig(status: string): StatusBadgeConfig {
+  const statusConfigs: Record<InvoiceStatus, StatusBadgeConfig> = {
+    paid: { variant: 'default', className: SUCCESS_BADGE_CLASS },
+    open: { variant: 'default', className: WARNING_BADGE_CLASS },
+    draft: { variant: 'secondary' },
+    void: { variant: 'destructive' },
+    uncollectible: { variant: 'destructive' },
   }
-  return statusVariants[status as InvoiceStatus] ?? 'secondary'
+  return statusConfigs[status as InvoiceStatus] ?? { variant: 'secondary' }
 }
 
 function BillingHistoryTableSkeleton() {
@@ -134,49 +142,52 @@ export function BillingHistoryTable({ invoices, isLoading, error, onRetry }: Bil
             </TableRow>
           </TableHeader>
           <TableBody>
-            {invoices.map(invoice => (
-              <TableRow key={invoice.id} data-testid={`invoice-row-${invoice.id}`}>
-                <TableCell data-testid="invoice-date">{formatDateShort(invoice.created, i18n.language)}</TableCell>
-                <TableCell data-testid="invoice-amount">
-                  {formatCurrency(invoice.amountPaid || invoice.amountDue, invoice.currency, i18n.language)}
-                </TableCell>
-                <TableCell>
-                  <Badge variant={getInvoiceStatusVariant(invoice.status ?? '')} data-testid="invoice-status">
-                    {invoice.status ?? 'Unknown'}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-2">
-                    {invoice.invoicePdf ? (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        asChild
-                        data-testid="download-invoice-button"
-                        aria-label="Download PDF"
-                      >
-                        <a href={invoice.invoicePdf} target="_blank" rel="noopener noreferrer">
-                          <Download className="h-4 w-4" />
-                        </a>
-                      </Button>
-                    ) : null}
-                    {invoice.hostedInvoiceUrl ? (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        asChild
-                        data-testid="view-invoice-button"
-                        aria-label="View invoice"
-                      >
-                        <a href={invoice.hostedInvoiceUrl} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="h-4 w-4" />
-                        </a>
-                      </Button>
-                    ) : null}
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
+            {invoices.map(invoice => {
+              const badgeConfig = getInvoiceStatusBadgeConfig(invoice.status ?? '')
+              return (
+                <TableRow key={invoice.id} data-testid={`invoice-row-${invoice.id}`}>
+                  <TableCell data-testid="invoice-date">{formatDateShort(invoice.created, i18n.language)}</TableCell>
+                  <TableCell data-testid="invoice-amount">
+                    {formatCurrency(invoice.amountPaid || invoice.amountDue, invoice.currency, i18n.language)}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={badgeConfig.variant} className={badgeConfig.className} data-testid="invoice-status">
+                      {invoice.status ?? 'Unknown'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      {invoice.invoicePdf ? (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          asChild
+                          data-testid="download-invoice-button"
+                          aria-label="Download PDF"
+                        >
+                          <a href={invoice.invoicePdf} target="_blank" rel="noopener noreferrer">
+                            <Download className="h-4 w-4" />
+                          </a>
+                        </Button>
+                      ) : null}
+                      {invoice.hostedInvoiceUrl ? (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          asChild
+                          data-testid="view-invoice-button"
+                          aria-label="View invoice"
+                        >
+                          <a href={invoice.hostedInvoiceUrl} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="h-4 w-4" />
+                          </a>
+                        </Button>
+                      ) : null}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )
+            })}
           </TableBody>
         </Table>
       </CardContent>

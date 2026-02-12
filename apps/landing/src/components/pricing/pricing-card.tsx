@@ -1,5 +1,5 @@
+import { Button } from '@igortullio-ui/react'
 import { clientEnv } from '@schedulizer/env/client'
-import { Button } from '@schedulizer/ui'
 import { Check, Star } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { BillingFrequency, PlanConfig } from './pricing-data'

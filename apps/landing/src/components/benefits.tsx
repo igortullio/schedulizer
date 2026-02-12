@@ -19,11 +19,7 @@ export function Benefits() {
       <div className="mx-auto max-w-7xl">
         <div className="mb-16 text-center">
           <h2 className="mb-4 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-            {t('benefits.title')}{' '}
-            <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              {t('benefits.titleHighlight')}
-            </span>
-            ?
+            {t('benefits.title')} <span className="gradient-text">{t('benefits.titleHighlight')}</span>?
           </h2>
           <p className="mx-auto max-w-2xl text-lg text-muted-foreground">{t('benefits.subtitle')}</p>
         </div>
@@ -37,7 +33,7 @@ export function Benefits() {
                 className="glass hover-lift group cursor-pointer rounded-2xl p-6"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 transition-transform duration-200 group-hover:scale-110">
+                <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl bg-linear-to-br from-primary/15 to-accent/15 transition-transform duration-200 group-hover:scale-110">
                   <Icon className="h-7 w-7 text-primary" />
                 </div>
                 <h3 className="mb-3 text-lg font-semibold text-foreground">{benefit.title}</h3>

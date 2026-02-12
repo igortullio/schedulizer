@@ -1,5 +1,5 @@
+import { Button } from '@igortullio-ui/react'
 import { clientEnv, getEnvError, hasEnvError } from '@schedulizer/env/client'
-import { Button } from '@schedulizer/ui'
 import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Benefits } from '@/components/benefits'
@@ -83,7 +83,7 @@ export function App() {
         </div>
       </header>
 
-      <main className="pt-24">
+      <main className="gradient-hero overflow-hidden pt-24">
         <Hero onCtaClick={handleGetStarted} />
 
         <div id="benefits">

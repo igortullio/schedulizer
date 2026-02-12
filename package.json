@@ -52,5 +52,8 @@
     "apps/*",
     "libs/*",
     "libs/shared/*"
-  ]
+  ],
+  "dependencies": {
+    "@igortullio-ui/react": "^3.0.2"
+  }
 }

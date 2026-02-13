@@ -1,18 +1,5 @@
-/* Google Fonts - Poppins for headings */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
-
 /* UI lib theme (Tailwind, shadcn, animations, colors) */
 @import "@igortullio-ui/react/source.css";
-
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Typography - Poppins for headings */
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Poppins', system-ui, sans-serif;
-}
 
 /* Gradient text utility */
 :root {
@@ -104,14 +91,3 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 12px 40px oklch(0.4 0.15 250 / 0.15);
 }
 
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-  html {
-    scroll-behavior: auto;
-  }
-}

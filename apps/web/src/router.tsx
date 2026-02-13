@@ -31,6 +31,14 @@ export const router = createBrowserRouter([
     lazy: () => import('@/routes/services/edit'),
   },
   {
+    path: '/services/:serviceId/schedules',
+    lazy: () => import('@/routes/services/schedules'),
+  },
+  {
+    path: '/time-blocks',
+    lazy: () => import('@/routes/time-blocks/index'),
+  },
+  {
     path: '/checkout/success',
     lazy: () => import('@/routes/checkout/success'),
   },

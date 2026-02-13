@@ -1,0 +1,26 @@
+{
+  "title": "Time Blocks",
+  "description": "Block specific dates or time ranges to prevent bookings.",
+  "backToDashboard": "Back to dashboard",
+  "emptyState": "No time blocks yet. Add a block to prevent bookings on specific dates.",
+  "actions": {
+    "create": "New block",
+    "delete": "Delete"
+  },
+  "form": {
+    "title": "New Time Block",
+    "date": "Date",
+    "startTime": "Start",
+    "endTime": "End",
+    "reason": "Reason (optional)",
+    "reasonPlaceholder": "E.g.: Holiday, vacation...",
+    "create": "Create block",
+    "creating": "Creating...",
+    "cancel": "Cancel",
+    "errors": {
+      "dateRequired": "Date is required.",
+      "timeInvalid": "Start time must be before end time.",
+      "createFailed": "Failed to create time block. Please try again."
+    }
+  }
+}

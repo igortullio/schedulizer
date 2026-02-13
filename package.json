@@ -9,7 +9,7 @@
   },
   "private": true,
   "devDependencies": {
-    "@biomejs/biome": "^2.3.14",
+    "@biomejs/biome": "^2.3.15",
     "@commitlint/cli": "^20.4.1",
     "@commitlint/config-conventional": "^20.4.1",
     "@nx/esbuild": "^22.4.4",
@@ -40,7 +40,7 @@
     "jiti": "2.4.2",
     "jsdom": "^26.1.0",
     "lint-staged": "^16.2.7",
-    "nx": "^22.4.5",
+    "nx": "^22.5.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.18",
     "tslib": "^2.3.0",
@@ -54,6 +54,7 @@
     "libs/shared/*"
   ],
   "dependencies": {
-    "@igortullio-ui/react": "^3.4.0"
+    "@igortullio-ui/react": "^3.4.0",
+    "@rollup/rollup-darwin-arm64": "^4.57.1"
   }
 }

@@ -1,18 +1,28 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { leads, planInterestEnum, sessions, subscriptionStatusEnum, subscriptions } from './schema'
+import {
+  appointmentStatusEnum,
+  appointments,
+  leads,
+  organizations,
+  planInterestEnum,
+  schedulePeriods,
+  schedules,
+  sessions,
+  subscriptionStatusEnum,
+  subscriptions,
+  timeBlocks,
+} from './schema'
 
 describe('Leads Schema', () => {
   it('should compile schema without TypeScript errors', () => {
-    // If this test runs, TypeScript compilation succeeded
     expect(leads).toBeDefined()
     expect(planInterestEnum).toBeDefined()
   })
 
   it('should have correct table structure', () => {
     expect(leads).toBeDefined()
-    // Verify table is a valid Drizzle table by checking it's an object with columns
     expect(typeof leads).toBe('object')
     expect(leads).toHaveProperty('id')
     expect(leads).toHaveProperty('name')
@@ -162,5 +172,167 @@ describe('Sessions Schema', () => {
     expect(migrationContent).toContain('"active_organization_id" uuid')
     expect(migrationContent).toContain('REFERENCES "public"."organizations"("id")')
     expect(migrationContent).toContain('ON DELETE set null')
+  })
+})
+
+describe('Organizations Schema', () => {
+  it('should have timezone column', () => {
+    expect(organizations).toHaveProperty('timezone')
+  })
+})
+
+describe('Schedules Schema', () => {
+  it('should have serviceId column instead of organizationId', () => {
+    expect(schedules).toHaveProperty('serviceId')
+    expect(schedules).not.toHaveProperty('organizationId')
+  })
+
+  it('should have isActive column instead of active', () => {
+    expect(schedules).toHaveProperty('isActive')
+    expect(schedules).not.toHaveProperty('active')
+  })
+
+  it('should not have startTime and endTime columns', () => {
+    expect(schedules).not.toHaveProperty('startTime')
+    expect(schedules).not.toHaveProperty('endTime')
+  })
+})
+
+describe('Schedule Periods Schema', () => {
+  it('should have correct table structure', () => {
+    expect(schedulePeriods).toBeDefined()
+    expect(schedulePeriods).toHaveProperty('id')
+    expect(schedulePeriods).toHaveProperty('scheduleId')
+    expect(schedulePeriods).toHaveProperty('startTime')
+    expect(schedulePeriods).toHaveProperty('endTime')
+    expect(schedulePeriods).toHaveProperty('createdAt')
+    expect(schedulePeriods).toHaveProperty('updatedAt')
+  })
+})
+
+describe('Time Blocks Schema', () => {
+  it('should have correct table structure', () => {
+    expect(timeBlocks).toBeDefined()
+    expect(timeBlocks).toHaveProperty('id')
+    expect(timeBlocks).toHaveProperty('organizationId')
+    expect(timeBlocks).toHaveProperty('date')
+    expect(timeBlocks).toHaveProperty('startTime')
+    expect(timeBlocks).toHaveProperty('endTime')
+    expect(timeBlocks).toHaveProperty('reason')
+    expect(timeBlocks).toHaveProperty('createdAt')
+    expect(timeBlocks).toHaveProperty('updatedAt')
+  })
+})
+
+describe('Appointments Schema', () => {
+  it('should have updated column structure', () => {
+    expect(appointments).toHaveProperty('startDatetime')
+    expect(appointments).toHaveProperty('endDatetime')
+    expect(appointments).toHaveProperty('managementToken')
+    expect(appointments).toHaveProperty('reminderSentAt')
+    expect(appointments).toHaveProperty('customerPhone')
+  })
+
+  it('should not have old columns', () => {
+    expect(appointments).not.toHaveProperty('customerId')
+    expect(appointments).not.toHaveProperty('startTime')
+    expect(appointments).not.toHaveProperty('endTime')
+  })
+
+  it('should export appointmentStatusEnum with correct values', () => {
+    expect(appointmentStatusEnum).toBeDefined()
+    const enumConfig = (appointmentStatusEnum as { enumValues: string[] }).enumValues
+    expect(enumConfig).toEqual(['pending', 'confirmed', 'cancelled', 'completed', 'no_show'])
+  })
+})
+
+describe('Scheduling Migration (0004)', () => {
+  it('should have generated migration file', () => {
+    const migrationPath = resolve(__dirname, '../drizzle/0004_swift_iceman.sql')
+    expect(existsSync(migrationPath)).toBe(true)
+  })
+
+  it('should create appointment_status enum', () => {
+    const migrationPath = resolve(__dirname, '../drizzle/0004_swift_iceman.sql')
+    const migrationContent = readFileSync(migrationPath, 'utf-8')
+    expect(migrationContent).toContain('CREATE TYPE "public"."appointment_status"')
+    expect(migrationContent).toContain("'pending'")
+    expect(migrationContent).toContain("'confirmed'")
+    expect(migrationContent).toContain("'cancelled'")
+    expect(migrationContent).toContain("'completed'")
+    expect(migrationContent).toContain("'no_show'")
+  })
+
+  it('should create schedule_periods table', () => {
+    const migrationPath = resolve(__dirname, '../drizzle/0004_swift_iceman.sql')
+    const migrationContent = readFileSync(migrationPath, 'utf-8')
+    expect(migrationContent).toContain('CREATE TABLE "schedule_periods"')
+    expect(migrationContent).toContain('"schedule_id" uuid NOT NULL')
+    expect(migrationContent).toContain('"start_time" time NOT NULL')
+    expect(migrationContent).toContain('"end_time" time NOT NULL')
+  })
+
+  it('should create time_blocks table', () => {
+    const migrationPath = resolve(__dirname, '../drizzle/0004_swift_iceman.sql')
+    const migrationContent = readFileSync(migrationPath, 'utf-8')
+    expect(migrationContent).toContain('CREATE TABLE "time_blocks"')
+    expect(migrationContent).toContain('"organization_id" uuid NOT NULL')
+    expect(migrationContent).toContain('"date" date NOT NULL')
+    expect(migrationContent).toContain('"reason" varchar(255)')
+  })
+
+  it('should add timezone to organizations', () => {
+    const migrationPath = resolve(__dirname, '../drizzle/0004_swift_iceman.sql')
+    const migrationContent = readFileSync(migrationPath, 'utf-8')
+    expect(migrationContent).toContain('"timezone" text')
+    expect(migrationContent).toContain("'America/Sao_Paulo'")
+  })
+
+  it('should add new columns to appointments', () => {
+    const migrationPath = resolve(__dirname, '../drizzle/0004_swift_iceman.sql')
+    const migrationContent = readFileSync(migrationPath, 'utf-8')
+    expect(migrationContent).toContain('"start_datetime" timestamp with time zone NOT NULL')
+    expect(migrationContent).toContain('"end_datetime" timestamp with time zone NOT NULL')
+    expect(migrationContent).toContain('"management_token" uuid')
+    expect(migrationContent).toContain('"reminder_sent_at" timestamp with time zone')
+  })
+
+  it('should add service_id to schedules', () => {
+    const migrationPath = resolve(__dirname, '../drizzle/0004_swift_iceman.sql')
+    const migrationContent = readFileSync(migrationPath, 'utf-8')
+    expect(migrationContent).toContain('"service_id" uuid NOT NULL')
+    expect(migrationContent).toContain('"is_active" boolean')
+  })
+
+  it('should create indexes', () => {
+    const migrationPath = resolve(__dirname, '../drizzle/0004_swift_iceman.sql')
+    const migrationContent = readFileSync(migrationPath, 'utf-8')
+    expect(migrationContent).toContain('CREATE INDEX "time_blocks_organization_id_date_idx"')
+    expect(migrationContent).toContain('CREATE INDEX "appointments_org_start_idx"')
+    expect(migrationContent).toContain('CREATE INDEX "appointments_service_start_idx"')
+  })
+
+  it('should create unique constraints', () => {
+    const migrationPath = resolve(__dirname, '../drizzle/0004_swift_iceman.sql')
+    const migrationContent = readFileSync(migrationPath, 'utf-8')
+    expect(migrationContent).toContain('"appointments_management_token_unique"')
+    expect(migrationContent).toContain('"schedules_service_id_day_of_week_unique"')
+  })
+
+  it('should drop old columns from schedules', () => {
+    const migrationPath = resolve(__dirname, '../drizzle/0004_swift_iceman.sql')
+    const migrationContent = readFileSync(migrationPath, 'utf-8')
+    expect(migrationContent).toContain('ALTER TABLE "schedules" DROP COLUMN "organization_id"')
+    expect(migrationContent).toContain('ALTER TABLE "schedules" DROP COLUMN "start_time"')
+    expect(migrationContent).toContain('ALTER TABLE "schedules" DROP COLUMN "end_time"')
+    expect(migrationContent).toContain('ALTER TABLE "schedules" DROP COLUMN "active"')
+  })
+
+  it('should drop old columns from appointments', () => {
+    const migrationPath = resolve(__dirname, '../drizzle/0004_swift_iceman.sql')
+    const migrationContent = readFileSync(migrationPath, 'utf-8')
+    expect(migrationContent).toContain('ALTER TABLE "appointments" DROP COLUMN "customer_id"')
+    expect(migrationContent).toContain('ALTER TABLE "appointments" DROP COLUMN "start_time"')
+    expect(migrationContent).toContain('ALTER TABLE "appointments" DROP COLUMN "end_time"')
   })
 })

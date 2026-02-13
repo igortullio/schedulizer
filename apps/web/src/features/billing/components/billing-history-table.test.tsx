@@ -15,7 +15,7 @@ vi.mock('react-i18next', () => ({
 }))
 
 vi.mock('@/lib/format', () => ({
-  formatCurrency: (amountInCents: number, currency: string) => `$${(amountInCents / 100).toFixed(2)}`,
+  formatCurrency: (amountInCents: number, _currency: string) => `$${(amountInCents / 100).toFixed(2)}`,
   formatDateShort: (timestamp: number) => `date-${timestamp}`,
 }))
 

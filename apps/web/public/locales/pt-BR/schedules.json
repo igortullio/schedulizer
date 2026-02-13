@@ -1,0 +1,23 @@
+{
+  "title": "Horários de Atendimento",
+  "description": "Configure os horários disponíveis para cada dia da semana.",
+  "backToServices": "Voltar aos serviços",
+  "save": "Salvar",
+  "saving": "Salvando...",
+  "saveSuccess": "Horários salvos com sucesso!",
+  "dayOff": "Indisponível",
+  "to": "até",
+  "addPeriod": "Adicionar período",
+  "days": {
+    "sunday": "Domingo",
+    "monday": "Segunda",
+    "tuesday": "Terça",
+    "wednesday": "Quarta",
+    "thursday": "Quinta",
+    "friday": "Sexta",
+    "saturday": "Sábado"
+  },
+  "errors": {
+    "saveFailed": "Erro ao salvar os horários. Tente novamente."
+  }
+}

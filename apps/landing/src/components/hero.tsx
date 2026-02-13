@@ -9,10 +9,10 @@ interface HeroProps {
 export function Hero({ onCtaClick }: HeroProps) {
   const { t } = useTranslation()
   return (
-    <section className="relative overflow-hidden px-4 py-20 md:py-28 lg:py-36">
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-accent/10 blur-3xl" />
+    <section className="relative px-4 py-20 md:py-28 lg:py-36">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-60 -right-60 h-[500px] w-[500px] rounded-full bg-primary/10 blur-3xl" />
+        <div className="absolute -bottom-60 -left-60 h-[500px] w-[500px] rounded-full bg-accent/10 blur-3xl" />
       </div>
 
       <div className="relative mx-auto max-w-5xl text-center">
@@ -22,10 +22,7 @@ export function Hero({ onCtaClick }: HeroProps) {
         </div>
 
         <h1 className="animate-fade-in-up stagger-1 mb-6 text-4xl font-bold leading-tight tracking-tight text-foreground md:text-5xl lg:text-6xl">
-          {t('hero.title')}{' '}
-          <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            {t('hero.titleHighlight')}
-          </span>
+          {t('hero.title')} <span className="gradient-text">{t('hero.titleHighlight')}</span>
         </h1>
 
         <p className="animate-fade-in-up stagger-2 mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-muted-foreground md:text-xl">

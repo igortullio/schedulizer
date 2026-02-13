@@ -19,6 +19,18 @@ export const router = createBrowserRouter([
     lazy: () => import('@/routes/subscription'),
   },
   {
+    path: '/services',
+    lazy: () => import('@/routes/services/index'),
+  },
+  {
+    path: '/services/new',
+    lazy: () => import('@/routes/services/new'),
+  },
+  {
+    path: '/services/:serviceId/edit',
+    lazy: () => import('@/routes/services/edit'),
+  },
+  {
     path: '/checkout/success',
     lazy: () => import('@/routes/checkout/success'),
   },

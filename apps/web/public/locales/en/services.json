@@ -1,0 +1,42 @@
+{
+  "title": "Services",
+  "description": "Manage the services you offer to your clients.",
+  "backToDashboard": "Back to dashboard",
+  "backToServices": "Back to services",
+  "emptyState": "No services registered yet. Create your first service to get started.",
+  "minutes": "min",
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "actions": {
+    "create": "New service",
+    "createFirst": "Create first service",
+    "edit": "Edit",
+    "delete": "Delete",
+    "activate": "Activate",
+    "deactivate": "Deactivate"
+  },
+  "form": {
+    "createTitle": "New Service",
+    "editTitle": "Edit Service",
+    "name": "Name",
+    "namePlaceholder": "E.g.: Haircut",
+    "description": "Description",
+    "descriptionPlaceholder": "Describe the service (optional)",
+    "duration": "Duration (minutes)",
+    "durationPlaceholder": "E.g.: 30",
+    "price": "Price (R$)",
+    "create": "Create service",
+    "creating": "Creating...",
+    "save": "Save changes",
+    "saving": "Saving...",
+    "errors": {
+      "nameRequired": "Service name is required.",
+      "durationInvalid": "Duration must be between 5 and 480 minutes.",
+      "priceInvalid": "Price must be in 00.00 format (e.g.: 50.00).",
+      "createFailed": "Failed to create service. Please try again.",
+      "updateFailed": "Failed to update service. Please try again."
+    }
+  }
+}

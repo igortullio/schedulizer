@@ -6,6 +6,7 @@ import { auth } from './lib/auth'
 import { billingRoutes, webhookRouter } from './routes/billing.routes'
 import { leadsRoutes } from './routes/leads.routes'
 import { organizationsRoutes } from './routes/organizations.routes'
+import { servicesRoutes } from './routes/services.routes'
 
 const app = express()
 
@@ -35,6 +36,7 @@ app.use(express.json())
 app.use('/api/billing', billingRoutes)
 app.use('/api/leads', leadsRoutes)
 app.use('/api/organizations', organizationsRoutes)
+app.use('/api/services', servicesRoutes)
 
 // Health check
 app.get('/health', (_req, res) => {

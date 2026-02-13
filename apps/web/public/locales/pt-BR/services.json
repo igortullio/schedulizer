@@ -1,0 +1,42 @@
+{
+  "title": "Serviços",
+  "description": "Gerencie os serviços que você oferece aos seus clientes.",
+  "backToDashboard": "Voltar ao painel",
+  "backToServices": "Voltar aos serviços",
+  "emptyState": "Nenhum serviço cadastrado ainda. Crie seu primeiro serviço para começar.",
+  "minutes": "min",
+  "status": {
+    "active": "Ativo",
+    "inactive": "Inativo"
+  },
+  "actions": {
+    "create": "Novo serviço",
+    "createFirst": "Criar primeiro serviço",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "activate": "Ativar",
+    "deactivate": "Desativar"
+  },
+  "form": {
+    "createTitle": "Novo Serviço",
+    "editTitle": "Editar Serviço",
+    "name": "Nome",
+    "namePlaceholder": "Ex: Corte de cabelo",
+    "description": "Descrição",
+    "descriptionPlaceholder": "Descreva o serviço (opcional)",
+    "duration": "Duração (minutos)",
+    "durationPlaceholder": "Ex: 30",
+    "price": "Preço (R$)",
+    "create": "Criar serviço",
+    "creating": "Criando...",
+    "save": "Salvar alterações",
+    "saving": "Salvando...",
+    "errors": {
+      "nameRequired": "O nome do serviço é obrigatório.",
+      "durationInvalid": "A duração deve ser entre 5 e 480 minutos.",
+      "priceInvalid": "O preço deve estar no formato 00.00 (ex: 50.00).",
+      "createFailed": "Erro ao criar o serviço. Tente novamente.",
+      "updateFailed": "Erro ao atualizar o serviço. Tente novamente."
+    }
+  }
+}

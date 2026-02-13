@@ -32,6 +32,12 @@ Use these skills for common tasks:
 - `/db-migrate` - Generate and apply database migrations
 - `/nx` - General guidelines for working with Nx
 
+## Dependencies
+
+- NEVER add `@rollup/rollup-*` packages as explicit dependencies. They are optional platform-specific packages resolved automatically by npm. If `npm install` fails with a rollup error, the fix is `rm -rf node_modules package-lock.json && npm install --include=dev`
+- Root `package.json` should only have devDependencies (tooling shared across the monorepo). App-specific dependencies go in their respective workspace `package.json`
+- Use `npm install --include=dev` instead of plain `npm install` (npm 11 with workspaces skips root devDependencies by default)
+
 ## MCPs
 
 - Prioritize the Context7 MCP for documentation, APIs, SDKs, and up-to-date technical references

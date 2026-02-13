@@ -19,9 +19,6 @@
       "path": "./apps/landing"
     },
     {
-      "path": "./libs/ui"
-    },
-    {
       "path": "./libs/billing"
     }
   ]

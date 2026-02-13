@@ -4,7 +4,7 @@ interface EnvErrorProps {
 
 export function EnvError({ error }: EnvErrorProps) {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-red-50 to-orange-50 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-red-50 to-orange-50 p-4">
       <div className="max-w-lg rounded-2xl border border-red-200 bg-white p-8 shadow-xl">
         <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
           <svg

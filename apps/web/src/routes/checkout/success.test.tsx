@@ -90,8 +90,9 @@ describe('CheckoutSuccessPage', () => {
   describe('accessibility', () => {
     it('has proper heading hierarchy', () => {
       renderWithRouter()
-      const heading = screen.getByRole('heading', { level: 3 })
-      expect(heading).toBeInTheDocument()
+      const title = screen.getByText('checkout.success.title')
+      expect(title).toBeInTheDocument()
+      expect(title).toHaveAttribute('data-slot', 'card-title')
     })
 
     it('has check icon with aria-hidden', () => {

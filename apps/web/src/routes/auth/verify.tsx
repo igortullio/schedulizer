@@ -1,4 +1,4 @@
-import { Button } from '@schedulizer/ui'
+import { Button } from '@igortullio-ui/react'
 import type { TFunction } from 'i18next'
 import { AlertCircle, ArrowLeft, Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'

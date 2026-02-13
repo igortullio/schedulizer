@@ -15,8 +15,7 @@
       "@schedulizer/shared-types": ["../../libs/shared/types/src/index.ts"],
       "@schedulizer/env": ["../../libs/shared/env/src/index.ts"],
       "@schedulizer/env/server": ["../../libs/shared/env/src/server.ts"],
-      "@schedulizer/env/client": ["../../libs/shared/env/src/client.ts"],
-      "@schedulizer/ui": ["../../libs/ui/src/index.ts"]
+      "@schedulizer/env/client": ["../../libs/shared/env/src/client.ts"]
     }
   },
   "exclude": [
@@ -36,17 +35,12 @@
     "src/**/*.jsx",
     "src/**/*.ts",
     "src/**/*.tsx",
-    "../../libs/ui/src/**/*.ts",
-    "../../libs/ui/src/**/*.tsx",
     "../../libs/shared/env/src/**/*.ts",
     "../../libs/shared/types/src/**/*.ts"
   ],
   "references": [
     {
       "path": "../../libs/shared/env"
-    },
-    {
-      "path": "../../libs/ui"
     }
   ]
 }

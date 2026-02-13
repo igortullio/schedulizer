@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button, Input, Label } from '@schedulizer/ui'
+import { Button, Input, Label } from '@igortullio-ui/react'
 import type { TFunction } from 'i18next'
 import { Building2, Loader2 } from 'lucide-react'
 import { useState } from 'react'

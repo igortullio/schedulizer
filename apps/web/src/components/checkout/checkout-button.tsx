@@ -1,11 +1,12 @@
+import { Button } from '@igortullio-ui/react'
 import { clientEnv } from '@schedulizer/env/client'
-import { Button, type ButtonProps } from '@schedulizer/ui'
 import { Loader2 } from 'lucide-react'
-import { useState } from 'react'
+import { type ComponentProps, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { authClient, useSession } from '@/lib/auth-client'
 
+type ButtonProps = ComponentProps<typeof Button>
 type CheckoutState = 'idle' | 'loading' | 'error'
 
 interface CheckoutButtonProps extends Omit<ButtonProps, 'onClick'> {

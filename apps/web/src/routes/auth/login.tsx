@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button, Input, Label } from '@schedulizer/ui'
+import { Button, Input, Label } from '@igortullio-ui/react'
 import { CheckCircle2, Loader2, Mail } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'

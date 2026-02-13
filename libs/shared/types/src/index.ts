@@ -22,6 +22,37 @@ export interface Organization {
   metadata?: string | null
 }
 
+export const UpdateOrganizationSettingsSchema = z
+  .object({
+    slug: z
+      .string()
+      .min(3)
+      .max(100)
+      .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must contain only lowercase letters, numbers, and hyphens')
+      .optional(),
+    timezone: z
+      .string()
+      .min(1)
+      .max(100)
+      .refine(
+        tz => {
+          try {
+            Intl.DateTimeFormat(undefined, { timeZone: tz })
+            return true
+          } catch {
+            return false
+          }
+        },
+        { message: 'Invalid IANA timezone identifier' },
+      )
+      .optional(),
+  })
+  .refine(data => data.slug !== undefined || data.timezone !== undefined, {
+    message: 'At least one field (slug or timezone) must be provided',
+  })
+
+export type UpdateOrganizationSettingsInput = z.infer<typeof UpdateOrganizationSettingsSchema>
+
 export interface Member {
   id: string
   organizationId: string
@@ -80,7 +111,7 @@ export const SchedulePeriodSchema = z
     startTime: z.string().regex(/^\d{2}:\d{2}$/),
     endTime: z.string().regex(/^\d{2}:\d{2}$/),
   })
-  .refine((data) => data.startTime < data.endTime, {
+  .refine(data => data.startTime < data.endTime, {
     message: 'startTime must be before endTime',
   })
 
@@ -117,7 +148,7 @@ export const CreateTimeBlockSchema = z
     endTime: z.string().regex(/^\d{2}:\d{2}$/),
     reason: z.string().max(255).optional(),
   })
-  .refine((data) => data.startTime < data.endTime, {
+  .refine(data => data.startTime < data.endTime, {
     message: 'startTime must be before endTime',
   })
 

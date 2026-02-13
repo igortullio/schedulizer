@@ -1,0 +1,20 @@
+{
+  "title": "Configurações da Organização",
+  "backToDashboard": "Voltar ao painel",
+  "form": {
+    "slug": "URL de agendamento (slug)",
+    "slugPlaceholder": "meu-negocio",
+    "slugHelp": "Usado no link público de agendamento: /booking/seu-slug",
+    "timezone": "Fuso horário",
+    "timezoneHelp": "Fuso horário usado para agendamentos. Exemplo: America/Sao_Paulo",
+    "save": "Salvar configurações",
+    "saving": "Salvando...",
+    "success": "Configurações salvas com sucesso.",
+    "errors": {
+      "slugLength": "O slug deve ter entre 3 e 100 caracteres.",
+      "slugInvalid": "O slug deve conter apenas letras minúsculas, números e hífens.",
+      "timezoneRequired": "O fuso horário é obrigatório.",
+      "updateFailed": "Falha ao atualizar configurações. Tente novamente."
+    }
+  }
+}

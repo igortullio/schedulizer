@@ -44,6 +44,10 @@ export const router = createBrowserRouter([
     lazy: () => import('@/routes/time-blocks/index'),
   },
   {
+    path: '/settings',
+    lazy: () => import('@/routes/settings/index'),
+  },
+  {
     path: '/checkout/success',
     lazy: () => import('@/routes/checkout/success'),
   },

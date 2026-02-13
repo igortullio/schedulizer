@@ -7,6 +7,7 @@ import booking from '../public/locales/pt-BR/booking.json'
 import common from '../public/locales/pt-BR/common.json'
 import schedules from '../public/locales/pt-BR/schedules.json'
 import services from '../public/locales/pt-BR/services.json'
+import settings from '../public/locales/pt-BR/settings.json'
 import timeBlocks from '../public/locales/pt-BR/timeBlocks.json'
 
 declare module 'i18next' {
@@ -20,6 +21,7 @@ declare module 'i18next' {
       common: typeof common
       schedules: typeof schedules
       services: typeof services
+      settings: typeof settings
       timeBlocks: typeof timeBlocks
     }
     returnNull: false

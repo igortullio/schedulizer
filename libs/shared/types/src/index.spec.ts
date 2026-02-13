@@ -19,6 +19,7 @@ import {
   CreateTimeBlockSchema,
   RescheduleAppointmentSchema,
   SchedulePeriodSchema,
+  UpdateOrganizationSettingsSchema,
   UpdateServiceSchema,
   UpsertScheduleSchema,
 } from './index'
@@ -373,6 +374,112 @@ describe('Zod Schemas', () => {
     it('should validate correct reschedule input', () => {
       const result = RescheduleAppointmentSchema.safeParse({
         startTime: '2025-01-16T10:00:00Z',
+      })
+      expect(result.success).toBe(true)
+    })
+  })
+
+  describe('UpdateOrganizationSettingsSchema', () => {
+    it('should validate slug with lowercase and hyphens', () => {
+      const result = UpdateOrganizationSettingsSchema.safeParse({
+        slug: 'my-business',
+      })
+      expect(result.success).toBe(true)
+    })
+
+    it('should validate slug with only lowercase letters', () => {
+      const result = UpdateOrganizationSettingsSchema.safeParse({
+        slug: 'mybusiness',
+      })
+      expect(result.success).toBe(true)
+    })
+
+    it('should validate slug with numbers', () => {
+      const result = UpdateOrganizationSettingsSchema.safeParse({
+        slug: 'business-123',
+      })
+      expect(result.success).toBe(true)
+    })
+
+    it('should reject slug with uppercase letters', () => {
+      const result = UpdateOrganizationSettingsSchema.safeParse({
+        slug: 'My-Business',
+      })
+      expect(result.success).toBe(false)
+    })
+
+    it('should reject slug with special characters', () => {
+      const result = UpdateOrganizationSettingsSchema.safeParse({
+        slug: 'my_business!',
+      })
+      expect(result.success).toBe(false)
+    })
+
+    it('should reject slug with spaces', () => {
+      const result = UpdateOrganizationSettingsSchema.safeParse({
+        slug: 'my business',
+      })
+      expect(result.success).toBe(false)
+    })
+
+    it('should reject slug with leading hyphen', () => {
+      const result = UpdateOrganizationSettingsSchema.safeParse({
+        slug: '-my-business',
+      })
+      expect(result.success).toBe(false)
+    })
+
+    it('should reject slug with trailing hyphen', () => {
+      const result = UpdateOrganizationSettingsSchema.safeParse({
+        slug: 'my-business-',
+      })
+      expect(result.success).toBe(false)
+    })
+
+    it('should reject slug shorter than 3 characters', () => {
+      const result = UpdateOrganizationSettingsSchema.safeParse({
+        slug: 'ab',
+      })
+      expect(result.success).toBe(false)
+    })
+
+    it('should validate timezone only', () => {
+      const result = UpdateOrganizationSettingsSchema.safeParse({
+        timezone: 'America/Sao_Paulo',
+      })
+      expect(result.success).toBe(true)
+    })
+
+    it('should validate both slug and timezone', () => {
+      const result = UpdateOrganizationSettingsSchema.safeParse({
+        slug: 'my-business',
+        timezone: 'UTC',
+      })
+      expect(result.success).toBe(true)
+    })
+
+    it('should reject empty object (at least one field required)', () => {
+      const result = UpdateOrganizationSettingsSchema.safeParse({})
+      expect(result.success).toBe(false)
+    })
+
+    it('should reject empty timezone string', () => {
+      const result = UpdateOrganizationSettingsSchema.safeParse({
+        timezone: '',
+      })
+      expect(result.success).toBe(false)
+    })
+
+    it('should reject invalid IANA timezone', () => {
+      const result = UpdateOrganizationSettingsSchema.safeParse({
+        timezone: 'Not/A_Timezone',
+      })
+      expect(result.success).toBe(false)
+    })
+
+    it('should accept valid IANA timezone Europe/London', () => {
+      const result = UpdateOrganizationSettingsSchema.safeParse({
+        timezone: 'Europe/London',
       })
       expect(result.success).toBe(true)
     })

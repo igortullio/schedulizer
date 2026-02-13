@@ -4,19 +4,11 @@ Modern SaaS scheduling software for small businesses
 
 ## Architecture
 
-- Monorepo: Nx (@nx.json)
-    - Frontend (React + Vite + Tailwind + Shadcn):
-        - Web (`apps/web`)
-        - Landing page (`apps/landing`)
-    - Backend (Express.js v5 + TypeScript) (`apps/api`)
-    - Database (PostgreSQL + Drizzle ORM) (`libs/db`)
-    - Shared libs:
-        - Env validation (`libs/shared/env`)
-        - TypeScript types (`libs/shared/types`)
+See [Architecture Overview](docs/ARCHITECTURE-OVERVIEW.md) for the full architecture documentation.
 
 ## Rules
 
-Use these rules for standars:
+Use these rules for standards:
 
 - @.claude/rules/code-standards.md - Code standards
 - @.claude/rules/http.md - Creates a new backend route following the standard structure
@@ -30,7 +22,8 @@ Use these skills for common tasks:
 - `/dev` - Start the development environment
 - `/check` - Run lint and formatting checks
 - `/db-migrate` - Generate and apply database migrations
-- `/nx` - General guidelines for working with Nx
+- `/nx-workspace` - Nx workspace management and task execution
+- `/nx-generate` - Scaffold code using Nx generators
 
 ## Dependencies
 

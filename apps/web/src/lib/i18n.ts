@@ -10,7 +10,7 @@ void i18n
   .init({
     fallbackLng: 'pt-BR',
     supportedLngs: ['pt-BR', 'en'],
-    ns: ['auth', 'common', 'billing', 'services', 'schedules', 'timeBlocks'],
+    ns: ['auth', 'common', 'billing', 'services', 'schedules', 'timeBlocks', 'booking'],
     defaultNS: 'auth',
     detection: {
       order: ['localStorage', 'navigator'],

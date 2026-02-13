@@ -1,0 +1,85 @@
+{
+  "notFound": {
+    "title": "Business not found",
+    "description": "The link you accessed does not match any registered business."
+  },
+  "error": {
+    "generic": "An error occurred. Please try again later."
+  },
+  "services": {
+    "subtitle": "Select a service to book",
+    "empty": "No services available at the moment.",
+    "minutes": "min"
+  },
+  "slots": {
+    "back": "Back",
+    "selectDate": "Select a date",
+    "selectTime": "Select a time",
+    "empty": "No available slots for this date.",
+    "previousWeek": "Previous week",
+    "nextWeek": "Next week"
+  },
+  "form": {
+    "back": "Back",
+    "title": "Your details",
+    "name": "Name",
+    "namePlaceholder": "Your full name",
+    "email": "Email",
+    "emailPlaceholder": "your@email.com",
+    "phone": "Phone",
+    "phonePlaceholder": "(11) 99999-9999",
+    "submit": "Confirm booking",
+    "submitting": "Booking...",
+    "errors": {
+      "nameRequired": "Name is required.",
+      "emailInvalid": "Please enter a valid email.",
+      "phoneInvalid": "Please enter a valid phone number (min. 8 characters).",
+      "slotConflict": "This time slot is no longer available. Please select another.",
+      "createFailed": "Failed to create booking. Please try again."
+    }
+  },
+  "confirmation": {
+    "title": "Booking confirmed!",
+    "subtitle": "{{name}}, your booking has been confirmed.",
+    "service": "Service",
+    "date": "Date",
+    "time": "Time",
+    "managementInfo": "You will receive a confirmation email with a link to manage your booking.",
+    "copyLink": "Copy management link",
+    "copied": "Link copied!",
+    "manageBooking": "Manage booking"
+  },
+  "manage": {
+    "notFound": {
+      "title": "Booking not found",
+      "description": "The link you accessed is invalid or the booking does not exist."
+    },
+    "details": {
+      "title": "Your booking",
+      "subtitle": "Booking details",
+      "status": "Status"
+    },
+    "cancelled": {
+      "title": "Booking cancelled"
+    },
+    "statuses": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "cancelled": "Cancelled",
+      "completed": "Completed",
+      "no_show": "No show"
+    },
+    "actions": {
+      "reschedule": "Reschedule",
+      "cancel": "Cancel booking",
+      "cancelling": "Cancelling..."
+    },
+    "reschedule": {
+      "title": "Reschedule"
+    },
+    "errors": {
+      "cancelFailed": "Failed to cancel booking. Please try again.",
+      "rescheduleFailed": "Failed to reschedule. Please try again."
+    }
+  }
+}

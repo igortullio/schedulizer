@@ -2,6 +2,7 @@ import 'i18next'
 
 import auth from '../public/locales/pt-BR/auth.json'
 import billing from '../public/locales/pt-BR/billing.json'
+import booking from '../public/locales/pt-BR/booking.json'
 import common from '../public/locales/pt-BR/common.json'
 import schedules from '../public/locales/pt-BR/schedules.json'
 import services from '../public/locales/pt-BR/services.json'
@@ -13,6 +14,7 @@ declare module 'i18next' {
     resources: {
       auth: typeof auth
       billing: typeof billing
+      booking: typeof booking
       common: typeof common
       schedules: typeof schedules
       services: typeof services

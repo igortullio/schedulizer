@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { AuthLayout } from '@/components/layout/auth-layout'
+import { PublicLayout } from '@/components/layout/public-layout'
 
 export const router = createBrowserRouter([
   {
@@ -45,6 +46,20 @@ export const router = createBrowserRouter([
   {
     path: '/checkout/cancel',
     lazy: () => import('@/routes/checkout/cancel'),
+  },
+  {
+    path: '/booking',
+    element: <PublicLayout />,
+    children: [
+      {
+        path: ':slug',
+        lazy: () => import('@/routes/booking/index'),
+      },
+      {
+        path: ':slug/manage/:token',
+        lazy: () => import('@/routes/booking/manage'),
+      },
+    ],
   },
   {
     path: '/auth',

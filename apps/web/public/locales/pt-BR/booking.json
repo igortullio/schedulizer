@@ -1,0 +1,85 @@
+{
+  "notFound": {
+    "title": "Negócio não encontrado",
+    "description": "O link que você acessou não corresponde a nenhum negócio cadastrado."
+  },
+  "error": {
+    "generic": "Ocorreu um erro. Tente novamente mais tarde."
+  },
+  "services": {
+    "subtitle": "Selecione um serviço para agendar",
+    "empty": "Nenhum serviço disponível no momento.",
+    "minutes": "min"
+  },
+  "slots": {
+    "back": "Voltar",
+    "selectDate": "Selecione a data",
+    "selectTime": "Selecione o horário",
+    "empty": "Nenhum horário disponível nesta data.",
+    "previousWeek": "Semana anterior",
+    "nextWeek": "Próxima semana"
+  },
+  "form": {
+    "back": "Voltar",
+    "title": "Seus dados",
+    "name": "Nome",
+    "namePlaceholder": "Seu nome completo",
+    "email": "E-mail",
+    "emailPlaceholder": "seu@email.com",
+    "phone": "Telefone",
+    "phonePlaceholder": "(11) 99999-9999",
+    "submit": "Confirmar agendamento",
+    "submitting": "Agendando...",
+    "errors": {
+      "nameRequired": "O nome é obrigatório.",
+      "emailInvalid": "Informe um e-mail válido.",
+      "phoneInvalid": "Informe um telefone válido (mín. 8 caracteres).",
+      "slotConflict": "Este horário não está mais disponível. Selecione outro.",
+      "createFailed": "Erro ao criar o agendamento. Tente novamente."
+    }
+  },
+  "confirmation": {
+    "title": "Agendamento confirmado!",
+    "subtitle": "{{name}}, seu agendamento foi realizado com sucesso.",
+    "service": "Serviço",
+    "date": "Data",
+    "time": "Horário",
+    "managementInfo": "Você receberá um e-mail de confirmação com um link para gerenciar seu agendamento.",
+    "copyLink": "Copiar link de gerenciamento",
+    "copied": "Link copiado!",
+    "manageBooking": "Gerenciar agendamento"
+  },
+  "manage": {
+    "notFound": {
+      "title": "Agendamento não encontrado",
+      "description": "O link que você acessou é inválido ou o agendamento não existe."
+    },
+    "details": {
+      "title": "Seu agendamento",
+      "subtitle": "Detalhes do agendamento",
+      "status": "Status"
+    },
+    "cancelled": {
+      "title": "Agendamento cancelado"
+    },
+    "statuses": {
+      "pending": "Pendente",
+      "confirmed": "Confirmado",
+      "cancelled": "Cancelado",
+      "completed": "Concluído",
+      "no_show": "Não compareceu"
+    },
+    "actions": {
+      "reschedule": "Reagendar",
+      "cancel": "Cancelar agendamento",
+      "cancelling": "Cancelando..."
+    },
+    "reschedule": {
+      "title": "Reagendar"
+    },
+    "errors": {
+      "cancelFailed": "Erro ao cancelar o agendamento. Tente novamente.",
+      "rescheduleFailed": "Erro ao reagendar. Tente novamente."
+    }
+  }
+}

@@ -308,13 +308,14 @@ router.get('/:slug/manage/:token', async (req, res) => {
       })
     }
     const [service] = await db
-      .select({ name: schema.services.name })
+      .select({ id: schema.services.id, name: schema.services.name })
       .from(schema.services)
       .where(eq(schema.services.id, appointment.serviceId))
       .limit(1)
     return res.status(200).json({
       data: {
         id: appointment.id,
+        serviceId: service?.id ?? appointment.serviceId,
         serviceName: service?.name ?? 'Unknown',
         startDatetime: appointment.startDatetime,
         endDatetime: appointment.endDatetime,

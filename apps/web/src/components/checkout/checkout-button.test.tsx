@@ -43,8 +43,6 @@ vi.mock('react-router-dom', async () => {
 const mockFetch = vi.fn()
 global.fetch = mockFetch
 
-const originalLocation = window.location
-
 describe('CheckoutButton', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -57,8 +55,9 @@ describe('CheckoutButton', () => {
       isPending: false,
     })
     Object.defineProperty(window, 'location', {
-      value: { ...originalLocation, origin: 'http://localhost:5173', href: '' },
+      value: { origin: 'http://localhost:5173', href: '' },
       writable: true,
+      configurable: true,
     })
   })
 

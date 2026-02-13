@@ -11,7 +11,7 @@ const serverEnvSchema = z.object({
   TURNSTILE_SECRET_KEY: z.string().optional(),
   STRIPE_SECRET_KEY: z.string().startsWith('sk_'),
   STRIPE_WEBHOOK_SECRET: z.string().startsWith('whsec_'),
-  CRON_API_KEY: z.string().min(16).optional(),
+  CRON_API_KEY: z.string().min(16),
 })
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>
@@ -34,7 +34,7 @@ function createServerEnv() {
     turnstileSecretKey: result.data.TURNSTILE_SECRET_KEY ?? undefined,
     stripeSecretKey: result.data.STRIPE_SECRET_KEY,
     stripeWebhookSecret: result.data.STRIPE_WEBHOOK_SECRET,
-    cronApiKey: result.data.CRON_API_KEY ?? undefined,
+    cronApiKey: result.data.CRON_API_KEY,
   } as const
 }
 

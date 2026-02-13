@@ -36,6 +36,10 @@ export const router = createBrowserRouter([
     lazy: () => import('@/routes/services/schedules'),
   },
   {
+    path: '/appointments',
+    lazy: () => import('@/routes/appointments/index'),
+  },
+  {
     path: '/time-blocks',
     lazy: () => import('@/routes/time-blocks/index'),
   },

@@ -1,0 +1,34 @@
+{
+  "title": "Appointments",
+  "description": "Manage and track your appointments.",
+  "backToDashboard": "Back to dashboard",
+  "emptyState": "No appointments found.",
+  "viewList": "List",
+  "viewCalendar": "Calendar",
+  "status": {
+    "pending": "Pending",
+    "confirmed": "Confirmed",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "no_show": "No show"
+  },
+  "filters": {
+    "allStatuses": "All statuses",
+    "from": "From",
+    "to": "To"
+  },
+  "actions": {
+    "confirm": "Confirm",
+    "complete": "Complete",
+    "noShow": "No show",
+    "cancel": "Cancel"
+  },
+  "calendar": {
+    "today": "Today",
+    "previous": "Previous",
+    "next": "Next",
+    "month": "Month",
+    "week": "Week",
+    "noEvents": "No appointments in this period."
+  }
+}

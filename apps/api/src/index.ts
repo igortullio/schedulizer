@@ -3,6 +3,7 @@ import { toNodeHandler } from 'better-auth/node'
 import cors from 'cors'
 import express from 'express'
 import { auth } from './lib/auth'
+import { appointmentsRoutes } from './routes/appointments.routes'
 import { billingRoutes, webhookRouter } from './routes/billing.routes'
 import { bookingRoutes } from './routes/booking.routes'
 import { leadsRoutes } from './routes/leads.routes'
@@ -43,6 +44,7 @@ app.use('/api/organizations', organizationsRoutes)
 app.use('/api/services', servicesRoutes)
 app.use('/api/services', schedulesRoutes)
 app.use('/api/time-blocks', timeBlocksRoutes)
+app.use('/api/appointments', appointmentsRoutes)
 app.use('/api/booking', bookingRoutes)
 app.use('/api/notifications', notificationsRoutes)
 

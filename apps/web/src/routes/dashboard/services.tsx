@@ -46,8 +46,11 @@ export function Component() {
     setScheduleService({ id: service.id, name: service.name })
   }
   async function handleCreateSubmit(data: { name: string; description?: string; duration: number; price: string }) {
-    await createService(data)
+    const created = await createService(data)
     setIsCreateOpen(false)
+    if (created) {
+      setScheduleService({ id: created.id, name: created.name })
+    }
   }
   async function handleEditSubmit(data: { name: string; description?: string; duration: number; price: string }) {
     if (!editingService) return

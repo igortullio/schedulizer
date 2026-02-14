@@ -20,6 +20,9 @@
     },
     {
       "path": "./libs/billing"
+    },
+    {
+      "path": "./libs/email"
     }
   ]
 }

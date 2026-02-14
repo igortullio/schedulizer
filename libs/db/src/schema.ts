@@ -74,6 +74,7 @@ export const organizations = pgTable('organizations', {
   slug: text('slug').notNull().unique(),
   logo: text('logo'),
   timezone: text('timezone').notNull().default('America/Sao_Paulo'),
+  language: text('language').notNull().default('pt-BR'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   metadata: text('metadata'),
 })
@@ -139,7 +140,7 @@ export const schedules = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  (table) => [unique('schedules_service_id_day_of_week_unique').on(table.serviceId, table.dayOfWeek)],
+  table => [unique('schedules_service_id_day_of_week_unique').on(table.serviceId, table.dayOfWeek)],
 )
 
 export const schedulePeriods = pgTable('schedule_periods', {
@@ -167,7 +168,7 @@ export const timeBlocks = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  (table) => [index('time_blocks_organization_id_date_idx').on(table.organizationId, table.date)],
+  table => [index('time_blocks_organization_id_date_idx').on(table.organizationId, table.date)],
 )
 
 export const appointments = pgTable(
@@ -189,10 +190,11 @@ export const appointments = pgTable(
     managementToken: uuid('management_token').notNull().defaultRandom().unique(),
     reminderSentAt: timestamp('reminder_sent_at', { withTimezone: true }),
     notes: text('notes'),
+    language: text('language').notNull().default('pt-BR'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  (table) => [
+  table => [
     index('appointments_org_start_idx').on(table.organizationId, table.startDatetime),
     index('appointments_service_start_idx').on(table.serviceId, table.startDatetime),
   ],

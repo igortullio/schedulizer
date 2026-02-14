@@ -28,12 +28,14 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { LanguageSelector } from '@/components/language-selector'
+import { useServices } from '@/features/services'
 import { authClient, signOut } from '@/lib/auth-client'
 
 interface NavItem {
   to: string
   label: string
   icon: React.ReactNode
+  badge?: number
 }
 
 interface SidebarProps {
@@ -48,9 +50,15 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isOrgPopoverOpen, setIsOrgPopoverOpen] = useState(false)
   const { data: organizations, isPending: isLoadingOrgs } = authClient.useListOrganizations()
+  const { services } = useServices()
   const navItems: NavItem[] = [
     { to: '/dashboard', label: t('sidebar.overview'), icon: <LayoutDashboard className="h-5 w-5" /> },
-    { to: '/dashboard/services', label: t('sidebar.services'), icon: <Package className="h-5 w-5" /> },
+    {
+      to: '/dashboard/services',
+      label: t('sidebar.services'),
+      icon: <Package className="h-5 w-5" />,
+      badge: services.length,
+    },
     { to: '/dashboard/appointments', label: t('sidebar.appointments'), icon: <CalendarDays className="h-5 w-5" /> },
     { to: '/dashboard/time-blocks', label: t('sidebar.timeBlocks'), icon: <Clock className="h-5 w-5" /> },
   ]
@@ -206,7 +214,7 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
             isCollapsed ? (
               <Tooltip key={item.to}>
                 <TooltipTrigger asChild>
-                  <span>
+                  <span className="relative">
                     <NavLink
                       to={item.to}
                       end={item.to === '/dashboard'}
@@ -217,6 +225,11 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
                     >
                       {item.icon}
                     </NavLink>
+                    {item.badge ? (
+                      <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-medium text-primary-foreground">
+                        {item.badge}
+                      </span>
+                    ) : null}
                   </span>
                 </TooltipTrigger>
                 <TooltipContent side="right">{item.label}</TooltipContent>
@@ -233,6 +246,11 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
               >
                 {item.icon}
                 {item.label}
+                {item.badge ? (
+                  <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-primary/15 px-1.5 text-xs font-medium text-primary">
+                    {item.badge}
+                  </span>
+                ) : null}
               </NavLink>
             ),
           )}

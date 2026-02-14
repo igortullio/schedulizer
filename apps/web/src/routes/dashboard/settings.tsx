@@ -109,7 +109,7 @@ export function Component() {
         <div>
           <h2 className="mb-4 text-xl font-semibold tracking-tight text-foreground">{t('sections.organization')}</h2>
           <Card>
-            <CardContent className="pt-6">
+            <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4" data-testid="settings-form">
                 {formError ? (
                   <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive" data-testid="form-error">

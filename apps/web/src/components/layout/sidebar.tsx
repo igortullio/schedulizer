@@ -124,7 +124,7 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
         data-testid="sidebar"
       >
         <div
-          className={`flex border-b border-sidebar-border px-4 py-5 ${isCollapsed ? 'flex-col items-center gap-2' : 'items-center justify-between'}`}
+          className={`flex border-b border-sidebar-border py-5 ${isCollapsed ? 'flex-col items-center gap-2 px-3' : 'items-center justify-between px-4'}`}
         >
           {isCollapsed ? (
             <>
@@ -134,7 +134,7 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
                     <PopoverTrigger asChild>
                       <button
                         type="button"
-                        className="flex items-center justify-center rounded-md p-1 text-sidebar-foreground/60 hover:text-sidebar-foreground"
+                        className="flex w-full items-center justify-center rounded-md py-2 text-sidebar-foreground/60 hover:text-sidebar-foreground"
                         data-testid="org-switcher"
                       >
                         <Building2 className="h-5 w-5" />
@@ -148,7 +148,7 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
               <button
                 type="button"
                 onClick={toggleCollapsed}
-                className="hidden rounded-md p-1 text-sidebar-foreground/60 hover:text-sidebar-foreground md:block"
+                className="hidden w-full items-center justify-center rounded-md py-2 text-sidebar-foreground/60 hover:text-sidebar-foreground md:flex"
                 aria-label="Expand sidebar"
                 data-testid="sidebar-collapse-toggle"
               >
@@ -192,21 +192,26 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
             </>
           )}
         </div>
-        <nav className="flex-1 space-y-1 px-3 py-4" data-testid="sidebar-nav">
+        <nav
+          className={`flex-1 py-4 ${isCollapsed ? 'flex flex-col items-center gap-1 px-3' : 'space-y-1 px-3'}`}
+          data-testid="sidebar-nav"
+        >
           {navItems.map(item =>
             isCollapsed ? (
               <Tooltip key={item.to}>
                 <TooltipTrigger asChild>
-                  <NavLink
-                    to={item.to}
-                    end={item.to === '/dashboard'}
-                    onClick={closeSidebar}
-                    className={({ isActive }) =>
-                      `flex items-center justify-center gap-3 rounded-md py-2 px-0 text-sm font-medium transition-colors ${isActive ? 'bg-sidebar-primary text-sidebar-primary-foreground' : 'text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground'}`
-                    }
-                  >
-                    {item.icon}
-                  </NavLink>
+                  <span>
+                    <NavLink
+                      to={item.to}
+                      end={item.to === '/dashboard'}
+                      onClick={closeSidebar}
+                      className={({ isActive }) =>
+                        `flex w-full items-center justify-center rounded-md py-2 text-sm font-medium transition-colors ${isActive ? 'bg-sidebar-primary text-sidebar-primary-foreground' : 'text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground'}`
+                      }
+                    >
+                      {item.icon}
+                    </NavLink>
+                  </span>
                 </TooltipTrigger>
                 <TooltipContent side="right">{item.label}</TooltipContent>
               </Tooltip>
@@ -226,20 +231,24 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
             ),
           )}
         </nav>
-        <div className="border-t border-sidebar-border px-3 py-4 space-y-1">
+        <div
+          className={`border-t border-sidebar-border py-4 ${isCollapsed ? 'flex flex-col items-center gap-1 px-3' : 'space-y-1 px-3'}`}
+        >
           {isCollapsed ? (
             <>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <NavLink
-                    to="/dashboard/settings"
-                    onClick={closeSidebar}
-                    className={({ isActive }) =>
-                      `flex items-center justify-center gap-3 rounded-md py-2 px-0 text-sm font-medium transition-colors ${isActive ? 'bg-sidebar-primary text-sidebar-primary-foreground' : 'text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground'}`
-                    }
-                  >
-                    <Settings className="h-5 w-5" />
-                  </NavLink>
+                  <span>
+                    <NavLink
+                      to="/dashboard/settings"
+                      onClick={closeSidebar}
+                      className={({ isActive }) =>
+                        `flex w-full items-center justify-center rounded-md py-2 text-sm font-medium transition-colors ${isActive ? 'bg-sidebar-primary text-sidebar-primary-foreground' : 'text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground'}`
+                      }
+                    >
+                      <Settings className="h-5 w-5" />
+                    </NavLink>
+                  </span>
                 </TooltipTrigger>
                 <TooltipContent side="right">{t('sidebar.settings')}</TooltipContent>
               </Tooltip>

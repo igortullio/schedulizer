@@ -206,7 +206,7 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
                       end={item.to === '/dashboard'}
                       onClick={closeSidebar}
                       className={({ isActive }) =>
-                        `flex w-full items-center justify-center rounded-md py-2 text-sm font-medium transition-colors ${isActive ? 'bg-sidebar-primary text-sidebar-primary-foreground' : 'text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground'}`
+                        `flex w-full items-center justify-center rounded-md p-2 text-sm font-medium transition-colors ${isActive ? 'bg-sidebar-primary text-sidebar-primary-foreground' : 'text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground'}`
                       }
                     >
                       {item.icon}
@@ -243,7 +243,7 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
                       to="/dashboard/settings"
                       onClick={closeSidebar}
                       className={({ isActive }) =>
-                        `flex w-full items-center justify-center rounded-md py-2 text-sm font-medium transition-colors ${isActive ? 'bg-sidebar-primary text-sidebar-primary-foreground' : 'text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground'}`
+                        `flex w-full items-center justify-center rounded-md p-2 text-sm font-medium transition-colors ${isActive ? 'bg-sidebar-primary text-sidebar-primary-foreground' : 'text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground'}`
                       }
                     >
                       <Settings className="h-5 w-5" />

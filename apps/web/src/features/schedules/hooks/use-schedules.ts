@@ -26,6 +26,10 @@ interface ScheduleInput {
 
 type ScheduleState = 'loading' | 'success' | 'error'
 
+function normalizeTime(time: string): string {
+  return time.slice(0, 5)
+}
+
 interface UseSchedulesReturn {
   schedules: ScheduleResponse[]
   state: ScheduleState
@@ -51,7 +55,16 @@ export function useSchedules(serviceId: string | undefined): UseSchedulesReturn 
         throw new Error('Failed to fetch schedules')
       }
       const result: { data: ScheduleResponse[] } = await response.json()
-      setSchedules(result.data)
+      setSchedules(
+        result.data.map(s => ({
+          ...s,
+          periods: s.periods.map(p => ({
+            ...p,
+            startTime: normalizeTime(p.startTime),
+            endTime: normalizeTime(p.endTime),
+          })),
+        })),
+      )
       setState('success')
     } catch (err) {
       console.error('Failed to fetch schedules', {
@@ -68,11 +81,18 @@ export function useSchedules(serviceId: string | undefined): UseSchedulesReturn 
     async (schedulesInput: ScheduleInput[]): Promise<ScheduleResponse[] | null> => {
       if (!serviceId) return null
       try {
+        const normalizedSchedules = schedulesInput.map(s => ({
+          ...s,
+          periods: s.periods.map(p => ({
+            startTime: normalizeTime(p.startTime),
+            endTime: normalizeTime(p.endTime),
+          })),
+        }))
         const response = await fetch(`${clientEnv.apiUrl}/api/services/${serviceId}/schedules`, {
           method: 'PUT',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ schedules: schedulesInput }),
+          body: JSON.stringify({ schedules: normalizedSchedules }),
         })
         if (!response.ok) {
           const errorData = await response.json()

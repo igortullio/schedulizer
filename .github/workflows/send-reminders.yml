@@ -1,0 +1,18 @@
+name: Send Appointment Reminders
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+jobs:
+  send-reminders:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Send reminder emails
+        run: |
+          curl -s -f -X POST "${{ secrets.API_URL }}/api/notifications/send-reminders" \
+            -H "x-api-key: ${{ secrets.CRON_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            --max-time 60

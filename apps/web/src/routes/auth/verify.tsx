@@ -1,4 +1,4 @@
-import { Button } from '@igortullio-ui/react'
+import { Button, Card } from '@igortullio-ui/react'
 import type { TFunction } from 'i18next'
 import { AlertCircle, ArrowLeft, Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -61,24 +61,17 @@ export function Component() {
 
   if (verifyState === 'verifying') {
     return (
-      <div
-        className="flex flex-col items-center rounded-lg border border-border bg-card p-8 text-center shadow-sm"
-        data-testid="verify-loading"
-      >
+      <Card className="flex flex-col items-center p-8 text-center" data-testid="verify-loading">
         <Loader2 className="mb-4 h-8 w-8 animate-spin text-primary" aria-hidden="true" />
         <h1 className="mb-2 text-xl font-semibold text-foreground">{t('verify.verifying')}</h1>
         <p className="text-muted-foreground">{t('verify.pleaseWait')}</p>
-      </div>
+      </Card>
     )
   }
 
   if (verifyState === 'error') {
     return (
-      <div
-        className="flex flex-col items-center rounded-lg border border-border bg-card p-8 text-center shadow-sm"
-        data-testid="verify-error"
-        role="alert"
-      >
+      <Card className="flex flex-col items-center p-8 text-center" data-testid="verify-error" role="alert">
         <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
           <AlertCircle className="h-6 w-6 text-destructive" aria-hidden="true" />
         </div>
@@ -92,7 +85,7 @@ export function Component() {
             {t('verify.backToLogin')}
           </Link>
         </Button>
-      </div>
+      </Card>
     )
   }
 

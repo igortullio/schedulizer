@@ -1,0 +1,23 @@
+{
+  "sidebar": {
+    "overview": "Overview",
+    "services": "Services",
+    "appointments": "Appointments",
+    "timeBlocks": "Time Blocks",
+    "settings": "Settings",
+    "signOut": "Sign out"
+  },
+  "overview": {
+    "title": "Overview",
+    "todayAppointments": "Today's Appointments",
+    "pendingAppointments": "Pending",
+    "activeTimeBlocks": "Time Blocks"
+  },
+  "sections": {
+    "viewAll": "View all",
+    "noTodayAppointments": "No appointments for today.",
+    "noPending": "No pending appointments.",
+    "noTimeBlocks": "No time blocks registered.",
+    "newTimeBlock": "New time block"
+  }
+}

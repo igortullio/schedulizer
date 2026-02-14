@@ -1,4 +1,17 @@
-import { boolean, integer, pgEnum, pgTable, text, time, timestamp, uuid, varchar } from 'drizzle-orm/pg-core'
+import {
+  boolean,
+  date,
+  index,
+  integer,
+  pgEnum,
+  pgTable,
+  text,
+  time,
+  timestamp,
+  unique,
+  uuid,
+  varchar,
+} from 'drizzle-orm/pg-core'
 
 // Better-auth managed tables
 export const users = pgTable('users', {
@@ -60,6 +73,7 @@ export const organizations = pgTable('organizations', {
   name: text('name').notNull(),
   slug: text('slug').notNull().unique(),
   logo: text('logo'),
+  timezone: text('timezone').notNull().default('America/Sao_Paulo'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   metadata: text('metadata'),
 })
@@ -99,44 +113,90 @@ export const services = pgTable('services', {
   name: text('name').notNull(),
   description: text('description'),
   durationMinutes: integer('duration_minutes').notNull(),
-  price: integer('price'), // in cents
+  price: integer('price'),
   active: boolean('active').notNull().default(true),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 })
 
-export const schedules = pgTable('schedules', {
+export const appointmentStatusEnum = pgEnum('appointment_status', [
+  'pending',
+  'confirmed',
+  'cancelled',
+  'completed',
+  'no_show',
+])
+
+export const schedules = pgTable(
+  'schedules',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    serviceId: uuid('service_id')
+      .notNull()
+      .references(() => services.id, { onDelete: 'cascade' }),
+    dayOfWeek: integer('day_of_week').notNull(),
+    isActive: boolean('is_active').notNull().default(true),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [unique('schedules_service_id_day_of_week_unique').on(table.serviceId, table.dayOfWeek)],
+)
+
+export const schedulePeriods = pgTable('schedule_periods', {
   id: uuid('id').primaryKey().defaultRandom(),
-  organizationId: uuid('organization_id')
+  scheduleId: uuid('schedule_id')
     .notNull()
-    .references(() => organizations.id, { onDelete: 'cascade' }),
-  dayOfWeek: integer('day_of_week').notNull(), // 0 = Sunday, 6 = Saturday
+    .references(() => schedules.id, { onDelete: 'cascade' }),
   startTime: time('start_time').notNull(),
   endTime: time('end_time').notNull(),
-  active: boolean('active').notNull().default(true),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 })
 
-export const appointments = pgTable('appointments', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  organizationId: uuid('organization_id')
-    .notNull()
-    .references(() => organizations.id, { onDelete: 'cascade' }),
-  serviceId: uuid('service_id')
-    .notNull()
-    .references(() => services.id, { onDelete: 'cascade' }),
-  customerId: uuid('customer_id').references(() => users.id, { onDelete: 'set null' }),
-  customerName: text('customer_name').notNull(),
-  customerEmail: text('customer_email').notNull(),
-  customerPhone: text('customer_phone'),
-  startTime: timestamp('start_time', { withTimezone: true }).notNull(),
-  endTime: timestamp('end_time', { withTimezone: true }).notNull(),
-  status: text('status').notNull().default('scheduled'), // scheduled, confirmed, cancelled, completed
-  notes: text('notes'),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-})
+export const timeBlocks = pgTable(
+  'time_blocks',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    organizationId: uuid('organization_id')
+      .notNull()
+      .references(() => organizations.id, { onDelete: 'cascade' }),
+    date: date('date').notNull(),
+    startTime: time('start_time').notNull(),
+    endTime: time('end_time').notNull(),
+    reason: varchar('reason', { length: 255 }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index('time_blocks_organization_id_date_idx').on(table.organizationId, table.date)],
+)
+
+export const appointments = pgTable(
+  'appointments',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    organizationId: uuid('organization_id')
+      .notNull()
+      .references(() => organizations.id, { onDelete: 'cascade' }),
+    serviceId: uuid('service_id')
+      .notNull()
+      .references(() => services.id, { onDelete: 'cascade' }),
+    startDatetime: timestamp('start_datetime', { withTimezone: true }).notNull(),
+    endDatetime: timestamp('end_datetime', { withTimezone: true }).notNull(),
+    status: appointmentStatusEnum('status').notNull().default('pending'),
+    customerName: text('customer_name').notNull(),
+    customerEmail: text('customer_email').notNull(),
+    customerPhone: text('customer_phone').notNull(),
+    managementToken: uuid('management_token').notNull().defaultRandom().unique(),
+    reminderSentAt: timestamp('reminder_sent_at', { withTimezone: true }),
+    notes: text('notes'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index('appointments_org_start_idx').on(table.organizationId, table.startDatetime),
+    index('appointments_service_start_idx').on(table.serviceId, table.startDatetime),
+  ],
+)
 
 // Landing page lead capture
 export const planInterestEnum = pgEnum('plan_interest', ['essential', 'professional'])

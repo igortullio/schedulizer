@@ -1,4 +1,4 @@
-import { Button } from '@igortullio-ui/react'
+import { Alert, AlertDescription, Button, Card } from '@igortullio-ui/react'
 import { AlertCircle, Building2, ChevronRight, Loader2, Users } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -78,24 +78,17 @@ export function Component() {
 
   if (isPending) {
     return (
-      <div
-        className="flex flex-col items-center rounded-lg border border-border bg-card p-8 text-center shadow-sm"
-        data-testid="org-select-loading"
-      >
+      <Card className="flex flex-col items-center p-8 text-center" data-testid="org-select-loading">
         <Loader2 className="mb-4 h-8 w-8 animate-spin text-primary" aria-hidden="true" />
         <h1 className="mb-2 text-xl font-semibold text-foreground">{t('orgSelect.loadingOrganizations')}</h1>
         <p className="text-muted-foreground">{t('orgSelect.pleaseWaitLoading')}</p>
-      </div>
+      </Card>
     )
   }
 
   if (fetchError) {
     return (
-      <div
-        className="flex flex-col items-center rounded-lg border border-border bg-card p-8 text-center shadow-sm"
-        data-testid="org-select-fetch-error"
-        role="alert"
-      >
+      <Card className="flex flex-col items-center p-8 text-center" data-testid="org-select-fetch-error" role="alert">
         <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
           <AlertCircle className="h-6 w-6 text-destructive" aria-hidden="true" />
         </div>
@@ -106,7 +99,7 @@ export function Component() {
         <Button onClick={() => window.location.reload()} variant="outline">
           {t('orgSelect.tryAgain')}
         </Button>
-      </div>
+      </Card>
     )
   }
 
@@ -115,33 +108,35 @@ export function Component() {
   }
 
   return (
-    <div className="rounded-lg border border-border bg-card p-8 shadow-sm" data-testid="org-select-list">
+    <Card className="p-8" data-testid="org-select-list">
       <div className="mb-6 text-center">
         <h1 className="text-xl font-semibold text-foreground">{t('orgSelect.selectAnOrganization')}</h1>
         <p className="mt-1 text-sm text-muted-foreground">{t('orgSelect.chooseOrganization')}</p>
       </div>
       {selectionState === 'error' && selectionError ? (
-        <div
-          className="mb-4 flex items-center justify-between rounded-md bg-destructive/10 p-3 text-sm text-destructive"
-          role="alert"
+        <Alert
+          variant="destructive"
+          className="mb-4 border-0 bg-destructive/10"
           data-testid="org-select-selection-error"
         >
-          <span>{selectionError.message}</span>
-          <Button variant="ghost" size="sm" onClick={handleRetry} className="text-destructive hover:text-destructive">
-            {t('orgSelect.retry')}
-          </Button>
-        </div>
+          <AlertDescription className="flex items-center justify-between">
+            <span>{selectionError.message}</span>
+            <Button variant="ghost" size="sm" onClick={handleRetry} className="text-destructive hover:text-destructive">
+              {t('orgSelect.retry')}
+            </Button>
+          </AlertDescription>
+        </Alert>
       ) : null}
       <ul className="space-y-2" aria-label="Organizations">
         {organizations.map((org: { id: string; name: string; logo?: string | null }) => {
           const isSelecting = selectionState === 'selecting' && selectedOrgId === org.id
           return (
             <li key={org.id}>
-              <button
-                type="button"
+              <Button
+                variant="ghost"
                 onClick={() => handleSelectOrganization(org.id)}
                 disabled={selectionState === 'selecting'}
-                className="flex w-full items-center gap-4 rounded-lg border border-border p-4 text-left transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex h-auto w-full items-center gap-4 rounded-lg border border-border p-4 text-left"
                 data-testid={`org-item-${org.id}`}
                 aria-busy={isSelecting}
               >
@@ -173,12 +168,12 @@ export function Component() {
                     <ChevronRight className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
                   )}
                 </div>
-              </button>
+              </Button>
             </li>
           )
         })}
       </ul>
-    </div>
+    </Card>
   )
 }
 

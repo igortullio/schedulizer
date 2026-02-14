@@ -3,9 +3,15 @@ import { toNodeHandler } from 'better-auth/node'
 import cors from 'cors'
 import express from 'express'
 import { auth } from './lib/auth'
+import { appointmentsRoutes } from './routes/appointments.routes'
 import { billingRoutes, webhookRouter } from './routes/billing.routes'
+import { bookingRoutes } from './routes/booking.routes'
 import { leadsRoutes } from './routes/leads.routes'
+import { notificationsRoutes } from './routes/notifications.routes'
 import { organizationsRoutes } from './routes/organizations.routes'
+import { schedulesRoutes } from './routes/schedules.routes'
+import { servicesRoutes } from './routes/services.routes'
+import { timeBlocksRoutes } from './routes/time-blocks.routes'
 
 const app = express()
 
@@ -35,6 +41,12 @@ app.use(express.json())
 app.use('/api/billing', billingRoutes)
 app.use('/api/leads', leadsRoutes)
 app.use('/api/organizations', organizationsRoutes)
+app.use('/api/services', servicesRoutes)
+app.use('/api/services', schedulesRoutes)
+app.use('/api/time-blocks', timeBlocksRoutes)
+app.use('/api/appointments', appointmentsRoutes)
+app.use('/api/booking', bookingRoutes)
+app.use('/api/notifications', notificationsRoutes)
 
 // Health check
 app.get('/health', (_req, res) => {

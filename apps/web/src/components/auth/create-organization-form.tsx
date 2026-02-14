@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button, Input, Label } from '@igortullio-ui/react'
+import { Alert, AlertDescription, Button, Card, Input, Label } from '@igortullio-ui/react'
 import type { TFunction } from 'i18next'
 import { Building2, Loader2 } from 'lucide-react'
 import { useState } from 'react'
@@ -87,7 +87,7 @@ export function CreateOrganizationForm({ redirect }: CreateOrganizationFormProps
     }
   }
   return (
-    <div className="rounded-lg border border-border bg-card p-8 shadow-sm" data-testid="org-create-form">
+    <Card className="p-8" data-testid="org-create-form">
       <div className="mb-6 text-center">
         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
           <Building2 className="h-6 w-6 text-primary" aria-hidden="true" />
@@ -116,13 +116,9 @@ export function CreateOrganizationForm({ redirect }: CreateOrganizationFormProps
             ) : null}
           </div>
           {creationState === 'error' && creationError ? (
-            <div
-              className="rounded-md bg-destructive/10 p-3 text-sm text-destructive"
-              role="alert"
-              data-testid="org-create-error"
-            >
-              {creationError}
-            </div>
+            <Alert variant="destructive" className="border-0 bg-destructive/10" data-testid="org-create-error">
+              <AlertDescription>{creationError}</AlertDescription>
+            </Alert>
           ) : null}
           <Button
             type="submit"
@@ -141,6 +137,6 @@ export function CreateOrganizationForm({ redirect }: CreateOrganizationFormProps
           </Button>
         </div>
       </form>
-    </div>
+    </Card>
   )
 }

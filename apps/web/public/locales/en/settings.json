@@ -1,0 +1,25 @@
+{
+  "title": "Settings",
+  "description": "Manage your organization settings and subscription.",
+  "backToDashboard": "Back to dashboard",
+  "sections": {
+    "organization": "Organization Settings",
+    "subscription": "Subscription"
+  },
+  "form": {
+    "slug": "Booking URL (slug)",
+    "slugPlaceholder": "my-business",
+    "slugHelp": "Used in your public booking link: /booking/your-slug",
+    "timezone": "Timezone",
+    "timezoneHelp": "Timezone used for scheduling. Example: America/Sao_Paulo",
+    "save": "Save settings",
+    "saving": "Saving...",
+    "success": "Settings saved successfully.",
+    "errors": {
+      "slugLength": "Slug must be between 3 and 100 characters.",
+      "slugInvalid": "Slug must contain only lowercase letters, numbers, and hyphens.",
+      "timezoneRequired": "Timezone is required.",
+      "updateFailed": "Failed to update settings. Please try again."
+    }
+  }
+}

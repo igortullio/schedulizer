@@ -1,0 +1,23 @@
+{
+  "title": "Business Hours",
+  "description": "Configure available hours for each day of the week.",
+  "backToServices": "Back to services",
+  "save": "Save",
+  "saving": "Saving...",
+  "saveSuccess": "Schedules saved successfully!",
+  "dayOff": "Unavailable",
+  "to": "to",
+  "addPeriod": "Add period",
+  "days": {
+    "sunday": "Sunday",
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday"
+  },
+  "errors": {
+    "saveFailed": "Failed to save schedules. Please try again."
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "sidebar": {
+    "overview": "Visão Geral",
+    "services": "Serviços",
+    "appointments": "Agendamentos",
+    "timeBlocks": "Bloqueios",
+    "settings": "Configurações",
+    "signOut": "Sair"
+  },
+  "overview": {
+    "title": "Visão Geral",
+    "todayAppointments": "Agendamentos Hoje",
+    "pendingAppointments": "Pendentes",
+    "activeTimeBlocks": "Bloqueios"
+  },
+  "sections": {
+    "viewAll": "Ver todos",
+    "noTodayAppointments": "Nenhum agendamento para hoje.",
+    "noPending": "Nenhum agendamento pendente.",
+    "noTimeBlocks": "Nenhum bloqueio cadastrado.",
+    "newTimeBlock": "Novo bloqueio"
+  }
+}

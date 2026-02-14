@@ -1,0 +1,26 @@
+{
+  "title": "Bloqueios de Horário",
+  "description": "Bloqueie datas ou faixas de horário específicas para evitar agendamentos.",
+  "backToDashboard": "Voltar ao painel",
+  "emptyState": "Nenhum bloqueio cadastrado. Adicione um bloqueio para bloquear datas específicas.",
+  "actions": {
+    "create": "Novo bloqueio",
+    "delete": "Excluir"
+  },
+  "form": {
+    "title": "Novo Bloqueio",
+    "date": "Data",
+    "startTime": "Início",
+    "endTime": "Fim",
+    "reason": "Motivo (opcional)",
+    "reasonPlaceholder": "Ex: Feriado, férias...",
+    "create": "Criar bloqueio",
+    "creating": "Criando...",
+    "cancel": "Cancelar",
+    "errors": {
+      "dateRequired": "A data é obrigatória.",
+      "timeInvalid": "O horário de início deve ser antes do horário de fim.",
+      "createFailed": "Erro ao criar o bloqueio. Tente novamente."
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "title": "Agendamentos",
+  "description": "Gerencie e acompanhe seus agendamentos.",
+  "backToDashboard": "Voltar ao painel",
+  "emptyState": "Nenhum agendamento encontrado.",
+  "viewList": "Lista",
+  "viewCalendar": "Calendário",
+  "timeBlock": "Bloqueio",
+  "status": {
+    "pending": "Pendente",
+    "confirmed": "Confirmado",
+    "completed": "Concluído",
+    "cancelled": "Cancelado",
+    "no_show": "Não compareceu"
+  },
+  "filters": {
+    "allStatuses": "Todos os status",
+    "from": "De",
+    "to": "Até"
+  },
+  "actions": {
+    "confirm": "Confirmar",
+    "complete": "Concluir",
+    "noShow": "Não compareceu",
+    "cancel": "Cancelar"
+  },
+  "calendar": {
+    "today": "Hoje",
+    "previous": "Anterior",
+    "next": "Próximo",
+    "month": "Mês",
+    "week": "Semana",
+    "noEvents": "Nenhum agendamento neste período."
+  }
+}

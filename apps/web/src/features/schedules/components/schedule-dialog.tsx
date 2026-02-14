@@ -1,4 +1,4 @@
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle } from '@igortullio-ui/react'
+import { Alert, AlertDescription, Button, Dialog, DialogContent, DialogHeader, DialogTitle } from '@igortullio-ui/react'
 import { Loader2, Save } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -87,14 +87,14 @@ export function ScheduleDialog({ serviceId, serviceName, isOpen, onClose }: Sche
           </DialogTitle>
         </DialogHeader>
         {saveError ? (
-          <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive" data-testid="save-error">
-            {saveError}
-          </div>
+          <Alert variant="destructive" className="border-0 bg-destructive/10" data-testid="save-error">
+            <AlertDescription>{saveError}</AlertDescription>
+          </Alert>
         ) : null}
         {saveSuccess ? (
-          <div className="rounded-md bg-green-500/10 p-3 text-sm text-green-700" data-testid="save-success">
-            {t('saveSuccess')}
-          </div>
+          <Alert className="border-0 bg-green-500/10 text-green-700" data-testid="save-success">
+            <AlertDescription>{t('saveSuccess')}</AlertDescription>
+          </Alert>
         ) : null}
         {state === 'loading' ? (
           <div className="flex items-center justify-center py-12">

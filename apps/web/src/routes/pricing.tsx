@@ -1,4 +1,4 @@
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@igortullio-ui/react'
+import { Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@igortullio-ui/react'
 import { Check } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -96,46 +96,42 @@ export function Component() {
         <div className="mb-12 text-center">
           <h1 className="mb-4 text-3xl font-bold tracking-tight text-foreground md:text-4xl">{t('pricing.title')}</h1>
           <p className="mb-8 text-lg text-muted-foreground">{t('pricing.subtitle')}</p>
-          <div className="inline-flex items-center rounded-lg bg-muted p-1">
-            <label
-              className={`cursor-pointer rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+          <div
+            className="inline-flex items-center rounded-lg bg-muted p-1"
+            role="radiogroup"
+            aria-label="Billing frequency"
+          >
+            <Button
+              variant="ghost"
+              onClick={() => setFrequency('monthly')}
+              className={`rounded-md px-4 py-2 text-sm font-medium ${
                 frequency === 'monthly'
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'bg-background text-foreground shadow-sm hover:bg-background'
+                  : 'text-muted-foreground hover:bg-transparent hover:text-foreground'
               }`}
+              role="radio"
+              aria-checked={frequency === 'monthly'}
               data-testid="monthly-toggle"
             >
-              <input
-                type="radio"
-                name="billing-frequency"
-                value="monthly"
-                checked={frequency === 'monthly'}
-                onChange={() => setFrequency('monthly')}
-                className="sr-only"
-              />
               {t('pricing.toggle.monthly')}
-            </label>
-            <label
-              className={`cursor-pointer rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => setFrequency('yearly')}
+              className={`rounded-md px-4 py-2 text-sm font-medium ${
                 frequency === 'yearly'
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'bg-background text-foreground shadow-sm hover:bg-background'
+                  : 'text-muted-foreground hover:bg-transparent hover:text-foreground'
               }`}
+              role="radio"
+              aria-checked={frequency === 'yearly'}
               data-testid="yearly-toggle"
             >
-              <input
-                type="radio"
-                name="billing-frequency"
-                value="yearly"
-                checked={frequency === 'yearly'}
-                onChange={() => setFrequency('yearly')}
-                className="sr-only"
-              />
               {t('pricing.toggle.yearly')}
-              <span className="ml-2 rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">
+              <Badge variant="success" className="ml-2">
                 {t('pricing.toggle.savings', { percent: ANNUAL_DISCOUNT_PERCENT })}
-              </span>
-            </label>
+              </Badge>
+            </Button>
           </div>
         </div>
         <div className="grid gap-8 md:grid-cols-2">
@@ -153,9 +149,7 @@ export function Component() {
               >
                 {plan.recommended ? (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <span className="rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
-                      {t('pricing.recommended')}
-                    </span>
+                    <Badge>{t('pricing.recommended')}</Badge>
                   </div>
                 ) : null}
                 <CardHeader className="text-center">

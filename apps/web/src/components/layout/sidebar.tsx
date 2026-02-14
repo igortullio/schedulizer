@@ -1,4 +1,5 @@
 import {
+  Button,
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -82,17 +83,17 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
         <ul className="space-y-0.5" aria-label="Organizations">
           {organizations?.map((org: { id: string; name: string }) => (
             <li key={org.id}>
-              <button
-                type="button"
+              <Button
+                variant="ghost"
                 onClick={() => handleOrgSelect(org.id)}
-                className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-accent"
+                className="h-auto w-full justify-start gap-2 px-2 py-1.5 text-sm"
               >
                 <Building2 className="h-4 w-4 shrink-0" aria-hidden="true" />
                 <span className="truncate">{org.name}</span>
                 {org.name === organizationName ? (
                   <Check className="ml-auto h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
                 ) : null}
-              </button>
+              </Button>
             </li>
           ))}
         </ul>
@@ -101,19 +102,20 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
   )
   return (
     <TooltipProvider delayDuration={300}>
-      <button
-        type="button"
+      <Button
+        variant="ghost"
+        size="icon"
         onClick={() => setIsOpen(true)}
-        className="fixed left-4 top-4 z-30 rounded-md bg-sidebar p-2 text-sidebar-foreground md:hidden"
+        className="fixed left-4 top-4 z-30 bg-sidebar text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground md:hidden"
         aria-label="Open menu"
         data-testid="sidebar-toggle"
       >
         <Menu className="h-5 w-5" />
-      </button>
+      </Button>
       {isOpen ? (
-        <button
-          type="button"
-          className="fixed inset-0 z-40 bg-black/50 md:hidden"
+        <Button
+          variant="ghost"
+          className="fixed inset-0 z-40 h-auto w-auto rounded-none bg-black/50 hover:bg-black/50 md:hidden"
           onClick={closeSidebar}
           aria-label="Close menu"
           data-testid="sidebar-backdrop"
@@ -132,63 +134,67 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
                 <TooltipTrigger asChild>
                   <Popover open={isOrgPopoverOpen} onOpenChange={setIsOrgPopoverOpen}>
                     <PopoverTrigger asChild>
-                      <button
-                        type="button"
-                        className="flex w-full items-center justify-center rounded-md py-2 text-sidebar-foreground/60 hover:text-sidebar-foreground"
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="w-full text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                         data-testid="org-switcher"
                       >
                         <Building2 className="h-5 w-5" />
-                      </button>
+                      </Button>
                     </PopoverTrigger>
                     {orgPopoverContent}
                   </Popover>
                 </TooltipTrigger>
                 <TooltipContent side="right">{organizationName}</TooltipContent>
               </Tooltip>
-              <button
-                type="button"
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={toggleCollapsed}
-                className="hidden w-full items-center justify-center rounded-md py-2 text-sidebar-foreground/60 hover:text-sidebar-foreground md:flex"
+                className="hidden w-full text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground md:flex"
                 aria-label="Expand sidebar"
                 data-testid="sidebar-collapse-toggle"
               >
                 <PanelLeftOpen className="h-5 w-5" />
-              </button>
+              </Button>
             </>
           ) : (
             <>
               <Popover open={isOrgPopoverOpen} onOpenChange={setIsOrgPopoverOpen}>
                 <PopoverTrigger asChild>
-                  <button
-                    type="button"
-                    className="flex min-w-0 flex-1 items-center gap-2 rounded-md p-1 text-left hover:bg-sidebar-accent"
+                  <Button
+                    variant="ghost"
+                    className="h-auto min-w-0 flex-1 gap-2 p-1 text-left hover:bg-sidebar-accent"
                     data-testid="org-switcher"
                   >
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-semibold">{organizationName}</p>
                     </div>
                     <ChevronsUpDown className="h-4 w-4 shrink-0 text-sidebar-foreground/60" />
-                  </button>
+                  </Button>
                 </PopoverTrigger>
                 {orgPopoverContent}
               </Popover>
-              <button
-                type="button"
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={closeSidebar}
-                className="rounded-md p-1 text-sidebar-foreground/60 hover:text-sidebar-foreground md:hidden"
+                className="h-auto w-auto p-1 text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground md:hidden"
                 aria-label="Close menu"
               >
                 <X className="h-5 w-5" />
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={toggleCollapsed}
-                className="hidden rounded-md p-1 text-sidebar-foreground/60 hover:text-sidebar-foreground md:block"
+                className="hidden h-auto w-auto p-1 text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground md:block"
                 aria-label="Collapse sidebar"
                 data-testid="sidebar-collapse-toggle"
               >
                 <PanelLeftClose className="h-5 w-5" />
-              </button>
+              </Button>
             </>
           )}
         </div>
@@ -255,14 +261,14 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
               <LanguageSelector isCollapsed />
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
                     onClick={handleSignOut}
-                    className="flex w-full items-center justify-center gap-3 rounded-md py-2 px-0 text-sm font-medium text-sidebar-foreground/60 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                    className="w-full justify-center gap-3 px-0 py-2 text-sm font-medium text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                     data-testid="sign-out-button"
                   >
                     <LogOut className="h-5 w-5" />
-                  </button>
+                  </Button>
                 </TooltipTrigger>
                 <TooltipContent side="right">{t('sidebar.signOut')}</TooltipContent>
               </Tooltip>
@@ -280,15 +286,15 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
                 {t('sidebar.settings')}
               </NavLink>
               <LanguageSelector isCollapsed={false} />
-              <button
-                type="button"
+              <Button
+                variant="ghost"
                 onClick={handleSignOut}
-                className="flex w-full items-center gap-3 rounded-md py-2 px-3 text-sm font-medium text-sidebar-foreground/60 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                className="w-full justify-start gap-3 px-3 py-2 text-sm font-medium text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                 data-testid="sign-out-button"
               >
                 <LogOut className="h-5 w-5" />
                 {t('sidebar.signOut')}
-              </button>
+              </Button>
             </>
           )}
         </div>

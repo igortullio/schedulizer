@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button, Input, Label } from '@igortullio-ui/react'
+import { Alert, AlertDescription, Button, Card, Input, Label } from '@igortullio-ui/react'
 import { CheckCircle2, Loader2, Mail } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -65,10 +65,7 @@ export function Component() {
   }
   if (formState === 'success') {
     return (
-      <output
-        className="block rounded-lg border border-border bg-card p-8 text-center shadow-sm"
-        data-testid="login-success"
-      >
+      <Card className="p-8 text-center" data-testid="login-success">
         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
           <CheckCircle2 className="h-6 w-6 text-green-600" aria-hidden="true" />
         </div>
@@ -77,12 +74,12 @@ export function Component() {
           {t('login.weSentMagicLink')} <span className="font-medium text-foreground">{emailValue}</span>
         </p>
         <p className="text-sm text-muted-foreground">{t('login.clickLinkInEmail')}</p>
-      </output>
+      </Card>
     )
   }
 
   return (
-    <div className="rounded-lg border border-border bg-card p-8 shadow-sm">
+    <Card className="p-8">
       <div className="mb-6 text-center">
         <h1 className="text-xl font-semibold text-foreground">{t('login.welcomeBack')}</h1>
         <p className="mt-1 text-sm text-muted-foreground">{t('login.enterEmail')}</p>
@@ -116,13 +113,9 @@ export function Component() {
             ) : null}
           </div>
           {formState === 'error' && errorMessage ? (
-            <div
-              className="rounded-md bg-destructive/10 p-3 text-sm text-destructive"
-              role="alert"
-              data-testid="form-error"
-            >
-              {errorMessage}
-            </div>
+            <Alert variant="destructive" className="border-0 bg-destructive/10" data-testid="form-error">
+              <AlertDescription>{errorMessage}</AlertDescription>
+            </Alert>
           ) : null}
           <Button type="submit" className="w-full" disabled={formState === 'submitting'} data-testid="submit-button">
             {formState === 'submitting' ? (
@@ -136,7 +129,7 @@ export function Component() {
           </Button>
         </div>
       </form>
-    </div>
+    </Card>
   )
 }
 

@@ -1,4 +1,4 @@
-import { Button } from '@igortullio-ui/react'
+import { Alert, AlertDescription, Button } from '@igortullio-ui/react'
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -70,19 +70,19 @@ export function DateSlotPicker({
           {dates.map(date => {
             const isSelected = date.value === selectedDate
             return (
-              <button
+              <Button
                 key={date.value}
-                type="button"
+                variant={isSelected ? 'default' : 'ghost'}
                 onClick={() => handleDateSelect(date.value)}
-                className={`flex min-w-[4rem] flex-1 flex-col items-center rounded-lg px-2 py-2 text-sm transition-colors ${
-                  isSelected ? 'bg-primary text-primary-foreground' : 'bg-card hover:bg-accent/50'
+                className={`flex h-auto min-w-[4rem] flex-1 flex-col items-center rounded-lg px-2 py-2 text-sm ${
+                  isSelected ? '' : 'bg-card hover:bg-accent/50'
                 }`}
                 data-testid={`date-button-${date.value}`}
               >
                 <span className="text-xs uppercase">{formatWeekday(date.date, i18n.language)}</span>
                 <span className="text-lg font-medium">{date.date.getDate()}</span>
                 <span className="text-xs">{formatMonth(date.date, i18n.language)}</span>
-              </button>
+              </Button>
             )
           })}
         </div>
@@ -103,12 +103,9 @@ export function DateSlotPicker({
           <Loader2 className="h-6 w-6 animate-spin text-primary" aria-hidden="true" />
         </div>
       ) : slotsState === 'error' ? (
-        <div
-          className="rounded-md bg-destructive/10 p-4 text-center text-sm text-destructive"
-          data-testid="slots-error"
-        >
-          {slotsError}
-        </div>
+        <Alert variant="destructive" className="border-0 bg-destructive/10 text-center" data-testid="slots-error">
+          <AlertDescription>{slotsError}</AlertDescription>
+        </Alert>
       ) : slots.length === 0 ? (
         <div className="rounded-md border border-dashed p-8 text-center" data-testid="no-slots">
           <p className="text-sm text-muted-foreground">{t('slots.empty')}</p>

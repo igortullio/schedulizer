@@ -332,7 +332,7 @@ describe('LoginPage', () => {
       await user.click(submitButton)
       await waitFor(() => {
         const successElement = screen.getByTestId('login-success')
-        expect(successElement.tagName).toBe('OUTPUT')
+        expect(successElement.tagName).toBe('DIV')
       })
     })
   })

@@ -1,4 +1,4 @@
-import { Badge, Tabs, TabsContent, TabsList, TabsTrigger } from '@igortullio-ui/react'
+import { Alert, AlertDescription, Badge, Tabs, TabsContent, TabsList, TabsTrigger } from '@igortullio-ui/react'
 import type { AppointmentStatus } from '@schedulizer/shared-types'
 import { addMonths, endOfMonth, format, startOfMonth, subMonths } from 'date-fns'
 import { CalendarDays, List, Loader2 } from 'lucide-react'
@@ -132,9 +132,9 @@ export function Component() {
               <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
             </div>
           ) : error ? (
-            <div className="rounded-md bg-destructive/10 p-4 text-center text-destructive" data-testid="error-message">
-              {error}
-            </div>
+            <Alert variant="destructive" className="border-0 bg-destructive/10 text-center" data-testid="error-message">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
           ) : (
             <>
               <TabsContent value="list" className="mt-0">

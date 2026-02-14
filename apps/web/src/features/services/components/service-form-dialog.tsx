@@ -1,4 +1,14 @@
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Label } from '@igortullio-ui/react'
+import {
+  Alert,
+  AlertDescription,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Label,
+} from '@igortullio-ui/react'
 import { Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -87,9 +97,9 @@ export function ServiceFormDialog({ mode, isOpen, onClose, onSubmit, service }: 
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4" data-testid="service-form">
           {formError ? (
-            <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive" data-testid="form-error">
-              {formError}
-            </div>
+            <Alert variant="destructive" className="border-0 bg-destructive/10" data-testid="form-error">
+              <AlertDescription>{formError}</AlertDescription>
+            </Alert>
           ) : null}
           <div className="space-y-2">
             <Label htmlFor="service-name">{t('form.name')}</Label>

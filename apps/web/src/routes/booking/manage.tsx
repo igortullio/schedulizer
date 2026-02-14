@@ -1,4 +1,4 @@
-import { Button, Card, CardContent, CardHeader, CardTitle } from '@igortullio-ui/react'
+import { Alert, AlertDescription, Button, Card, CardContent, CardHeader, CardTitle } from '@igortullio-ui/react'
 import { AlertTriangle, CalendarCheck, CalendarX, Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -72,9 +72,9 @@ export function Component() {
   }
   if (state === 'error' || !appointment) {
     return (
-      <div className="rounded-md bg-destructive/10 p-4 text-center text-destructive" data-testid="manage-error">
-        {t('error.generic')}
-      </div>
+      <Alert variant="destructive" className="border-0 bg-destructive/10 text-center" data-testid="manage-error">
+        <AlertDescription>{t('error.generic')}</AlertDescription>
+      </Alert>
     )
   }
   const startDate = new Date(appointment.startDatetime)
@@ -86,13 +86,9 @@ export function Component() {
       <div data-testid="manage-reschedule">
         <h2 className="mb-4 text-xl font-semibold text-foreground">{t('manage.reschedule.title')}</h2>
         {actionError ? (
-          <div
-            className="mb-4 rounded-md bg-destructive/10 p-3 text-sm text-destructive"
-            role="alert"
-            data-testid="reschedule-error"
-          >
-            {actionError}
-          </div>
+          <Alert variant="destructive" className="mb-4 border-0 bg-destructive/10" data-testid="reschedule-error">
+            <AlertDescription>{actionError}</AlertDescription>
+          </Alert>
         ) : null}
         {isRescheduling ? (
           <div className="flex items-center justify-center py-8">
@@ -169,13 +165,9 @@ export function Component() {
         </CardContent>
       </Card>
       {actionError ? (
-        <div
-          className="mb-4 rounded-md bg-destructive/10 p-3 text-sm text-destructive"
-          role="alert"
-          data-testid="action-error"
-        >
-          {actionError}
-        </div>
+        <Alert variant="destructive" className="mb-4 border-0 bg-destructive/10" data-testid="action-error">
+          <AlertDescription>{actionError}</AlertDescription>
+        </Alert>
       ) : null}
       {isActive ? (
         <div className="space-y-2">

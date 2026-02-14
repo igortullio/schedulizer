@@ -1,4 +1,4 @@
-import { Button, Card, CardContent, Input, Label } from '@igortullio-ui/react'
+import { Alert, AlertDescription, Button, Card, CardContent, Input, Label } from '@igortullio-ui/react'
 import { Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -112,17 +112,17 @@ export function Component() {
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4" data-testid="settings-form">
                 {formError ? (
-                  <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive" data-testid="form-error">
-                    {formError}
-                  </div>
+                  <Alert variant="destructive" className="border-0 bg-destructive/10" data-testid="form-error">
+                    <AlertDescription>{formError}</AlertDescription>
+                  </Alert>
                 ) : null}
                 {successMessage ? (
-                  <div
-                    className="rounded-md bg-green-500/10 p-3 text-sm text-green-700 dark:text-green-400"
+                  <Alert
+                    className="border-0 bg-green-500/10 text-green-700 dark:text-green-400"
                     data-testid="form-success"
                   >
-                    {successMessage}
-                  </div>
+                    <AlertDescription>{successMessage}</AlertDescription>
+                  </Alert>
                 ) : null}
                 <div className="space-y-2">
                   <Label htmlFor="slug">{t('form.slug')}</Label>

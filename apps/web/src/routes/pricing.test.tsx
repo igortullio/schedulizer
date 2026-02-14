@@ -164,10 +164,12 @@ describe('PricingPage', () => {
 
     it('radio inputs are properly grouped', () => {
       renderWithRouter()
+      const radioGroup = screen.getByRole('radiogroup', { name: /billing frequency/i })
+      expect(radioGroup).toBeInTheDocument()
       const radios = screen.getAllByRole('radio')
       expect(radios).toHaveLength(2)
-      expect(radios[0]).toHaveAttribute('name', 'billing-frequency')
-      expect(radios[1]).toHaveAttribute('name', 'billing-frequency')
+      expect(radios[0]).toHaveAttribute('aria-checked')
+      expect(radios[1]).toHaveAttribute('aria-checked')
     })
   })
 })

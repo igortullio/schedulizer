@@ -1,3 +1,4 @@
+import { Alert, AlertDescription } from '@igortullio-ui/react'
 import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -79,9 +80,9 @@ export function Component() {
   }
   if (pageState === 'error' || !data) {
     return (
-      <div className="rounded-md bg-destructive/10 p-4 text-center text-destructive" data-testid="page-error">
-        {t('error.generic')}
-      </div>
+      <Alert variant="destructive" className="border-0 bg-destructive/10 text-center" data-testid="page-error">
+        <AlertDescription>{t('error.generic')}</AlertDescription>
+      </Alert>
     )
   }
   return (

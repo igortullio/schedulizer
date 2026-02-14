@@ -1,4 +1,4 @@
-import { Button } from '@igortullio-ui/react'
+import { Alert, AlertDescription, Button } from '@igortullio-ui/react'
 import { Loader2, Plus } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -56,9 +56,9 @@ export function Component() {
           <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
         </div>
       ) : error ? (
-        <div className="rounded-md bg-destructive/10 p-4 text-center text-destructive" data-testid="error-message">
-          {error}
-        </div>
+        <Alert variant="destructive" className="border-0 bg-destructive/10 text-center" data-testid="error-message">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       ) : timeBlocks.length === 0 ? (
         <div className="rounded-md border border-dashed p-12 text-center" data-testid="empty-state">
           <p className="text-muted-foreground">{t('emptyState')}</p>

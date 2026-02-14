@@ -1,4 +1,14 @@
-import { Button, Card, CardContent, CardHeader, CardTitle, Input, Label } from '@igortullio-ui/react'
+import {
+  Alert,
+  AlertDescription,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Input,
+  Label,
+} from '@igortullio-ui/react'
 import { ChevronLeft, Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -82,13 +92,9 @@ export function BookingForm({ service, slot, isSubmitting, error, onSubmit, onBa
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4" data-testid="booking-form">
             {displayError ? (
-              <div
-                className="rounded-md bg-destructive/10 p-3 text-sm text-destructive"
-                role="alert"
-                data-testid="form-error"
-              >
-                {displayError}
-              </div>
+              <Alert variant="destructive" className="border-0 bg-destructive/10" data-testid="form-error">
+                <AlertDescription>{displayError}</AlertDescription>
+              </Alert>
             ) : null}
             <div className="space-y-2">
               <Label htmlFor="customerName">{t('form.name')}</Label>

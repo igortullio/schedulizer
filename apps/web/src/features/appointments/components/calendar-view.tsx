@@ -92,7 +92,7 @@ export function CalendarView({ appointments, timeBlocks, onSelectEvent }: Calend
     [onSelectEvent],
   )
   return (
-    <div data-testid="calendar-view" style={{ height: 600 }}>
+    <div data-testid="calendar-view" className="min-h-[400px] flex-1">
       <Calendar
         localizer={localizer}
         events={events}

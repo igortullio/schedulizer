@@ -16,5 +16,18 @@
     "quickActions": "Quick Actions",
     "createService": "Create Service",
     "viewAppointments": "View Appointments"
+  },
+  "sections": {
+    "services": "Services",
+    "appointments": "Appointments",
+    "timeBlocks": "Time Blocks",
+    "viewAll": "View all",
+    "noServices": "No services registered.",
+    "noAppointments": "No appointments found.",
+    "noTodayAppointments": "No appointments for today.",
+    "noPending": "No pending appointments.",
+    "noTimeBlocks": "No time blocks registered.",
+    "newService": "New service",
+    "newTimeBlock": "New time block"
   }
 }

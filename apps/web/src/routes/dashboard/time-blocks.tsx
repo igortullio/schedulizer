@@ -1,8 +1,8 @@
-import { Button, Card, CardContent, CardHeader, CardTitle, Input, Label } from '@igortullio-ui/react'
+import { Button } from '@igortullio-ui/react'
 import { Loader2, Plus } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { TimeBlockCard, useTimeBlocks } from '@/features/time-blocks'
+import { TimeBlockCard, TimeBlockFormDialog, useTimeBlocks } from '@/features/time-blocks'
 
 const DAYS_RANGE = 90
 
@@ -15,46 +15,21 @@ function getDateRange() {
   return { from, to }
 }
 
+interface TimeBlockFormData {
+  date: string
+  startTime: string
+  endTime: string
+  reason?: string
+}
+
 export function Component() {
   const { t } = useTranslation('timeBlocks')
   const { from, to } = useMemo(getDateRange, [])
   const { timeBlocks, state, error, createTimeBlock, deleteTimeBlock } = useTimeBlocks(from, to)
-  const [showForm, setShowForm] = useState(false)
-  const [date, setDate] = useState('')
-  const [startTime, setStartTime] = useState('09:00')
-  const [endTime, setEndTime] = useState('18:00')
-  const [reason, setReason] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [formError, setFormError] = useState<string | null>(null)
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setFormError(null)
-    if (!date) {
-      setFormError(t('form.errors.dateRequired'))
-      return
-    }
-    if (startTime >= endTime) {
-      setFormError(t('form.errors.timeInvalid'))
-      return
-    }
-    setIsSubmitting(true)
-    try {
-      await createTimeBlock({
-        date,
-        startTime,
-        endTime,
-        reason: reason.trim() || undefined,
-      })
-      setShowForm(false)
-      setDate('')
-      setStartTime('09:00')
-      setEndTime('18:00')
-      setReason('')
-    } catch (err) {
-      setFormError(err instanceof Error ? err.message : t('form.errors.createFailed'))
-    } finally {
-      setIsSubmitting(false)
-    }
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  async function handleCreateSubmit(data: TimeBlockFormData) {
+    await createTimeBlock(data)
+    setIsDialogOpen(false)
   }
   async function handleDelete(id: string) {
     try {
@@ -70,87 +45,12 @@ export function Component() {
           <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">{t('title')}</h1>
           <p className="mt-2 text-muted-foreground">{t('description')}</p>
         </div>
-        <Button onClick={() => setShowForm(!showForm)} data-testid="add-time-block-button">
+        <Button onClick={() => setIsDialogOpen(true)} data-testid="add-time-block-button">
           <Plus className="h-4 w-4" aria-hidden="true" />
           {t('actions.create')}
         </Button>
       </div>
-      {showForm ? (
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>{t('form.title')}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4" data-testid="time-block-form">
-              {formError ? (
-                <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive" data-testid="form-error">
-                  {formError}
-                </div>
-              ) : null}
-              <div className="space-y-2">
-                <Label htmlFor="date">{t('form.date')}</Label>
-                <Input
-                  id="date"
-                  type="date"
-                  value={date}
-                  onChange={e => setDate(e.target.value)}
-                  required
-                  data-testid="date-input"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="startTime">{t('form.startTime')}</Label>
-                  <Input
-                    id="startTime"
-                    type="time"
-                    value={startTime}
-                    onChange={e => setStartTime(e.target.value)}
-                    required
-                    data-testid="start-time-input"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="endTime">{t('form.endTime')}</Label>
-                  <Input
-                    id="endTime"
-                    type="time"
-                    value={endTime}
-                    onChange={e => setEndTime(e.target.value)}
-                    required
-                    data-testid="end-time-input"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="reason">{t('form.reason')}</Label>
-                <Input
-                  id="reason"
-                  value={reason}
-                  onChange={e => setReason(e.target.value)}
-                  placeholder={t('form.reasonPlaceholder')}
-                  data-testid="reason-input"
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button type="submit" disabled={isSubmitting} data-testid="submit-button">
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="animate-spin" aria-hidden="true" />
-                      <span>{t('form.creating')}</span>
-                    </>
-                  ) : (
-                    t('form.create')
-                  )}
-                </Button>
-                <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
-                  {t('form.cancel')}
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-      ) : null}
+      <TimeBlockFormDialog isOpen={isDialogOpen} onClose={() => setIsDialogOpen(false)} onSubmit={handleCreateSubmit} />
       {state === 'loading' ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />

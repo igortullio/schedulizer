@@ -1,4 +1,16 @@
-import { CalendarDays, Clock, CreditCard, LayoutDashboard, LogOut, Menu, Package, Settings, X } from 'lucide-react'
+import {
+  CalendarDays,
+  Clock,
+  CreditCard,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  Package,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Settings,
+  X,
+} from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, useNavigate } from 'react-router-dom'
@@ -13,12 +25,14 @@ interface NavItem {
 
 interface SidebarProps {
   organizationName: string
+  onCollapsedChange?: (collapsed: boolean) => void
 }
 
-export function Sidebar({ organizationName }: SidebarProps) {
+export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
   const { t } = useTranslation('dashboard')
   const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(false)
+  const [isCollapsed, setIsCollapsed] = useState(false)
   const navItems: NavItem[] = [
     { to: '/dashboard', label: t('sidebar.overview'), icon: <LayoutDashboard className="h-5 w-5" /> },
     { to: '/dashboard/services', label: t('sidebar.services'), icon: <Package className="h-5 w-5" /> },
@@ -33,6 +47,11 @@ export function Sidebar({ organizationName }: SidebarProps) {
   }
   function closeSidebar() {
     setIsOpen(false)
+  }
+  function toggleCollapsed() {
+    const next = !isCollapsed
+    setIsCollapsed(next)
+    onCollapsedChange?.(next)
   }
   return (
     <>
@@ -55,14 +74,16 @@ export function Sidebar({ organizationName }: SidebarProps) {
         />
       ) : null}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-zinc-900 text-zinc-100 transition-transform md:static md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col bg-zinc-900 text-zinc-100 transition-all md:static md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'} ${isCollapsed ? 'w-16' : 'w-64'}`}
         data-testid="sidebar"
       >
         <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-5">
-          <div>
-            <p className="text-lg font-semibold">Schedulizer</p>
-            <p className="text-sm text-zinc-400">{organizationName}</p>
-          </div>
+          {isCollapsed ? null : (
+            <div className="min-w-0">
+              <p className="text-lg font-semibold">Schedulizer</p>
+              <p className="truncate text-sm text-zinc-400">{organizationName}</p>
+            </div>
+          )}
           <button
             type="button"
             onClick={closeSidebar}
@@ -70,6 +91,15 @@ export function Sidebar({ organizationName }: SidebarProps) {
             aria-label="Close menu"
           >
             <X className="h-5 w-5" />
+          </button>
+          <button
+            type="button"
+            onClick={toggleCollapsed}
+            className="hidden rounded-md p-1 text-zinc-400 hover:text-zinc-100 md:block"
+            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            data-testid="sidebar-collapse-toggle"
+          >
+            {isCollapsed ? <PanelLeftOpen className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />}
           </button>
         </div>
         <nav className="flex-1 space-y-1 px-3 py-4" data-testid="sidebar-nav">
@@ -79,25 +109,27 @@ export function Sidebar({ organizationName }: SidebarProps) {
               to={item.to}
               end={item.to === '/dashboard'}
               onClick={closeSidebar}
+              title={isCollapsed ? item.label : undefined}
               className={({ isActive }) =>
-                `flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${isActive ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100'}`
+                `flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${isCollapsed ? 'justify-center' : ''} ${isActive ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100'}`
               }
             >
               {item.icon}
-              {item.label}
+              {isCollapsed ? null : item.label}
             </NavLink>
           ))}
         </nav>
         <div className="border-t border-zinc-800 px-4 py-4 space-y-3">
-          <LanguageSelector />
+          {isCollapsed ? null : <LanguageSelector variant="dark" />}
           <button
             type="button"
             onClick={handleSignOut}
-            className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
+            title={isCollapsed ? t('sidebar.signOut') : undefined}
+            className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100 ${isCollapsed ? 'justify-center' : ''}`}
             data-testid="sign-out-button"
           >
             <LogOut className="h-5 w-5" />
-            {t('sidebar.signOut')}
+            {isCollapsed ? null : t('sidebar.signOut')}
           </button>
         </div>
       </aside>

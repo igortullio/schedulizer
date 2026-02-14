@@ -22,7 +22,7 @@ export function DashboardLayout() {
   return (
     <div className="flex h-screen bg-background">
       <Sidebar organizationName={activeOrg.name} />
-      <main className="flex-1 overflow-auto p-6 md:p-8">
+      <main className="flex-1 overflow-auto p-6 pt-16 md:p-8 md:pt-8">
         <Outlet />
       </main>
     </div>

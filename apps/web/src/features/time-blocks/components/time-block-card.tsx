@@ -1,6 +1,7 @@
 import { Button, Card, CardContent } from '@igortullio-ui/react'
 import { Calendar, Clock, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { getLocale } from '@/lib/format'
 
 interface TimeBlockCardProps {
   id: string
@@ -12,8 +13,8 @@ interface TimeBlockCardProps {
 }
 
 export function TimeBlockCard({ id, date, startTime, endTime, reason, onDelete }: TimeBlockCardProps) {
-  const { t } = useTranslation('timeBlocks')
-  const formattedDate = new Date(`${date}T00:00:00`).toLocaleDateString()
+  const { t, i18n } = useTranslation('timeBlocks')
+  const formattedDate = new Date(`${date}T00:00:00`).toLocaleDateString(getLocale(i18n.language))
   return (
     <Card data-testid={`time-block-card-${id}`}>
       <CardContent className="flex items-center justify-between p-4">

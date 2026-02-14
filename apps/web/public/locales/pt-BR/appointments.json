@@ -5,6 +5,7 @@
   "emptyState": "Nenhum agendamento encontrado.",
   "viewList": "Lista",
   "viewCalendar": "Calendário",
+  "timeBlock": "Bloqueio",
   "status": {
     "pending": "Pendente",
     "confirmed": "Confirmado",

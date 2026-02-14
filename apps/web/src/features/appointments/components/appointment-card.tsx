@@ -2,6 +2,7 @@ import { Badge, Button, Card, CardContent, CardHeader, CardTitle } from '@igortu
 import type { AppointmentStatus } from '@schedulizer/shared-types'
 import { Calendar, Check, Clock, Mail, Phone, User, X, XCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { getLocale } from '@/lib/format'
 
 interface AppointmentCardProps {
   id: string
@@ -26,9 +27,9 @@ const STATUS_VARIANT: Record<AppointmentStatus, 'default' | 'secondary' | 'destr
   no_show: 'destructive',
 }
 
-function formatDateTime(isoString: string): string {
+function formatDateTime(isoString: string, locale: string): string {
   const date = new Date(isoString)
-  return date.toLocaleString(undefined, {
+  return date.toLocaleString(locale, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -37,9 +38,9 @@ function formatDateTime(isoString: string): string {
   })
 }
 
-function formatTime(isoString: string): string {
+function formatTime(isoString: string, locale: string): string {
   const date = new Date(isoString)
-  return date.toLocaleString(undefined, {
+  return date.toLocaleString(locale, {
     hour: '2-digit',
     minute: '2-digit',
   })
@@ -59,7 +60,8 @@ export function AppointmentCard({
   onNoShow,
   onCancel,
 }: AppointmentCardProps) {
-  const { t } = useTranslation('appointments')
+  const { t, i18n } = useTranslation('appointments')
+  const locale = getLocale(i18n.language)
   const canConfirm = status === 'pending'
   const canComplete = status === 'confirmed'
   const canNoShow = status === 'confirmed'
@@ -84,12 +86,12 @@ export function AppointmentCard({
         <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-1" data-testid="appointment-datetime">
             <Calendar className="h-4 w-4" aria-hidden="true" />
-            <span>{formatDateTime(startDatetime)}</span>
+            <span>{formatDateTime(startDatetime, locale)}</span>
           </div>
           <div className="flex items-center gap-1" data-testid="appointment-time-range">
             <Clock className="h-4 w-4" aria-hidden="true" />
             <span>
-              {formatTime(startDatetime)} - {formatTime(endDatetime)}
+              {formatTime(startDatetime, locale)} - {formatTime(endDatetime, locale)}
             </span>
           </div>
           <div className="flex items-center gap-1">

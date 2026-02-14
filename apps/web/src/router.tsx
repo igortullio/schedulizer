@@ -17,7 +17,7 @@ export const router = createBrowserRouter([
       { path: 'appointments', lazy: () => import('@/routes/dashboard/appointments') },
       { path: 'time-blocks', lazy: () => import('@/routes/dashboard/time-blocks') },
       { path: 'settings', lazy: () => import('@/routes/dashboard/settings') },
-      { path: 'subscription', lazy: () => import('@/routes/dashboard/subscription') },
+      { path: 'subscription', element: <Navigate to="/dashboard/settings" replace /> },
     ],
   },
   {
@@ -46,7 +46,7 @@ export const router = createBrowserRouter([
   },
   {
     path: '/subscription',
-    element: <Navigate to="/dashboard/subscription" replace />,
+    element: <Navigate to="/dashboard/settings" replace />,
   },
   {
     path: '/checkout/success',

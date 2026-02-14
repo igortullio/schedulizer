@@ -18,6 +18,7 @@ interface SubscriptionCardProps {
   isLoading: boolean
   onManageSubscription: () => void
   isPortalLoading: boolean
+  onCancelSubscription?: () => void
 }
 
 type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'outline'
@@ -97,6 +98,7 @@ export function SubscriptionCard({
   isLoading,
   onManageSubscription,
   isPortalLoading,
+  onCancelSubscription,
 }: SubscriptionCardProps) {
   const { t, i18n } = useTranslation('billing')
   if (isLoading) {
@@ -158,6 +160,16 @@ export function SubscriptionCard({
             t('subscription.card.manageSubscription')
           )}
         </Button>
+        {onCancelSubscription && subscription.status === 'active' && !subscription.cancelAtPeriodEnd ? (
+          <Button
+            variant="outline"
+            onClick={onCancelSubscription}
+            className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive"
+            data-testid="cancel-subscription-trigger"
+          >
+            {t('subscription.cancelSubscription')}
+          </Button>
+        ) : null}
       </CardContent>
     </Card>
   )

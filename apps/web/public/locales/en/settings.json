@@ -1,6 +1,11 @@
 {
-  "title": "Organization Settings",
+  "title": "Settings",
+  "description": "Manage your organization settings and subscription.",
   "backToDashboard": "Back to dashboard",
+  "sections": {
+    "organization": "Organization Settings",
+    "subscription": "Subscription"
+  },
   "form": {
     "slug": "Booking URL (slug)",
     "slugPlaceholder": "my-business",

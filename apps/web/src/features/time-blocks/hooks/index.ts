@@ -1,1 +1,1 @@
-export { useTimeBlocks } from './use-time-blocks'
+export { type TimeBlockResponse, useTimeBlocks } from './use-time-blocks'

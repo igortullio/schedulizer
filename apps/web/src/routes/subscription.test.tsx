@@ -2,12 +2,13 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { Component as SubscriptionPage } from './dashboard/subscription'
+import { Component as SettingsPage } from './dashboard/settings'
 
 const mockNavigate = vi.fn()
 const mockUseSubscription = vi.fn()
 const mockUseBillingHistory = vi.fn()
 const mockUseCustomerPortal = vi.fn()
+const mockUseOrganizationSettings = vi.fn()
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -27,23 +28,34 @@ vi.mock('react-router-dom', async () => {
   }
 })
 
+vi.mock('@/features/settings', () => ({
+  useOrganizationSettings: () => mockUseOrganizationSettings(),
+}))
+
 vi.mock('@/features/billing', () => ({
   SubscriptionCard: ({
     subscription,
     isLoading,
     onManageSubscription,
     isPortalLoading,
+    onCancelSubscription,
   }: {
     subscription: unknown
     isLoading: boolean
     onManageSubscription: () => void
     isPortalLoading: boolean
+    onCancelSubscription?: () => void
   }) => (
     <div data-testid="subscription-card">
       {isLoading ? 'Loading...' : subscription ? 'Has subscription' : 'No subscription'}
       <button type="button" onClick={onManageSubscription} disabled={isPortalLoading}>
         Manage
       </button>
+      {onCancelSubscription ? (
+        <button type="button" onClick={onCancelSubscription} data-testid="cancel-subscription-trigger">
+          Cancel
+        </button>
+      ) : null}
     </div>
   ),
   PaymentMethodCard: ({
@@ -132,9 +144,14 @@ function renderWithRouter(component: React.ReactElement) {
   return render(<MemoryRouter>{component}</MemoryRouter>)
 }
 
-describe('SubscriptionPage', () => {
+describe('SettingsPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockUseOrganizationSettings.mockReturnValue({
+      settings: { slug: 'my-org', timezone: 'America/Sao_Paulo' },
+      state: 'success',
+      updateSettings: vi.fn(),
+    })
     mockUseSubscription.mockReturnValue({
       subscription: {
         id: 'sub-1',
@@ -159,37 +176,42 @@ describe('SubscriptionPage', () => {
     })
   })
 
-  describe('authenticated state', () => {
-    it('renders subscription management page', () => {
-      renderWithRouter(<SubscriptionPage />)
-      expect(screen.getByText('subscription.title')).toBeInTheDocument()
+  describe('unified settings page', () => {
+    it('renders settings page with title', () => {
+      renderWithRouter(<SettingsPage />)
+      expect(screen.getByText('title')).toBeInTheDocument()
+    })
+
+    it('renders organization settings form', () => {
+      renderWithRouter(<SettingsPage />)
+      expect(screen.getByTestId('settings-form')).toBeInTheDocument()
     })
 
     it('renders subscription card', () => {
-      renderWithRouter(<SubscriptionPage />)
+      renderWithRouter(<SettingsPage />)
       expect(screen.getByTestId('subscription-card')).toBeInTheDocument()
     })
 
     it('renders payment method card', () => {
-      renderWithRouter(<SubscriptionPage />)
+      renderWithRouter(<SettingsPage />)
       expect(screen.getByTestId('payment-method-card')).toBeInTheDocument()
     })
 
     it('renders billing history table', () => {
-      renderWithRouter(<SubscriptionPage />)
+      renderWithRouter(<SettingsPage />)
       expect(screen.getByTestId('billing-history-table')).toBeInTheDocument()
     })
   })
 
   describe('cancel subscription', () => {
     it('shows cancel button for active subscription', () => {
-      renderWithRouter(<SubscriptionPage />)
+      renderWithRouter(<SettingsPage />)
       expect(screen.getByTestId('cancel-subscription-trigger')).toBeInTheDocument()
     })
 
     it('opens cancel dialog when cancel button is clicked', async () => {
       const user = userEvent.setup()
-      renderWithRouter(<SubscriptionPage />)
+      renderWithRouter(<SettingsPage />)
       await user.click(screen.getByTestId('cancel-subscription-trigger'))
       await waitFor(() => {
         expect(screen.getByTestId('cancel-subscription-dialog')).toBeInTheDocument()

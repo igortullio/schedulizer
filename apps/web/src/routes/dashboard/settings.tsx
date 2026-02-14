@@ -1,7 +1,18 @@
-import { Button, Card, CardContent, CardHeader, CardTitle, Input, Label } from '@igortullio-ui/react'
+import { Button, Card, CardContent, Input, Label } from '@igortullio-ui/react'
 import { Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
+import {
+  BillingHistoryTable,
+  CancelSubscriptionDialog,
+  PaymentMethodCard,
+  SubscriptionCard,
+  UpdatePlanDialog,
+  useBillingHistory,
+  useCustomerPortal,
+  useSubscription,
+} from '@/features/billing'
 import { useOrganizationSettings } from '@/features/settings'
 
 const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
@@ -10,12 +21,21 @@ const MAX_SLUG_LENGTH = 100
 
 export function Component() {
   const { t } = useTranslation('settings')
-  const { settings, state, updateSettings } = useOrganizationSettings()
+  const navigate = useNavigate()
+  const { settings, state: settingsState, updateSettings } = useOrganizationSettings()
+  const { subscription, state: subscriptionState } = useSubscription()
+  const { invoices, state: invoicesState, error: invoicesError, refetch: refetchInvoices } = useBillingHistory()
+  const { state: portalState, openPortal } = useCustomerPortal()
   const [slug, setSlug] = useState('')
   const [timezone, setTimezone] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false)
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false)
+  const isPortalLoading = portalState === 'loading'
+  const isSubscriptionLoading = subscriptionState === 'loading'
+  const isInvoicesLoading = invoicesState === 'loading'
   useEffect(() => {
     if (settings) {
       setSlug(settings.slug)
@@ -51,7 +71,28 @@ export function Component() {
       setIsSubmitting(false)
     }
   }
-  if (state === 'loading') {
+  function handleManageSubscription() {
+    if (!subscription?.stripeSubscriptionId) {
+      navigate('/pricing')
+      return
+    }
+    setIsUpdateDialogOpen(true)
+  }
+  function handleUpdatePlanConfirm() {
+    setIsUpdateDialogOpen(false)
+    openPortal()
+  }
+  function handleCancelSubscription() {
+    setIsCancelDialogOpen(true)
+  }
+  function handleCancelSubscriptionConfirm() {
+    setIsCancelDialogOpen(false)
+    openPortal()
+  }
+  function handleManagePayment() {
+    openPortal()
+  }
+  if (settingsState === 'loading') {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
@@ -59,63 +100,121 @@ export function Component() {
     )
   }
   return (
-    <div className="mx-auto max-w-2xl">
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('title')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4" data-testid="settings-form">
-            {formError ? (
-              <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive" data-testid="form-error">
-                {formError}
-              </div>
-            ) : null}
-            {successMessage ? (
-              <div
-                className="rounded-md bg-green-500/10 p-3 text-sm text-green-700 dark:text-green-400"
-                data-testid="form-success"
-              >
-                {successMessage}
-              </div>
-            ) : null}
-            <div className="space-y-2">
-              <Label htmlFor="slug">{t('form.slug')}</Label>
-              <Input
-                id="slug"
-                value={slug}
-                onChange={e => handleSlugChange(e.target.value)}
-                placeholder={t('form.slugPlaceholder')}
-                required
-                data-testid="slug-input"
-              />
-              <p className="text-xs text-muted-foreground">{t('form.slugHelp')}</p>
+    <div>
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">{t('title')}</h1>
+        <p className="mt-2 text-muted-foreground">{t('description')}</p>
+      </div>
+      <div className="space-y-8">
+        <div>
+          <h2 className="mb-4 text-xl font-semibold tracking-tight text-foreground">{t('sections.organization')}</h2>
+          <Card>
+            <CardContent className="pt-6">
+              <form onSubmit={handleSubmit} className="space-y-4" data-testid="settings-form">
+                {formError ? (
+                  <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive" data-testid="form-error">
+                    {formError}
+                  </div>
+                ) : null}
+                {successMessage ? (
+                  <div
+                    className="rounded-md bg-green-500/10 p-3 text-sm text-green-700 dark:text-green-400"
+                    data-testid="form-success"
+                  >
+                    {successMessage}
+                  </div>
+                ) : null}
+                <div className="space-y-2">
+                  <Label htmlFor="slug">{t('form.slug')}</Label>
+                  <div className="flex items-center">
+                    <span className="rounded-l-md border border-r-0 border-input bg-muted px-3 py-2 text-sm text-muted-foreground">
+                      /booking/
+                    </span>
+                    <Input
+                      id="slug"
+                      value={slug}
+                      onChange={e => handleSlugChange(e.target.value)}
+                      placeholder={t('form.slugPlaceholder')}
+                      required
+                      className="rounded-l-none"
+                      data-testid="slug-input"
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">{t('form.slugHelp')}</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="timezone">{t('form.timezone')}</Label>
+                  <Input
+                    id="timezone"
+                    value={timezone}
+                    onChange={e => setTimezone(e.target.value)}
+                    placeholder="America/Sao_Paulo"
+                    required
+                    data-testid="timezone-input"
+                  />
+                  <p className="text-xs text-muted-foreground">{t('form.timezoneHelp')}</p>
+                </div>
+                <Button type="submit" disabled={isSubmitting} className="w-full" data-testid="submit-button">
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="animate-spin" aria-hidden="true" />
+                      <span>{t('form.saving')}</span>
+                    </>
+                  ) : (
+                    t('form.save')
+                  )}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+        <div>
+          <h2 className="mb-4 text-xl font-semibold tracking-tight text-foreground">{t('sections.subscription')}</h2>
+          {isSubscriptionLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="timezone">{t('form.timezone')}</Label>
-              <Input
-                id="timezone"
-                value={timezone}
-                onChange={e => setTimezone(e.target.value)}
-                placeholder="America/Sao_Paulo"
-                required
-                data-testid="timezone-input"
-              />
-              <p className="text-xs text-muted-foreground">{t('form.timezoneHelp')}</p>
-            </div>
-            <Button type="submit" disabled={isSubmitting} className="w-full" data-testid="submit-button">
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="animate-spin" aria-hidden="true" />
-                  <span>{t('form.saving')}</span>
-                </>
-              ) : (
-                t('form.save')
-              )}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+          ) : (
+            <>
+              <div className="grid gap-6 md:grid-cols-2">
+                <SubscriptionCard
+                  subscription={subscription}
+                  isLoading={isSubscriptionLoading}
+                  onManageSubscription={handleManageSubscription}
+                  isPortalLoading={isPortalLoading}
+                  onCancelSubscription={handleCancelSubscription}
+                />
+                <PaymentMethodCard
+                  onManagePayment={handleManagePayment}
+                  isLoading={isSubscriptionLoading}
+                  isPortalLoading={isPortalLoading}
+                />
+              </div>
+              <div className="mt-8">
+                <BillingHistoryTable
+                  invoices={invoices}
+                  isLoading={isInvoicesLoading}
+                  error={invoicesError}
+                  onRetry={refetchInvoices}
+                />
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+      <UpdatePlanDialog
+        isOpen={isUpdateDialogOpen}
+        onClose={() => setIsUpdateDialogOpen(false)}
+        onConfirm={handleUpdatePlanConfirm}
+        isLoading={isPortalLoading}
+      />
+      <CancelSubscriptionDialog
+        isOpen={isCancelDialogOpen}
+        onClose={() => setIsCancelDialogOpen(false)}
+        onConfirm={handleCancelSubscriptionConfirm}
+        isLoading={isPortalLoading}
+        periodEnd={subscription?.currentPeriodEnd ?? null}
+      />
     </div>
   )
 }

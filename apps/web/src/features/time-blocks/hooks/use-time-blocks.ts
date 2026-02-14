@@ -1,7 +1,7 @@
 import { clientEnv } from '@schedulizer/env/client'
 import { useCallback, useEffect, useState } from 'react'
 
-interface TimeBlockResponse {
+export interface TimeBlockResponse {
   id: string
   organizationId: string
   date: string

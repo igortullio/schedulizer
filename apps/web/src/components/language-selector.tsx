@@ -1,3 +1,4 @@
+import { Tooltip, TooltipContent, TooltipTrigger } from '@igortullio-ui/react'
 import { Globe } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
@@ -7,36 +8,36 @@ const LANGUAGES = [
 ] as const
 
 interface LanguageSelectorProps {
-  variant?: 'light' | 'dark'
+  isCollapsed?: boolean
 }
 
-export function LanguageSelector({ variant = 'light' }: LanguageSelectorProps) {
+export function LanguageSelector({ isCollapsed = false }: LanguageSelectorProps) {
   const { i18n } = useTranslation()
-  function handleLanguageChange(event: React.ChangeEvent<HTMLSelectElement>) {
-    const newLanguage = event.target.value
-    void i18n.changeLanguage(newLanguage)
+  const currentLanguage = LANGUAGES.find(lang => lang.code === i18n.language) ?? LANGUAGES[0]
+  function handleToggleLanguage() {
+    const currentIndex = LANGUAGES.findIndex(lang => lang.code === i18n.language)
+    const nextIndex = (currentIndex + 1) % LANGUAGES.length
+    void i18n.changeLanguage(LANGUAGES[nextIndex].code)
   }
-  const globeClass = variant === 'dark' ? 'h-4 w-4 text-zinc-400' : 'h-4 w-4 text-muted-foreground'
-  const selectClass =
-    variant === 'dark'
-      ? 'border-none bg-transparent text-sm text-zinc-100 focus:outline-none focus:ring-0'
-      : 'border-none bg-transparent text-sm text-foreground focus:outline-none focus:ring-0'
-  return (
-    <div className="flex items-center gap-2" data-testid="language-selector">
-      <Globe className={globeClass} aria-hidden="true" />
-      <select
-        value={i18n.language}
-        onChange={handleLanguageChange}
-        className={selectClass}
-        data-testid="language-select"
-        aria-label="Select language"
-      >
-        {LANGUAGES.map(lang => (
-          <option key={lang.code} value={lang.code} data-testid={`language-option-${lang.code}`}>
-            {lang.label}
-          </option>
-        ))}
-      </select>
-    </div>
+  const button = (
+    <button
+      type="button"
+      onClick={handleToggleLanguage}
+      className={`flex w-full items-center gap-3 rounded-md py-2 text-sm font-medium text-sidebar-foreground/60 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground ${isCollapsed ? 'justify-center px-0' : 'px-3'}`}
+      data-testid="language-selector"
+      aria-label="Select language"
+    >
+      <Globe className="h-5 w-5" aria-hidden="true" />
+      {isCollapsed ? null : <span data-testid="language-label">{currentLanguage.label}</span>}
+    </button>
   )
+  if (isCollapsed) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>{button}</TooltipTrigger>
+        <TooltipContent side="right">{currentLanguage.label}</TooltipContent>
+      </Tooltip>
+    )
+  }
+  return button
 }

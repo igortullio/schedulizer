@@ -5,6 +5,7 @@
   "emptyState": "No appointments found.",
   "viewList": "List",
   "viewCalendar": "Calendar",
+  "timeBlock": "Time block",
   "status": {
     "pending": "Pending",
     "confirmed": "Confirmed",

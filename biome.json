@@ -7,7 +7,16 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": ["**", "!**/node_modules", "!**/dist", "!**/.nx", "!**/.next", "!**/coverage", "!**/*.css"]
+    "includes": [
+      "**",
+      "!**/node_modules",
+      "!**/dist",
+      "!**/.nx",
+      "!**/.next",
+      "!**/coverage",
+      "!**/*.css",
+      "!**/templates/**/*.html"
+    ]
   },
   "formatter": {
     "enabled": true,

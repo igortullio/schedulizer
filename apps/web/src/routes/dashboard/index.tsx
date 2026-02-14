@@ -132,7 +132,7 @@ export function Component() {
     )
   }
   return (
-    <div className="flex min-h-full flex-col-reverse gap-6 sm:flex-col">
+    <div className="flex min-h-full flex-col gap-6">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" data-testid="stats-grid">
         <Card className="flex flex-col gap-0 py-3">
           <CardHeader className="items-center px-3 pb-2">

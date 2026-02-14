@@ -17,7 +17,11 @@
     "selectTime": "Selecione o horário",
     "empty": "Nenhum horário disponível nesta data.",
     "previousWeek": "Semana anterior",
-    "nextWeek": "Próxima semana"
+    "nextWeek": "Próxima semana",
+    "errors": {
+      "pastDate": "A data não pode estar no passado.",
+      "fetchFailed": "Erro ao buscar horários. Tente novamente."
+    }
   },
   "form": {
     "back": "Voltar",

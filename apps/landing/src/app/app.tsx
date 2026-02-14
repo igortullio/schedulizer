@@ -30,10 +30,10 @@ export function App() {
   return (
     <div className="min-h-screen">
       <header className="fixed top-4 left-4 right-4 z-50 mx-auto max-w-7xl">
-        <div className="glass rounded-2xl px-6 py-4 shadow-lg">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
+        <div className="glass rounded-2xl px-4 py-3 shadow-lg sm:px-6 sm:py-4">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex min-w-0 items-center gap-2">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary">
                 <svg
                   className="h-5 w-5 text-primary-foreground"
                   fill="none"
@@ -49,7 +49,7 @@ export function App() {
                   />
                 </svg>
               </div>
-              <span className="text-xl font-bold text-foreground">Schedulizer</span>
+              <span className="truncate text-xl font-bold text-foreground">Schedulizer</span>
             </div>
             <nav className="hidden items-center gap-6 md:flex">
               <a
@@ -75,7 +75,7 @@ export function App() {
             <Button
               type="button"
               onClick={handleGetStarted}
-              className="gradient-accent cursor-pointer rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:scale-105 hover:shadow-lg"
+              className="gradient-accent shrink-0 cursor-pointer rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:scale-105 hover:shadow-lg sm:px-5 sm:py-2.5"
             >
               {t('nav.cta')}
             </Button>

@@ -60,7 +60,7 @@ export function ServiceCard({
             </div>
           ) : null}
         </div>
-        <div className="mt-4 flex items-center gap-2">
+        <div className="mt-4 flex flex-wrap items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => onEdit(id)} data-testid="edit-service-button">
             <Pencil className="h-4 w-4" aria-hidden="true" />
             {t('actions.edit')}

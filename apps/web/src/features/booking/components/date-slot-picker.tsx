@@ -74,7 +74,7 @@ export function DateSlotPicker({
                 key={date.value}
                 variant={isSelected ? 'default' : 'ghost'}
                 onClick={() => handleDateSelect(date.value)}
-                className={`flex h-auto min-w-[4rem] flex-1 flex-col items-center rounded-lg px-2 py-2 text-sm ${
+                className={`flex h-auto min-w-0 flex-1 flex-col items-center rounded-lg px-1 py-2 text-sm ${
                   isSelected ? '' : 'bg-card hover:bg-accent/50'
                 }`}
                 data-testid={`date-button-${date.value}`}
@@ -104,7 +104,7 @@ export function DateSlotPicker({
         </div>
       ) : slotsState === 'error' ? (
         <Alert variant="destructive" className="border-0 bg-destructive/10 text-center" data-testid="slots-error">
-          <AlertDescription>{slotsError}</AlertDescription>
+          <AlertDescription>{slotsError ? t(slotsError as 'slots.errors.fetchFailed') : null}</AlertDescription>
         </Alert>
       ) : slots.length === 0 ? (
         <div className="rounded-md border border-dashed p-8 text-center" data-testid="no-slots">

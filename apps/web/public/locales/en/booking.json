@@ -17,7 +17,11 @@
     "selectTime": "Select a time",
     "empty": "No available slots for this date.",
     "previousWeek": "Previous week",
-    "nextWeek": "Next week"
+    "nextWeek": "Next week",
+    "errors": {
+      "pastDate": "Date cannot be in the past.",
+      "fetchFailed": "Failed to fetch slots. Please try again."
+    }
   },
   "form": {
     "back": "Back",

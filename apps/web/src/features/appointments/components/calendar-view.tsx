@@ -49,10 +49,17 @@ interface CalendarViewProps {
   onSelectEvent?: (appointment: AppointmentResponse) => void
 }
 
+const BUSINESS_START_HOUR = 7
+
 export function CalendarView({ appointments, timeBlocks, onSelectEvent }: CalendarViewProps) {
   const { t } = useTranslation('appointments')
   const [view, setView] = useState<View>('week')
   const [date, setDate] = useState(new Date())
+  const scrollToTime = useMemo(() => {
+    const time = new Date()
+    time.setHours(BUSINESS_START_HOUR, 0, 0, 0)
+    return time
+  }, [])
   const events: CalendarEvent[] = useMemo(() => {
     const appointmentEvents: CalendarEvent[] = appointments.map(appointment => ({
       id: appointment.id,
@@ -103,6 +110,7 @@ export function CalendarView({ appointments, timeBlocks, onSelectEvent }: Calend
         date={date}
         onNavigate={setDate}
         views={AVAILABLE_VIEWS}
+        scrollToTime={scrollToTime}
         eventPropGetter={eventPropGetter}
         onSelectEvent={handleSelectEvent}
         messages={{

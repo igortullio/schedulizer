@@ -54,8 +54,21 @@ describe('useSlots', () => {
       await result.current.fetchSlots('test-org', 'invalid', '2025-01-15')
     })
     expect(result.current.state).toBe('error')
-    expect(result.current.error).toBe('Service not found')
+    expect(result.current.error).toBe('slots.errors.fetchFailed')
     expect(result.current.slots).toEqual([])
+  })
+
+  it('maps known API error to i18n key', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      json: () => Promise.resolve({ error: { message: 'Date cannot be in the past' } }),
+    })
+    const { result } = renderHook(() => useSlots())
+    await act(async () => {
+      await result.current.fetchSlots('test-org', 'srv-1', '2025-01-01')
+    })
+    expect(result.current.state).toBe('error')
+    expect(result.current.error).toBe('slots.errors.pastDate')
   })
 
   it('handles non-JSON error response gracefully', async () => {
@@ -68,7 +81,7 @@ describe('useSlots', () => {
       await result.current.fetchSlots('test-org', 'srv-1', '2025-01-15')
     })
     expect(result.current.state).toBe('error')
-    expect(result.current.error).toBe('Failed to fetch slots')
+    expect(result.current.error).toBe('slots.errors.fetchFailed')
   })
 
   it('sets error state on network failure', async () => {

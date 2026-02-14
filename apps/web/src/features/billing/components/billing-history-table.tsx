@@ -131,7 +131,7 @@ export function BillingHistoryTable({ invoices, isLoading, error, onRetry }: Bil
         <CardTitle>{t('subscription.billingHistory.title')}</CardTitle>
         <CardDescription>{t('subscription.billingHistory.description')}</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>

@@ -8,6 +8,10 @@ export interface TimeSlot {
 
 type SlotsState = 'idle' | 'loading' | 'success' | 'error'
 
+const API_ERROR_TO_I18N_KEY: Record<string, string> = {
+  'Date cannot be in the past': 'slots.errors.pastDate',
+}
+
 interface UseSlotsReturn {
   slots: TimeSlot[]
   state: SlotsState
@@ -26,10 +30,11 @@ export function useSlots(): UseSlotsReturn {
     try {
       const response = await fetch(`${clientEnv.apiUrl}/api/booking/${slug}/services/${serviceId}/slots?date=${date}`)
       if (!response.ok) {
-        let errorMessage = 'Failed to fetch slots'
+        let errorMessage = 'slots.errors.fetchFailed'
         try {
           const errorData = await response.json()
-          errorMessage = errorData.error?.message ?? errorMessage
+          const apiMessage = errorData.error?.message
+          errorMessage = API_ERROR_TO_I18N_KEY[apiMessage] ?? errorMessage
         } catch {
           // Response is not JSON
         }
@@ -45,7 +50,7 @@ export function useSlots(): UseSlotsReturn {
         date,
         error: err instanceof Error ? err.message : 'Unknown error',
       })
-      setError(err instanceof Error ? err.message : 'Failed to fetch slots')
+      setError(err instanceof Error ? err.message : 'slots.errors.fetchFailed')
       setState('error')
     }
   }, [])

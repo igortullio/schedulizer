@@ -113,9 +113,9 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
         <Menu className="h-5 w-5" />
       </Button>
       {isOpen ? (
-        <Button
-          variant="ghost"
-          className="fixed inset-0 z-40 h-auto w-auto rounded-none bg-black/50 hover:bg-black/50 md:hidden"
+        <button
+          type="button"
+          className="fixed inset-0 z-40 h-auto w-auto cursor-default border-none bg-black/50 md:hidden"
           onClick={closeSidebar}
           aria-label="Close menu"
           data-testid="sidebar-backdrop"

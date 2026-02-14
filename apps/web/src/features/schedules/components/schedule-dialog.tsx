@@ -1,10 +1,9 @@
-import { Button } from '@igortullio-ui/react'
-import { ArrowLeft, Loader2, Save } from 'lucide-react'
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle } from '@igortullio-ui/react'
+import { Loader2, Save } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Navigate, useNavigate, useParams } from 'react-router-dom'
-import { ScheduleDayRow, useSchedules } from '@/features/schedules'
-import { useSession } from '@/lib/auth-client'
+import { ScheduleDayRow } from '@/features/schedules'
+import { useSchedules } from '@/features/schedules/hooks/use-schedules'
 
 const DAYS_IN_WEEK = 7
 
@@ -19,11 +18,15 @@ interface DaySchedule {
   periods: Period[]
 }
 
-export function Component() {
+interface ScheduleDialogProps {
+  serviceId: string
+  serviceName: string
+  isOpen: boolean
+  onClose: () => void
+}
+
+export function ScheduleDialog({ serviceId, serviceName, isOpen, onClose }: ScheduleDialogProps) {
   const { t } = useTranslation('schedules')
-  const navigate = useNavigate()
-  const { serviceId } = useParams<{ serviceId: string }>()
-  const { data: session, isPending: sessionPending } = useSession()
   const { schedules, state, updateSchedules } = useSchedules(serviceId)
   const [localSchedules, setLocalSchedules] = useState<DaySchedule[]>([])
   const [isSaving, setIsSaving] = useState(false)
@@ -75,54 +78,21 @@ export function Component() {
       setIsSaving(false)
     }
   }
-  function handleBack() {
-    navigate('/services')
-  }
-  if (sessionPending) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
-      </div>
-    )
-  }
-  if (!session) {
-    return <Navigate to="/auth/login" replace />
-  }
   return (
-    <div className="min-h-screen bg-background px-4 py-8">
-      <div className="mx-auto max-w-3xl">
-        <div className="mb-6">
-          <Button variant="ghost" onClick={handleBack} data-testid="back-button">
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            {t('backToServices')}
-          </Button>
-        </div>
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">{t('title')}</h1>
-            <p className="mt-2 text-muted-foreground">{t('description')}</p>
-          </div>
-          <Button onClick={handleSave} disabled={isSaving} data-testid="save-schedules-button">
-            {isSaving ? (
-              <>
-                <Loader2 className="animate-spin" aria-hidden="true" />
-                <span>{t('saving')}</span>
-              </>
-            ) : (
-              <>
-                <Save className="h-4 w-4" aria-hidden="true" />
-                {t('save')}
-              </>
-            )}
-          </Button>
-        </div>
+    <Dialog open={isOpen} onOpenChange={(open: boolean) => !open && onClose()}>
+      <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>
+            {t('title')} - {serviceName}
+          </DialogTitle>
+        </DialogHeader>
         {saveError ? (
-          <div className="mb-4 rounded-md bg-destructive/10 p-3 text-sm text-destructive" data-testid="save-error">
+          <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive" data-testid="save-error">
             {saveError}
           </div>
         ) : null}
         {saveSuccess ? (
-          <div className="mb-4 rounded-md bg-green-500/10 p-3 text-sm text-green-700" data-testid="save-success">
+          <div className="rounded-md bg-green-500/10 p-3 text-sm text-green-700" data-testid="save-success">
             {t('saveSuccess')}
           </div>
         ) : null}
@@ -144,9 +114,22 @@ export function Component() {
             ))}
           </div>
         )}
-      </div>
-    </div>
+        <div className="flex justify-end pt-4">
+          <Button onClick={handleSave} disabled={isSaving} data-testid="save-schedules-button">
+            {isSaving ? (
+              <>
+                <Loader2 className="animate-spin" aria-hidden="true" />
+                <span>{t('saving')}</span>
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4" aria-hidden="true" />
+                {t('save')}
+              </>
+            )}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }
-
-export default Component

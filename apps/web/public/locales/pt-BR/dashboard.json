@@ -1,0 +1,21 @@
+{
+  "sidebar": {
+    "overview": "Visão Geral",
+    "services": "Serviços",
+    "appointments": "Agendamentos",
+    "timeBlocks": "Bloqueios",
+    "settings": "Configurações",
+    "subscription": "Assinatura",
+    "signOut": "Sair"
+  },
+  "overview": {
+    "title": "Visão Geral",
+    "totalServices": "Total de Servicos",
+    "todayAppointments": "Agendamentos Hoje",
+    "pendingAppointments": "Pendentes",
+    "activeTimeBlocks": "Bloqueios",
+    "quickActions": "Açoes Rápidas",
+    "createService": "Criar Serviço",
+    "viewAppointments": "Ver Agendamentos"
+  }
+}

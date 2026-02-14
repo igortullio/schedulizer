@@ -15,7 +15,8 @@
     "edit": "Editar",
     "delete": "Excluir",
     "activate": "Ativar",
-    "deactivate": "Desativar"
+    "deactivate": "Desativar",
+    "schedule": "Horarios"
   },
   "form": {
     "createTitle": "Novo Serviço",

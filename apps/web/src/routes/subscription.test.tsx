@@ -2,9 +2,8 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { Component as SubscriptionPage } from './subscription'
+import { Component as SubscriptionPage } from './dashboard/subscription'
 
-const mockUseSession = vi.fn()
 const mockNavigate = vi.fn()
 const mockUseSubscription = vi.fn()
 const mockUseBillingHistory = vi.fn()
@@ -18,10 +17,6 @@ vi.mock('react-i18next', () => ({
   }),
   Trans: ({ i18nKey }: { i18nKey: string }) => i18nKey,
   initReactI18next: { type: '3rdParty', init: () => {} },
-}))
-
-vi.mock('@/lib/auth-client', () => ({
-  useSession: () => mockUseSession(),
 }))
 
 vi.mock('react-router-dom', async () => {
@@ -140,10 +135,6 @@ function renderWithRouter(component: React.ReactElement) {
 describe('SubscriptionPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mockUseSession.mockReturnValue({
-      data: { user: { id: 'user-1', email: 'test@example.com' } },
-      isPending: false,
-    })
     mockUseSubscription.mockReturnValue({
       subscription: {
         id: 'sub-1',
@@ -168,28 +159,6 @@ describe('SubscriptionPage', () => {
     })
   })
 
-  describe('loading state', () => {
-    it('shows loading spinner when session is pending', () => {
-      mockUseSession.mockReturnValue({
-        data: null,
-        isPending: true,
-      })
-      renderWithRouter(<SubscriptionPage />)
-      expect(document.querySelector('.animate-spin')).toBeInTheDocument()
-    })
-  })
-
-  describe('unauthenticated state', () => {
-    it('does not render subscription content when not authenticated', () => {
-      mockUseSession.mockReturnValue({
-        data: null,
-        isPending: false,
-      })
-      renderWithRouter(<SubscriptionPage />)
-      expect(screen.queryByText('subscription.title')).not.toBeInTheDocument()
-    })
-  })
-
   describe('authenticated state', () => {
     it('renders subscription management page', () => {
       renderWithRouter(<SubscriptionPage />)
@@ -209,18 +178,6 @@ describe('SubscriptionPage', () => {
     it('renders billing history table', () => {
       renderWithRouter(<SubscriptionPage />)
       expect(screen.getByTestId('billing-history-table')).toBeInTheDocument()
-    })
-
-    it('renders back button', () => {
-      renderWithRouter(<SubscriptionPage />)
-      expect(screen.getByTestId('back-button')).toBeInTheDocument()
-    })
-
-    it('navigates to dashboard when back button is clicked', async () => {
-      const user = userEvent.setup()
-      renderWithRouter(<SubscriptionPage />)
-      await user.click(screen.getByTestId('back-button'))
-      expect(mockNavigate).toHaveBeenCalledWith('/dashboard')
     })
   })
 

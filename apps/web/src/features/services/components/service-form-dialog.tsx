@@ -1,0 +1,156 @@
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Label } from '@igortullio-ui/react'
+import { Loader2 } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+const MIN_DURATION = 5
+const MAX_DURATION = 480
+
+interface ServiceFormData {
+  name: string
+  description?: string
+  duration: number
+  price: string
+}
+
+interface ServiceFormDialogProps {
+  mode: 'create' | 'edit'
+  isOpen: boolean
+  onClose: () => void
+  onSubmit: (data: ServiceFormData) => Promise<void>
+  service?: {
+    name: string
+    description: string
+    durationMinutes: number
+    price: string
+  }
+}
+
+export function ServiceFormDialog({ mode, isOpen, onClose, onSubmit, service }: ServiceFormDialogProps) {
+  const { t } = useTranslation('services')
+  const [name, setName] = useState('')
+  const [description, setDescription] = useState('')
+  const [duration, setDuration] = useState('')
+  const [price, setPrice] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [formError, setFormError] = useState<string | null>(null)
+  useEffect(() => {
+    if (isOpen && mode === 'edit' && service) {
+      setName(service.name)
+      setDescription(service.description)
+      setDuration(String(service.durationMinutes))
+      setPrice(service.price)
+    } else if (isOpen && mode === 'create') {
+      setName('')
+      setDescription('')
+      setDuration('')
+      setPrice('')
+    }
+    setFormError(null)
+  }, [isOpen, mode, service])
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setFormError(null)
+    const durationNum = Number.parseInt(duration, 10)
+    if (!name.trim()) {
+      setFormError(t('form.errors.nameRequired'))
+      return
+    }
+    if (Number.isNaN(durationNum) || durationNum < MIN_DURATION || durationNum > MAX_DURATION) {
+      setFormError(t('form.errors.durationInvalid'))
+      return
+    }
+    if (!price.trim() || !/^\d+\.\d{2}$/.test(price)) {
+      setFormError(t('form.errors.priceInvalid'))
+      return
+    }
+    setIsSubmitting(true)
+    try {
+      await onSubmit({
+        name: name.trim(),
+        description: description.trim() || undefined,
+        duration: durationNum,
+        price,
+      })
+    } catch (err) {
+      const errorKey = mode === 'create' ? 'form.errors.createFailed' : 'form.errors.updateFailed'
+      setFormError(err instanceof Error ? err.message : t(errorKey))
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+  return (
+    <Dialog open={isOpen} onOpenChange={(open: boolean) => !open && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{mode === 'create' ? t('form.createTitle') : t('form.editTitle')}</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4" data-testid="service-form">
+          {formError ? (
+            <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive" data-testid="form-error">
+              {formError}
+            </div>
+          ) : null}
+          <div className="space-y-2">
+            <Label htmlFor="service-name">{t('form.name')}</Label>
+            <Input
+              id="service-name"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              placeholder={t('form.namePlaceholder')}
+              required
+              data-testid="name-input"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="service-description">{t('form.description')}</Label>
+            <Input
+              id="service-description"
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              placeholder={t('form.descriptionPlaceholder')}
+              data-testid="description-input"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="service-duration">{t('form.duration')}</Label>
+            <Input
+              id="service-duration"
+              type="number"
+              min={MIN_DURATION}
+              max={MAX_DURATION}
+              value={duration}
+              onChange={e => setDuration(e.target.value)}
+              placeholder={t('form.durationPlaceholder')}
+              required
+              data-testid="duration-input"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="service-price">{t('form.price')}</Label>
+            <Input
+              id="service-price"
+              value={price}
+              onChange={e => setPrice(e.target.value)}
+              placeholder="50.00"
+              required
+              data-testid="price-input"
+            />
+          </div>
+          <Button type="submit" disabled={isSubmitting} className="w-full" data-testid="submit-button">
+            {isSubmitting ? (
+              <>
+                <Loader2 className="animate-spin" aria-hidden="true" />
+                <span>{mode === 'create' ? t('form.creating') : t('form.saving')}</span>
+              </>
+            ) : mode === 'create' ? (
+              t('form.create')
+            ) : (
+              t('form.save')
+            )}
+          </Button>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+}

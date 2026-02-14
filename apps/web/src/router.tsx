@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { AuthLayout } from '@/components/layout/auth-layout'
+import { DashboardLayout } from '@/components/layout/dashboard-layout'
 import { PublicLayout } from '@/components/layout/public-layout'
 
 export const router = createBrowserRouter([
@@ -9,43 +10,43 @@ export const router = createBrowserRouter([
   },
   {
     path: '/dashboard',
-    lazy: () => import('@/routes/dashboard'),
+    element: <DashboardLayout />,
+    children: [
+      { index: true, lazy: () => import('@/routes/dashboard/index') },
+      { path: 'services', lazy: () => import('@/routes/dashboard/services') },
+      { path: 'appointments', lazy: () => import('@/routes/dashboard/appointments') },
+      { path: 'time-blocks', lazy: () => import('@/routes/dashboard/time-blocks') },
+      { path: 'settings', lazy: () => import('@/routes/dashboard/settings') },
+      { path: 'subscription', lazy: () => import('@/routes/dashboard/subscription') },
+    ],
   },
   {
     path: '/pricing',
     lazy: () => import('@/routes/pricing'),
   },
   {
-    path: '/subscription',
-    lazy: () => import('@/routes/subscription'),
-  },
-  {
     path: '/services',
-    lazy: () => import('@/routes/services/index'),
+    element: <Navigate to="/dashboard/services" replace />,
   },
   {
-    path: '/services/new',
-    lazy: () => import('@/routes/services/new'),
-  },
-  {
-    path: '/services/:serviceId/edit',
-    lazy: () => import('@/routes/services/edit'),
-  },
-  {
-    path: '/services/:serviceId/schedules',
-    lazy: () => import('@/routes/services/schedules'),
+    path: '/services/*',
+    element: <Navigate to="/dashboard/services" replace />,
   },
   {
     path: '/appointments',
-    lazy: () => import('@/routes/appointments/index'),
+    element: <Navigate to="/dashboard/appointments" replace />,
   },
   {
     path: '/time-blocks',
-    lazy: () => import('@/routes/time-blocks/index'),
+    element: <Navigate to="/dashboard/time-blocks" replace />,
   },
   {
     path: '/settings',
-    lazy: () => import('@/routes/settings/index'),
+    element: <Navigate to="/dashboard/settings" replace />,
+  },
+  {
+    path: '/subscription',
+    element: <Navigate to="/dashboard/subscription" replace />,
   },
   {
     path: '/checkout/success',

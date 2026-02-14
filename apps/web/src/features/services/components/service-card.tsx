@@ -1,5 +1,5 @@
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle } from '@igortullio-ui/react'
-import { Clock, DollarSign, Pencil, Power, Trash2 } from 'lucide-react'
+import { Calendar, Clock, DollarSign, Pencil, Power, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 interface ServiceCardProps {
@@ -12,6 +12,7 @@ interface ServiceCardProps {
   onEdit: (id: string) => void
   onDelete: (id: string) => void
   onToggleActive: (id: string, active: boolean) => void
+  onSchedule?: (id: string) => void
 }
 
 export function ServiceCard({
@@ -24,6 +25,7 @@ export function ServiceCard({
   onEdit,
   onDelete,
   onToggleActive,
+  onSchedule,
 }: ServiceCardProps) {
   const { t } = useTranslation('services')
   return (
@@ -72,6 +74,12 @@ export function ServiceCard({
             <Power className="h-4 w-4" aria-hidden="true" />
             {active ? t('actions.deactivate') : t('actions.activate')}
           </Button>
+          {onSchedule ? (
+            <Button variant="outline" size="sm" onClick={() => onSchedule(id)} data-testid="schedule-service-button">
+              <Calendar className="h-4 w-4" aria-hidden="true" />
+              {t('actions.schedule')}
+            </Button>
+          ) : null}
           <Button
             variant="outline"
             size="sm"

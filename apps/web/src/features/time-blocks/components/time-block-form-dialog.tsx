@@ -26,6 +26,10 @@ interface TimeBlockFormDialogProps {
   onSubmit: (data: TimeBlockFormData) => Promise<void>
 }
 
+function getTodayDate(): string {
+  return new Date().toISOString().split('T')[0]
+}
+
 export function TimeBlockFormDialog({ isOpen, onClose, onSubmit }: TimeBlockFormDialogProps) {
   const { t } = useTranslation('timeBlocks')
   const [date, setDate] = useState('')
@@ -36,7 +40,7 @@ export function TimeBlockFormDialog({ isOpen, onClose, onSubmit }: TimeBlockForm
   const [formError, setFormError] = useState<string | null>(null)
   useEffect(() => {
     if (isOpen) {
-      setDate('')
+      setDate(getTodayDate())
       setStartTime('09:00')
       setEndTime('18:00')
       setReason('')
@@ -70,7 +74,7 @@ export function TimeBlockFormDialog({ isOpen, onClose, onSubmit }: TimeBlockForm
   }
   return (
     <Dialog open={isOpen} onOpenChange={(open: boolean) => !open && onClose()}>
-      <DialogContent>
+      <DialogContent className="max-h-screen overflow-y-auto max-sm:h-full max-sm:max-w-full max-sm:rounded-none max-sm:border-0">
         <DialogHeader>
           <DialogTitle>{t('form.title')}</DialogTitle>
         </DialogHeader>
@@ -91,7 +95,7 @@ export function TimeBlockFormDialog({ isOpen, onClose, onSubmit }: TimeBlockForm
               data-testid="date-input"
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="startTime">{t('form.startTime')}</Label>
               <Input

@@ -80,7 +80,7 @@ export function ScheduleDialog({ serviceId, serviceName, isOpen, onClose }: Sche
   }
   return (
     <Dialog open={isOpen} onOpenChange={(open: boolean) => !open && onClose()}>
-      <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent className="max-h-screen overflow-y-auto sm:max-w-2xl max-sm:h-full max-sm:max-w-full max-sm:rounded-none max-sm:border-0">
         <DialogHeader>
           <DialogTitle>
             {t('title')} - {serviceName}

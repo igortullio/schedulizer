@@ -12,6 +12,8 @@ import {
 import { Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { CurrencyInput } from '@/components/currency-input'
+import { parseCurrencyInput } from '@/lib/format'
 
 const MIN_DURATION = 5
 const MAX_DURATION = 480
@@ -36,12 +38,18 @@ interface ServiceFormDialogProps {
   }
 }
 
+function priceToCents(price: string): number {
+  const parsed = Number.parseFloat(price)
+  if (Number.isNaN(parsed)) return 0
+  return Math.round(parsed * 100)
+}
+
 export function ServiceFormDialog({ mode, isOpen, onClose, onSubmit, service }: ServiceFormDialogProps) {
   const { t } = useTranslation('services')
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [duration, setDuration] = useState('')
-  const [price, setPrice] = useState('')
+  const [priceInCents, setPriceInCents] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   useEffect(() => {
@@ -49,12 +57,12 @@ export function ServiceFormDialog({ mode, isOpen, onClose, onSubmit, service }: 
       setName(service.name)
       setDescription(service.description)
       setDuration(String(service.durationMinutes))
-      setPrice(service.price)
+      setPriceInCents(priceToCents(service.price))
     } else if (isOpen && mode === 'create') {
       setName('')
       setDescription('')
       setDuration('')
-      setPrice('')
+      setPriceInCents(0)
     }
     setFormError(null)
   }, [isOpen, mode, service])
@@ -70,7 +78,7 @@ export function ServiceFormDialog({ mode, isOpen, onClose, onSubmit, service }: 
       setFormError(t('form.errors.durationInvalid'))
       return
     }
-    if (!price.trim() || !/^\d+\.\d{2}$/.test(price)) {
+    if (priceInCents <= 0) {
       setFormError(t('form.errors.priceInvalid'))
       return
     }
@@ -80,7 +88,7 @@ export function ServiceFormDialog({ mode, isOpen, onClose, onSubmit, service }: 
         name: name.trim(),
         description: description.trim() || undefined,
         duration: durationNum,
-        price,
+        price: parseCurrencyInput(priceInCents),
       })
     } catch (err) {
       const errorKey = mode === 'create' ? 'form.errors.createFailed' : 'form.errors.updateFailed'
@@ -91,7 +99,7 @@ export function ServiceFormDialog({ mode, isOpen, onClose, onSubmit, service }: 
   }
   return (
     <Dialog open={isOpen} onOpenChange={(open: boolean) => !open && onClose()}>
-      <DialogContent>
+      <DialogContent className="max-h-screen overflow-y-auto max-sm:h-full max-sm:max-w-full max-sm:rounded-none max-sm:border-0">
         <DialogHeader>
           <DialogTitle>{mode === 'create' ? t('form.createTitle') : t('form.editTitle')}</DialogTitle>
         </DialogHeader>
@@ -138,11 +146,10 @@ export function ServiceFormDialog({ mode, isOpen, onClose, onSubmit, service }: 
           </div>
           <div className="space-y-2">
             <Label htmlFor="service-price">{t('form.price')}</Label>
-            <Input
+            <CurrencyInput
               id="service-price"
-              value={price}
-              onChange={e => setPrice(e.target.value)}
-              placeholder="50.00"
+              value={priceInCents}
+              onChange={setPriceInCents}
               required
               data-testid="price-input"
             />

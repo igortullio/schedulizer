@@ -30,7 +30,10 @@ export function CancelSubscriptionDialog({
   const formattedDate = formatDate(periodEnd, i18n.language)
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent data-testid="cancel-subscription-dialog">
+      <DialogContent
+        className="max-h-screen overflow-y-auto max-sm:h-full max-sm:max-w-full max-sm:rounded-none max-sm:border-0"
+        data-testid="cancel-subscription-dialog"
+      >
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <AlertTriangle className="h-5 w-5 text-destructive" aria-hidden="true" />

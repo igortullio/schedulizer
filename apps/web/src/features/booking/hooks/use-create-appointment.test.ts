@@ -54,7 +54,7 @@ describe('useCreateAppointment', () => {
     expect(created).toEqual(mockAppointmentResult)
     expect(mockFetch).toHaveBeenCalledWith('http://localhost:3000/api/booking/test-org/appointments', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Accept-Language': 'pt-BR' },
       body: JSON.stringify(mockAppointmentData),
     })
   })
@@ -100,6 +100,57 @@ describe('useCreateAppointment', () => {
     expect(result.current.state).toBe('error')
     expect(result.current.error).toBe('Network error')
     expect(created).toBeNull()
+  })
+
+  it('sends Accept-Language: pt-BR header when locale is pt-BR', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      status: 201,
+      json: () => Promise.resolve({ data: mockAppointmentResult }),
+    })
+    const { result } = renderHook(() => useCreateAppointment())
+    await act(async () => {
+      await result.current.createAppointment('test-org', mockAppointmentData, 'pt-BR')
+    })
+    expect(mockFetch).toHaveBeenCalledWith('http://localhost:3000/api/booking/test-org/appointments', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept-Language': 'pt-BR' },
+      body: JSON.stringify(mockAppointmentData),
+    })
+  })
+
+  it('sends Accept-Language: en header when locale is en', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      status: 201,
+      json: () => Promise.resolve({ data: mockAppointmentResult }),
+    })
+    const { result } = renderHook(() => useCreateAppointment())
+    await act(async () => {
+      await result.current.createAppointment('test-org', mockAppointmentData, 'en')
+    })
+    expect(mockFetch).toHaveBeenCalledWith('http://localhost:3000/api/booking/test-org/appointments', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept-Language': 'en' },
+      body: JSON.stringify(mockAppointmentData),
+    })
+  })
+
+  it('defaults Accept-Language to pt-BR when no locale is provided', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      status: 201,
+      json: () => Promise.resolve({ data: mockAppointmentResult }),
+    })
+    const { result } = renderHook(() => useCreateAppointment())
+    await act(async () => {
+      await result.current.createAppointment('test-org', mockAppointmentData)
+    })
+    expect(mockFetch).toHaveBeenCalledWith('http://localhost:3000/api/booking/test-org/appointments', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept-Language': 'pt-BR' },
+      body: JSON.stringify(mockAppointmentData),
+    })
   })
 
   it('resets error when creating new appointment', async () => {

@@ -1,6 +1,8 @@
 import { clientEnv } from '@schedulizer/env/client'
 import { useCallback, useState } from 'react'
 
+const DEFAULT_LOCALE = 'pt-BR'
+
 interface CreateAppointmentData {
   serviceId: string
   startTime: string
@@ -23,7 +25,7 @@ interface UseCreateAppointmentReturn {
   result: AppointmentResult | null
   state: CreateState
   error: string | null
-  createAppointment: (slug: string, data: CreateAppointmentData) => Promise<AppointmentResult | null>
+  createAppointment: (slug: string, data: CreateAppointmentData, locale?: string) => Promise<AppointmentResult | null>
 }
 
 export function useCreateAppointment(): UseCreateAppointmentReturn {
@@ -31,13 +33,13 @@ export function useCreateAppointment(): UseCreateAppointmentReturn {
   const [state, setState] = useState<CreateState>('idle')
   const [error, setError] = useState<string | null>(null)
   const createAppointment = useCallback(
-    async (slug: string, data: CreateAppointmentData): Promise<AppointmentResult | null> => {
+    async (slug: string, data: CreateAppointmentData, locale?: string): Promise<AppointmentResult | null> => {
       setState('loading')
       setError(null)
       try {
         const response = await fetch(`${clientEnv.apiUrl}/api/booking/${slug}/appointments`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'Accept-Language': locale ?? DEFAULT_LOCALE },
           body: JSON.stringify(data),
         })
         if (response.status === 409) {

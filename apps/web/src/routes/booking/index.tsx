@@ -19,7 +19,7 @@ type BookingStep = 'services' | 'slots' | 'form' | 'confirmation'
 
 export function Component() {
   const { slug = '' } = useParams<{ slug: string }>()
-  const { t } = useTranslation('booking')
+  const { t, i18n } = useTranslation('booking')
   const { data, state: pageState } = useBookingPage(slug)
   const { slots, state: slotsState, error: slotsError, fetchSlots } = useSlots()
   const {
@@ -52,13 +52,17 @@ export function Component() {
   async function handleSubmitBooking(formData: { customerName: string; customerEmail: string; customerPhone: string }) {
     if (!selectedService || !selectedSlot) return
     setCustomerName(formData.customerName)
-    const result = await createAppointment(slug, {
-      serviceId: selectedService.id,
-      startTime: selectedSlot.startTime,
-      customerName: formData.customerName,
-      customerEmail: formData.customerEmail,
-      customerPhone: formData.customerPhone,
-    })
+    const result = await createAppointment(
+      slug,
+      {
+        serviceId: selectedService.id,
+        startTime: selectedSlot.startTime,
+        customerName: formData.customerName,
+        customerEmail: formData.customerEmail,
+        customerPhone: formData.customerPhone,
+      },
+      i18n.language,
+    )
     if (result) {
       setStep('confirmation')
     }

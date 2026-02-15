@@ -13,5 +13,11 @@
     "delete": "Delete",
     "edit": "Edit",
     "back": "Back"
+  },
+  "subscription": {
+    "banner": {
+      "message": "You don't have an active subscription. Subscribe to a plan to unlock all features.",
+      "cta": "View Plans"
+    }
   }
 }

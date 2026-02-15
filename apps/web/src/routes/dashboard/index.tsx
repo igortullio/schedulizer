@@ -15,6 +15,7 @@ import { Loader2, Plus } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
+import { useSubscriptionContext } from '@/contexts/subscription-context'
 import { CalendarView, useAppointments } from '@/features/appointments'
 import { TimeBlockFormDialog, useTimeBlocks } from '@/features/time-blocks'
 import { getLocale } from '@/lib/format'
@@ -49,6 +50,7 @@ function formatShortDate(dateString: string, locale: string): string {
 
 export function Component() {
   const { t, i18n } = useTranslation('dashboard')
+  const { hasActiveSubscription, isLoading: isSubscriptionLoading } = useSubscriptionContext()
   const { appointments, state: appointmentsState } = useAppointments()
   const todayRange = useMemo(getTodayRange, [])
   const timeBlockRange = useMemo(getTimeBlockRange, [])
@@ -58,6 +60,7 @@ export function Component() {
   const pendingAppointments = appointments.filter(a => a.status === 'pending')
   const locale = getLocale(i18n.language)
   const [isTimeBlockDialogOpen, setIsTimeBlockDialogOpen] = useState(false)
+  const isBlocked = !isSubscriptionLoading && !hasActiveSubscription
   async function handleCreateTimeBlock(data: { date: string; startTime: string; endTime: string; reason?: string }) {
     await createTimeBlock(data)
     setIsTimeBlockDialogOpen(false)
@@ -146,6 +149,7 @@ export function Component() {
                       size="icon"
                       className="h-6 w-6"
                       onClick={() => setIsTimeBlockDialogOpen(true)}
+                      disabled={isBlocked}
                       data-testid="dashboard-create-time-block"
                     >
                       <Plus className="h-4 w-4" aria-hidden="true" />

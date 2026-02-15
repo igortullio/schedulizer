@@ -1,7 +1,16 @@
-import { Alert, AlertDescription, Button } from '@igortullio-ui/react'
+import {
+  Alert,
+  AlertDescription,
+  Button,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@igortullio-ui/react'
 import { Loader2, Plus } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useSubscriptionContext } from '@/contexts/subscription-context'
 import { TimeBlockCard, TimeBlockFormDialog, useTimeBlocks } from '@/features/time-blocks'
 
 const DAYS_RANGE = 90
@@ -24,9 +33,12 @@ interface TimeBlockFormData {
 
 export function Component() {
   const { t } = useTranslation('timeBlocks')
+  const { t: tCommon } = useTranslation('common')
+  const { hasActiveSubscription, isLoading: isSubscriptionLoading } = useSubscriptionContext()
   const { from, to } = useMemo(getDateRange, [])
   const { timeBlocks, state, error, createTimeBlock, deleteTimeBlock } = useTimeBlocks(from, to)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const isBlocked = !isSubscriptionLoading && !hasActiveSubscription
   async function handleCreateSubmit(data: TimeBlockFormData) {
     await createTimeBlock(data)
     setIsDialogOpen(false)
@@ -45,17 +57,26 @@ export function Component() {
           <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">{t('title')}</h1>
           <p className="mt-2 text-muted-foreground">{t('description')}</p>
         </div>
-        <Button onClick={() => setIsDialogOpen(true)} data-testid="add-time-block-button">
-          <Plus className="h-4 w-4" aria-hidden="true" />
-          {t('actions.create')}
-        </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span>
+                <Button onClick={() => setIsDialogOpen(true)} disabled={isBlocked} data-testid="add-time-block-button">
+                  <Plus className="h-4 w-4" aria-hidden="true" />
+                  {t('actions.create')}
+                </Button>
+              </span>
+            </TooltipTrigger>
+            {isBlocked ? <TooltipContent>{tCommon('subscription.banner.message')}</TooltipContent> : null}
+          </Tooltip>
+        </TooltipProvider>
       </div>
       <TimeBlockFormDialog isOpen={isDialogOpen} onClose={() => setIsDialogOpen(false)} onSubmit={handleCreateSubmit} />
       {state === 'loading' ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
         </div>
-      ) : error ? (
+      ) : error && !isBlocked ? (
         <Alert variant="destructive" className="border-0 bg-destructive/10 text-center" data-testid="error-message">
           <AlertDescription>{error}</AlertDescription>
         </Alert>

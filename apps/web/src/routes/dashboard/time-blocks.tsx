@@ -64,7 +64,7 @@ export function Component() {
           <p className="text-muted-foreground">{t('emptyState')}</p>
         </div>
       ) : (
-        <div className="space-y-3" data-testid="time-blocks-list">
+        <div className="grid gap-4" data-testid="time-blocks-list">
           {timeBlocks.map(block => (
             <TimeBlockCard
               key={block.id}

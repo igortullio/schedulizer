@@ -28,12 +28,14 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { LanguageSelector } from '@/components/language-selector'
+import { useServices } from '@/features/services'
 import { authClient, signOut } from '@/lib/auth-client'
 
 interface NavItem {
   to: string
   label: string
   icon: React.ReactNode
+  badge?: number
 }
 
 interface SidebarProps {
@@ -48,9 +50,15 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isOrgPopoverOpen, setIsOrgPopoverOpen] = useState(false)
   const { data: organizations, isPending: isLoadingOrgs } = authClient.useListOrganizations()
+  const { services } = useServices()
   const navItems: NavItem[] = [
     { to: '/dashboard', label: t('sidebar.overview'), icon: <LayoutDashboard className="h-5 w-5" /> },
-    { to: '/dashboard/services', label: t('sidebar.services'), icon: <Package className="h-5 w-5" /> },
+    {
+      to: '/dashboard/services',
+      label: t('sidebar.services'),
+      icon: <Package className="h-5 w-5" />,
+      badge: services.length,
+    },
     { to: '/dashboard/appointments', label: t('sidebar.appointments'), icon: <CalendarDays className="h-5 w-5" /> },
     { to: '/dashboard/time-blocks', label: t('sidebar.timeBlocks'), icon: <Clock className="h-5 w-5" /> },
   ]
@@ -148,16 +156,21 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
                 </TooltipTrigger>
                 <TooltipContent side="right">{organizationName}</TooltipContent>
               </Tooltip>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={toggleCollapsed}
-                className="hidden w-full text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground md:flex"
-                aria-label="Expand sidebar"
-                data-testid="sidebar-collapse-toggle"
-              >
-                <PanelLeftOpen className="h-5 w-5" />
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={toggleCollapsed}
+                    className="hidden w-full text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground md:flex"
+                    aria-label={t('sidebar.expand')}
+                    data-testid="sidebar-collapse-toggle"
+                  >
+                    <PanelLeftOpen className="h-5 w-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right">{t('sidebar.expand')}</TooltipContent>
+              </Tooltip>
             </>
           ) : (
             <>
@@ -185,16 +198,21 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
               >
                 <X className="h-5 w-5" />
               </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={toggleCollapsed}
-                className="hidden h-auto w-auto p-1 text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground md:block"
-                aria-label="Collapse sidebar"
-                data-testid="sidebar-collapse-toggle"
-              >
-                <PanelLeftClose className="h-5 w-5" />
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={toggleCollapsed}
+                    className="hidden h-auto w-auto p-1 text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground md:block"
+                    aria-label={t('sidebar.collapse')}
+                    data-testid="sidebar-collapse-toggle"
+                  >
+                    <PanelLeftClose className="h-5 w-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">{t('sidebar.collapse')}</TooltipContent>
+              </Tooltip>
             </>
           )}
         </div>
@@ -206,7 +224,7 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
             isCollapsed ? (
               <Tooltip key={item.to}>
                 <TooltipTrigger asChild>
-                  <span>
+                  <span className="relative">
                     <NavLink
                       to={item.to}
                       end={item.to === '/dashboard'}
@@ -217,6 +235,11 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
                     >
                       {item.icon}
                     </NavLink>
+                    {item.badge ? (
+                      <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-medium text-primary-foreground">
+                        {item.badge}
+                      </span>
+                    ) : null}
                   </span>
                 </TooltipTrigger>
                 <TooltipContent side="right">{item.label}</TooltipContent>
@@ -233,6 +256,11 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
               >
                 {item.icon}
                 {item.label}
+                {item.badge ? (
+                  <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-primary/15 px-1.5 text-xs font-medium text-primary">
+                    {item.badge}
+                  </span>
+                ) : null}
               </NavLink>
             ),
           )}
@@ -267,7 +295,7 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
                     className="w-full justify-center gap-3 px-0 py-2 text-sm font-medium text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                     data-testid="sign-out-button"
                   >
-                    <LogOut className="h-5 w-5" />
+                    <LogOut className="size-5!" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="right">{t('sidebar.signOut')}</TooltipContent>
@@ -292,7 +320,7 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
                 className="w-full justify-start gap-3 px-3 py-2 text-sm font-medium text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                 data-testid="sign-out-button"
               >
-                <LogOut className="h-5 w-5" />
+                <LogOut className="size-5!" />
                 {t('sidebar.signOut')}
               </Button>
             </>

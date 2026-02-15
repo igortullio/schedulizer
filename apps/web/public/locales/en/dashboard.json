@@ -5,29 +5,21 @@
     "appointments": "Appointments",
     "timeBlocks": "Time Blocks",
     "settings": "Settings",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar"
   },
   "overview": {
     "title": "Overview",
-    "totalServices": "Total Services",
     "todayAppointments": "Today's Appointments",
     "pendingAppointments": "Pending",
-    "activeTimeBlocks": "Time Blocks",
-    "quickActions": "Quick Actions",
-    "createService": "Create Service",
-    "viewAppointments": "View Appointments"
+    "activeTimeBlocks": "Time Blocks"
   },
   "sections": {
-    "services": "Services",
-    "appointments": "Appointments",
-    "timeBlocks": "Time Blocks",
     "viewAll": "View all",
-    "noServices": "No services registered.",
-    "noAppointments": "No appointments found.",
     "noTodayAppointments": "No appointments for today.",
     "noPending": "No pending appointments.",
     "noTimeBlocks": "No time blocks registered.",
-    "newService": "New service",
     "newTimeBlock": "New time block"
   }
 }

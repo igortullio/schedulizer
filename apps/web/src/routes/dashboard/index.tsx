@@ -11,16 +11,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@igortullio-ui/react'
-import { Calendar, Loader2, Pencil, Plus, Power, Trash2 } from 'lucide-react'
+import { Loader2, Plus } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { CalendarView, useAppointments } from '@/features/appointments'
-import { ScheduleDialog } from '@/features/schedules/components/schedule-dialog'
-import { useServices } from '@/features/services'
-import { ServiceFormDialog } from '@/features/services/components/service-form-dialog'
 import { TimeBlockFormDialog, useTimeBlocks } from '@/features/time-blocks'
-import { formatPrice, getLocale } from '@/lib/format'
+import { getLocale } from '@/lib/format'
 
 const DAYS_RANGE = 90
 const MAX_CARD_ITEMS = 3
@@ -50,76 +47,17 @@ function formatShortDate(dateString: string, locale: string): string {
   return date.toLocaleDateString(locale, { day: '2-digit', month: '2-digit' })
 }
 
-interface EditingService {
-  id: string
-  name: string
-  description: string | null
-  durationMinutes: number
-  price: string | null
-}
-
 export function Component() {
   const { t, i18n } = useTranslation('dashboard')
-  const { t: tServices } = useTranslation('services')
-  const { services, state: servicesState, createService, updateService, deleteService, toggleActive } = useServices()
   const { appointments, state: appointmentsState } = useAppointments()
   const todayRange = useMemo(getTodayRange, [])
   const timeBlockRange = useMemo(getTimeBlockRange, [])
   const { timeBlocks, state: timeBlocksState, createTimeBlock } = useTimeBlocks(timeBlockRange.from, timeBlockRange.to)
-  const isLoading = servicesState === 'loading' || appointmentsState === 'loading' || timeBlocksState === 'loading'
+  const isLoading = appointmentsState === 'loading' || timeBlocksState === 'loading'
   const todayAppointments = appointments.filter(a => a.startDatetime.startsWith(todayRange.from))
   const pendingAppointments = appointments.filter(a => a.status === 'pending')
   const locale = getLocale(i18n.language)
-  const [isCreateServiceOpen, setIsCreateServiceOpen] = useState(false)
-  const [editingService, setEditingService] = useState<EditingService | null>(null)
-  const [scheduleService, setScheduleService] = useState<{ id: string; name: string } | null>(null)
   const [isTimeBlockDialogOpen, setIsTimeBlockDialogOpen] = useState(false)
-  function handleEditService(id: string) {
-    const service = services.find(s => s.id === id)
-    if (!service) return
-    setEditingService(service)
-  }
-  async function handleDeleteService(id: string) {
-    try {
-      await deleteService(id)
-    } catch {
-      // Error handled in hook
-    }
-  }
-  async function handleToggleActive(id: string, active: boolean) {
-    try {
-      await toggleActive(id, active)
-    } catch {
-      // Error handled in hook
-    }
-  }
-  function handleSchedule(id: string) {
-    const service = services.find(s => s.id === id)
-    if (!service) return
-    setScheduleService({ id: service.id, name: service.name })
-  }
-  async function handleCreateServiceSubmit(data: {
-    name: string
-    description?: string
-    duration: number
-    price: string
-  }) {
-    const created = await createService(data)
-    setIsCreateServiceOpen(false)
-    if (created) {
-      setScheduleService({ id: created.id, name: created.name })
-    }
-  }
-  async function handleEditServiceSubmit(data: {
-    name: string
-    description?: string
-    duration: number
-    price: string
-  }) {
-    if (!editingService) return
-    await updateService(editingService.id, data)
-    setEditingService(null)
-  }
   async function handleCreateTimeBlock(data: { date: string; startTime: string; endTime: string; reason?: string }) {
     await createTimeBlock(data)
     setIsTimeBlockDialogOpen(false)
@@ -133,114 +71,7 @@ export function Component() {
   }
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" data-testid="stats-grid">
-        <Card className="flex flex-col gap-0 py-3">
-          <CardHeader className="items-center px-3 pb-2">
-            <CardTitle className="flex items-center gap-2 text-sm font-medium">
-              {t('sections.services')}
-              <Badge variant="secondary">{services.length}</Badge>
-            </CardTitle>
-            <CardAction className="flex items-center gap-1">
-              <Button variant="link" size="sm" className="h-auto p-0 text-xs" asChild>
-                <Link to="/dashboard/services">{t('sections.viewAll')}</Link>
-              </Button>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6"
-                      onClick={() => setIsCreateServiceOpen(true)}
-                      data-testid="dashboard-create-service"
-                    >
-                      <Plus className="h-4 w-4" aria-hidden="true" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>{t('sections.newService')}</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </CardAction>
-          </CardHeader>
-          <CardContent className="px-3">
-            {services.length === 0 ? (
-              <p className="text-sm text-muted-foreground">{t('sections.noServices')}</p>
-            ) : (
-              <ul className="space-y-2">
-                {services.slice(0, MAX_CARD_ITEMS).map(service => (
-                  <li key={service.id} className="flex items-center justify-between gap-1">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm">{service.name}</p>
-                      {service.price ? (
-                        <p className="text-xs text-muted-foreground">
-                          {formatPrice(Number(service.price), i18n.language)}
-                        </p>
-                      ) : null}
-                    </div>
-                    <TooltipProvider>
-                      <div className="flex shrink-0 items-center">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-6 w-6"
-                              onClick={() => handleEditService(service.id)}
-                            >
-                              <Pencil className="h-3 w-3" aria-hidden="true" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>{tServices('actions.edit')}</TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-6 w-6"
-                              onClick={() => handleSchedule(service.id)}
-                            >
-                              <Calendar className="h-3 w-3" aria-hidden="true" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>{tServices('actions.schedule')}</TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-6 w-6"
-                              onClick={() => handleToggleActive(service.id, !service.active)}
-                            >
-                              <Power className="h-3 w-3" aria-hidden="true" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            {service.active ? tServices('actions.deactivate') : tServices('actions.activate')}
-                          </TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-6 w-6"
-                              onClick={() => handleDeleteService(service.id)}
-                            >
-                              <Trash2 className="h-3 w-3" aria-hidden="true" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>{tServices('actions.delete')}</TooltipContent>
-                        </Tooltip>
-                      </div>
-                    </TooltipProvider>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" data-testid="stats-grid">
         <Card className="flex flex-col gap-0 py-3">
           <CardHeader className="items-center px-3 pb-2">
             <CardTitle className="flex items-center gap-2 text-sm font-medium">
@@ -345,34 +176,6 @@ export function Component() {
         </Card>
       </div>
       <CalendarView appointments={appointments} timeBlocks={timeBlocks} />
-      <ServiceFormDialog
-        mode="create"
-        isOpen={isCreateServiceOpen}
-        onClose={() => setIsCreateServiceOpen(false)}
-        onSubmit={handleCreateServiceSubmit}
-      />
-      {editingService ? (
-        <ServiceFormDialog
-          mode="edit"
-          isOpen={true}
-          onClose={() => setEditingService(null)}
-          onSubmit={handleEditServiceSubmit}
-          service={{
-            name: editingService.name,
-            description: editingService.description ?? '',
-            durationMinutes: editingService.durationMinutes,
-            price: editingService.price ?? '',
-          }}
-        />
-      ) : null}
-      {scheduleService ? (
-        <ScheduleDialog
-          serviceId={scheduleService.id}
-          serviceName={scheduleService.name}
-          isOpen={true}
-          onClose={() => setScheduleService(null)}
-        />
-      ) : null}
       <TimeBlockFormDialog
         isOpen={isTimeBlockDialogOpen}
         onClose={() => setIsTimeBlockDialogOpen(false)}

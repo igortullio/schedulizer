@@ -27,7 +27,7 @@ export function LanguageSelector({ isCollapsed = false }: LanguageSelectorProps)
       data-testid="language-selector"
       aria-label="Select language"
     >
-      <Globe className="h-5 w-5" aria-hidden="true" />
+      <Globe className="size-5!" aria-hidden="true" />
       {isCollapsed ? null : <span data-testid="language-label">{currentLanguage.label}</span>}
     </Button>
   )

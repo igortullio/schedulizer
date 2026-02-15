@@ -1,11 +1,8 @@
-import { Alert, AlertDescription, Badge, Tabs, TabsContent, TabsList, TabsTrigger } from '@igortullio-ui/react'
+import { Alert, AlertDescription, Badge } from '@igortullio-ui/react'
 import type { AppointmentStatus } from '@schedulizer/shared-types'
-import { addMonths, endOfMonth, format, startOfMonth, subMonths } from 'date-fns'
-import { CalendarDays, List, Loader2 } from 'lucide-react'
-import { useMemo } from 'react'
+import { Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { AppointmentCard, CalendarView, useAppointments } from '@/features/appointments'
-import { useTimeBlocks } from '@/features/time-blocks'
+import { AppointmentCard, useAppointments } from '@/features/appointments'
 
 const STATUS_OPTIONS: (AppointmentStatus | 'all')[] = [
   'all',
@@ -44,14 +41,6 @@ export function Component() {
     markNoShow,
     cancelAppointment,
   } = useAppointments()
-  const timeBlockRange = useMemo(() => {
-    const now = new Date()
-    return {
-      from: format(startOfMonth(subMonths(now, 1)), 'yyyy-MM-dd'),
-      to: format(endOfMonth(addMonths(now, 1)), 'yyyy-MM-dd'),
-    }
-  }, [])
-  const { timeBlocks } = useTimeBlocks(timeBlockRange.from, timeBlockRange.to)
   const isLoading = state === 'loading'
   function handleStatusFilter(status: AppointmentStatus | 'all') {
     const current = filters.status
@@ -114,63 +103,40 @@ export function Component() {
         <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">{t('title')}</h1>
         <p className="mt-2 text-muted-foreground">{t('description')}</p>
       </div>
-      <Tabs defaultValue="list">
-        <TabsList>
-          <TabsTrigger value="list" data-testid="view-list-button">
-            <List className="h-4 w-4" aria-hidden="true" />
-            {t('viewList')}
-          </TabsTrigger>
-          <TabsTrigger value="calendar" data-testid="view-calendar-button">
-            <CalendarDays className="h-4 w-4" aria-hidden="true" />
-            {t('viewCalendar')}
-          </TabsTrigger>
-        </TabsList>
-        <div className="mt-6">
-          {statusBadges}
-          {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
-            </div>
-          ) : error ? (
-            <Alert variant="destructive" className="border-0 bg-destructive/10 text-center" data-testid="error-message">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          ) : (
-            <>
-              <TabsContent value="list" className="mt-0">
-                {appointments.length === 0 ? (
-                  <div className="rounded-md border border-dashed p-12 text-center" data-testid="empty-state">
-                    <p className="text-muted-foreground">{t('emptyState')}</p>
-                  </div>
-                ) : (
-                  <div className="grid gap-4" data-testid="appointments-list">
-                    {appointments.map(appointment => (
-                      <AppointmentCard
-                        key={appointment.id}
-                        id={appointment.id}
-                        customerName={appointment.customerName}
-                        customerEmail={appointment.customerEmail}
-                        customerPhone={appointment.customerPhone}
-                        serviceName={appointment.serviceName}
-                        startDatetime={appointment.startDatetime}
-                        endDatetime={appointment.endDatetime}
-                        status={appointment.status}
-                        onConfirm={handleConfirm}
-                        onComplete={handleComplete}
-                        onNoShow={handleNoShow}
-                        onCancel={handleCancel}
-                      />
-                    ))}
-                  </div>
-                )}
-              </TabsContent>
-              <TabsContent value="calendar" className="mt-0">
-                <CalendarView appointments={appointments} timeBlocks={timeBlocks} />
-              </TabsContent>
-            </>
-          )}
+      {statusBadges}
+      {isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
         </div>
-      </Tabs>
+      ) : error ? (
+        <Alert variant="destructive" className="border-0 bg-destructive/10 text-center" data-testid="error-message">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      ) : appointments.length === 0 ? (
+        <div className="rounded-md border border-dashed p-12 text-center" data-testid="empty-state">
+          <p className="text-muted-foreground">{t('emptyState')}</p>
+        </div>
+      ) : (
+        <div className="grid gap-4" data-testid="appointments-list">
+          {appointments.map(appointment => (
+            <AppointmentCard
+              key={appointment.id}
+              id={appointment.id}
+              customerName={appointment.customerName}
+              customerEmail={appointment.customerEmail}
+              customerPhone={appointment.customerPhone}
+              serviceName={appointment.serviceName}
+              startDatetime={appointment.startDatetime}
+              endDatetime={appointment.endDatetime}
+              status={appointment.status}
+              onConfirm={handleConfirm}
+              onComplete={handleComplete}
+              onNoShow={handleNoShow}
+              onCancel={handleCancel}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }

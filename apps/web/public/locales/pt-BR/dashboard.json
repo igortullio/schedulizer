@@ -5,29 +5,21 @@
     "appointments": "Agendamentos",
     "timeBlocks": "Bloqueios",
     "settings": "Configurações",
-    "signOut": "Sair"
+    "signOut": "Sair",
+    "collapse": "Recolher sidebar",
+    "expand": "Expandir sidebar"
   },
   "overview": {
     "title": "Visão Geral",
-    "totalServices": "Total de Serviços",
     "todayAppointments": "Agendamentos Hoje",
     "pendingAppointments": "Pendentes",
-    "activeTimeBlocks": "Bloqueios",
-    "quickActions": "Ações Rápidas",
-    "createService": "Criar Serviço",
-    "viewAppointments": "Ver Agendamentos"
+    "activeTimeBlocks": "Bloqueios"
   },
   "sections": {
-    "services": "Serviços",
-    "appointments": "Agendamentos",
-    "timeBlocks": "Bloqueios de Horário",
     "viewAll": "Ver todos",
-    "noServices": "Nenhum serviço cadastrado.",
-    "noAppointments": "Nenhum agendamento encontrado.",
     "noTodayAppointments": "Nenhum agendamento para hoje.",
     "noPending": "Nenhum agendamento pendente.",
     "noTimeBlocks": "Nenhum bloqueio cadastrado.",
-    "newService": "Novo serviço",
     "newTimeBlock": "Novo bloqueio"
   }
 }

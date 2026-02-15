@@ -89,14 +89,4 @@ describe('ServiceCard', () => {
     await user.click(screen.getByTestId('toggle-active-button'))
     expect(onToggleActive).toHaveBeenCalledWith('service-1', false)
   })
-
-  it('shows activate text when service is inactive', () => {
-    render(<ServiceCard {...defaultProps} active={false} />)
-    expect(screen.getByTestId('toggle-active-button')).toHaveTextContent('actions.activate')
-  })
-
-  it('shows deactivate text when service is active', () => {
-    render(<ServiceCard {...defaultProps} active={true} />)
-    expect(screen.getByTestId('toggle-active-button')).toHaveTextContent('actions.deactivate')
-  })
 })

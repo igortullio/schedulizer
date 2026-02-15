@@ -179,6 +179,10 @@ describe('Organizations Schema', () => {
   it('should have timezone column', () => {
     expect(organizations).toHaveProperty('timezone')
   })
+
+  it('should have language column', () => {
+    expect(organizations).toHaveProperty('language')
+  })
 })
 
 describe('Schedules Schema', () => {
@@ -231,6 +235,10 @@ describe('Appointments Schema', () => {
     expect(appointments).toHaveProperty('managementToken')
     expect(appointments).toHaveProperty('reminderSentAt')
     expect(appointments).toHaveProperty('customerPhone')
+  })
+
+  it('should have language column', () => {
+    expect(appointments).toHaveProperty('language')
   })
 
   it('should not have old columns', () => {
@@ -334,5 +342,33 @@ describe('Scheduling Migration (0004)', () => {
     expect(migrationContent).toContain('ALTER TABLE "appointments" DROP COLUMN "customer_id"')
     expect(migrationContent).toContain('ALTER TABLE "appointments" DROP COLUMN "start_time"')
     expect(migrationContent).toContain('ALTER TABLE "appointments" DROP COLUMN "end_time"')
+  })
+})
+
+describe('Language Migration (0005)', () => {
+  const migrationPath = resolve(__dirname, '../drizzle/0005_giant_groot.sql')
+
+  it('should have generated migration file', () => {
+    expect(existsSync(migrationPath)).toBe(true)
+  })
+
+  it('should add language column to appointments', () => {
+    const migrationContent = readFileSync(migrationPath, 'utf-8')
+    expect(migrationContent).toContain('ALTER TABLE "appointments" ADD COLUMN "language" text')
+  })
+
+  it('should add language column to organizations', () => {
+    const migrationContent = readFileSync(migrationPath, 'utf-8')
+    expect(migrationContent).toContain('ALTER TABLE "organizations" ADD COLUMN "language" text')
+  })
+
+  it('should have pt-BR as default value', () => {
+    const migrationContent = readFileSync(migrationPath, 'utf-8')
+    expect(migrationContent).toContain("DEFAULT 'pt-BR'")
+  })
+
+  it('should have NOT NULL constraint', () => {
+    const migrationContent = readFileSync(migrationPath, 'utf-8')
+    expect(migrationContent).toContain('NOT NULL')
   })
 })

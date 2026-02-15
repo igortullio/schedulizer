@@ -1,6 +1,8 @@
 import { clientEnv } from '@schedulizer/env/client'
 import { useCallback, useEffect, useState } from 'react'
 
+const DEFAULT_LOCALE = 'pt-BR'
+
 export interface AppointmentDetails {
   id: string
   serviceId: string
@@ -17,8 +19,8 @@ interface UseManageAppointmentReturn {
   appointment: AppointmentDetails | null
   state: ManageState
   error: string | null
-  cancelAppointment: () => Promise<boolean>
-  rescheduleAppointment: (startTime: string) => Promise<boolean>
+  cancelAppointment: (locale?: string) => Promise<boolean>
+  rescheduleAppointment: (startTime: string, locale?: string) => Promise<boolean>
   refetch: () => Promise<void>
 }
 
@@ -54,33 +56,37 @@ export function useManageAppointment(slug: string, token: string): UseManageAppo
   useEffect(() => {
     fetchAppointment()
   }, [fetchAppointment])
-  const cancelAppointment = useCallback(async (): Promise<boolean> => {
-    try {
-      const response = await fetch(`${clientEnv.apiUrl}/api/booking/${slug}/manage/${token}/cancel`, {
-        method: 'POST',
-      })
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error?.message ?? 'Failed to cancel appointment')
+  const cancelAppointment = useCallback(
+    async (locale?: string): Promise<boolean> => {
+      try {
+        const response = await fetch(`${clientEnv.apiUrl}/api/booking/${slug}/manage/${token}/cancel`, {
+          method: 'POST',
+          headers: { 'Accept-Language': locale ?? DEFAULT_LOCALE },
+        })
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(errorData.error?.message ?? 'Failed to cancel appointment')
+        }
+        await fetchAppointment()
+        return true
+      } catch (err) {
+        console.error('Failed to cancel appointment', {
+          slug,
+          token,
+          error: err instanceof Error ? err.message : 'Unknown error',
+        })
+        setError(err instanceof Error ? err.message : 'Failed to cancel appointment')
+        return false
       }
-      await fetchAppointment()
-      return true
-    } catch (err) {
-      console.error('Failed to cancel appointment', {
-        slug,
-        token,
-        error: err instanceof Error ? err.message : 'Unknown error',
-      })
-      setError(err instanceof Error ? err.message : 'Failed to cancel appointment')
-      return false
-    }
-  }, [slug, token, fetchAppointment])
+    },
+    [slug, token, fetchAppointment],
+  )
   const rescheduleAppointment = useCallback(
-    async (startTime: string): Promise<boolean> => {
+    async (startTime: string, locale?: string): Promise<boolean> => {
       try {
         const response = await fetch(`${clientEnv.apiUrl}/api/booking/${slug}/manage/${token}/reschedule`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'Accept-Language': locale ?? DEFAULT_LOCALE },
           body: JSON.stringify({ startTime }),
         })
         if (response.status === 409) {

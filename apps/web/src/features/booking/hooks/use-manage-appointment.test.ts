@@ -86,6 +86,30 @@ describe('useManageAppointment', () => {
       expect(success).toBe(true)
       expect(mockFetch).toHaveBeenCalledWith('http://localhost:3000/api/booking/test-org/manage/token-123/cancel', {
         method: 'POST',
+        headers: { 'Accept-Language': 'pt-BR' },
+      })
+    })
+
+    it('sends Accept-Language header with provided locale on cancel', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({ data: mockAppointment }),
+      })
+      const { result } = renderHook(() => useManageAppointment('test-org', 'token-123'))
+      await waitFor(() => expect(result.current.state).toBe('success'))
+      mockFetch.mockResolvedValueOnce({ ok: true })
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({ data: { ...mockAppointment, status: 'cancelled' } }),
+      })
+      await act(async () => {
+        await result.current.cancelAppointment('en')
+      })
+      expect(mockFetch).toHaveBeenCalledWith('http://localhost:3000/api/booking/test-org/manage/token-123/cancel', {
+        method: 'POST',
+        headers: { 'Accept-Language': 'en' },
       })
     })
 
@@ -135,7 +159,34 @@ describe('useManageAppointment', () => {
       expect(success).toBe(true)
       expect(mockFetch).toHaveBeenCalledWith('http://localhost:3000/api/booking/test-org/manage/token-123/reschedule', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Accept-Language': 'pt-BR' },
+        body: JSON.stringify({ startTime: '2025-01-16T10:00:00Z' }),
+      })
+    })
+
+    it('sends Accept-Language header with provided locale on reschedule', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({ data: mockAppointment }),
+      })
+      const { result } = renderHook(() => useManageAppointment('test-org', 'token-123'))
+      await waitFor(() => expect(result.current.state).toBe('success'))
+      mockFetch.mockResolvedValueOnce({ ok: true })
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: () =>
+          Promise.resolve({
+            data: { ...mockAppointment, startDatetime: '2025-01-16T10:00:00Z' },
+          }),
+      })
+      await act(async () => {
+        await result.current.rescheduleAppointment('2025-01-16T10:00:00Z', 'en')
+      })
+      expect(mockFetch).toHaveBeenCalledWith('http://localhost:3000/api/booking/test-org/manage/token-123/reschedule', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept-Language': 'en' },
         body: JSON.stringify({ startTime: '2025-01-16T10:00:00Z' }),
       })
     })

@@ -22,12 +22,20 @@ vi.mock('@schedulizer/env/server', () => ({
   },
 }))
 
-const { mockSendReminder } = vi.hoisted(() => ({
-  mockSendReminder: vi.fn(() => Promise.resolve()),
+const { mockSendAppointmentReminder } = vi.hoisted(() => ({
+  mockSendAppointmentReminder: vi.fn(() => Promise.resolve()),
 }))
 
-vi.mock('../../lib/email', () => ({
-  sendReminder: mockSendReminder,
+vi.mock('@schedulizer/email', () => ({
+  EmailService: class MockEmailService {
+    sendAppointmentReminder = mockSendAppointmentReminder
+  },
+  extractLocale: vi.fn((header: string | null) => {
+    if (!header) return 'pt-BR'
+    if (header.toLowerCase().startsWith('en')) return 'en'
+    return 'pt-BR'
+  }),
+  DEFAULT_LOCALE: 'pt-BR',
 }))
 
 vi.mock('../../middlewares/require-api-key.middleware', () => ({
@@ -93,6 +101,7 @@ function createMockAppointment(overrides: Record<string, unknown> = {}) {
     customerPhone: '11999999999',
     managementToken: 'token-123',
     reminderSentAt: null,
+    language: 'pt-BR',
     ...overrides,
   }
 }
@@ -173,22 +182,24 @@ describe('Notifications Routes Integration', () => {
       await handler!(req, res, vi.fn())
       expect(res.status).toHaveBeenCalledWith(200)
       expect(res.json).toHaveBeenCalledWith({ data: { sent: 1, failed: 0 } })
-      expect(mockSendReminder).toHaveBeenCalledTimes(1)
+      expect(mockSendAppointmentReminder).toHaveBeenCalledTimes(1)
     })
 
-    it('should call sendReminder with correct parameters', async () => {
+    it('should call sendAppointmentReminder with correct parameters', async () => {
       const appointment = createMockAppointment()
       setupSingleAppointmentMocks(appointment)
       const handler = findRouteHandler(notificationsRoutes, 'post', '/send-reminders')
       const { req, res } = createMockReqRes()
       await handler!(req, res, vi.fn())
-      expect(mockSendReminder).toHaveBeenCalledWith(
+      expect(mockSendAppointmentReminder).toHaveBeenCalledWith(
         expect.objectContaining({
           to: 'john@example.com',
+          locale: 'pt-BR',
           customerName: 'John',
           serviceName: 'Haircut',
           organizationName: 'Test Business',
-          managementUrl: 'http://localhost:4200/booking/test-business/manage/token-123',
+          cancelUrl: expect.stringContaining('http://localhost:4200/booking/test-business/manage/token-123'),
+          rescheduleUrl: expect.stringContaining('http://localhost:4200/booking/test-business/manage/token-123'),
         }),
       )
     })
@@ -209,13 +220,13 @@ describe('Notifications Routes Integration', () => {
       await handler!(req, res, vi.fn())
       expect(res.status).toHaveBeenCalledWith(200)
       expect(res.json).toHaveBeenCalledWith({ data: { sent: 0, failed: 0 } })
-      expect(mockSendReminder).not.toHaveBeenCalled()
+      expect(mockSendAppointmentReminder).not.toHaveBeenCalled()
     })
 
     it('should count failures when email send fails', async () => {
       const appointment = createMockAppointment({ status: 'confirmed' })
       setupSingleAppointmentMocks(appointment)
-      mockSendReminder.mockRejectedValueOnce(new Error('Email send failed'))
+      mockSendAppointmentReminder.mockRejectedValueOnce(new Error('Email send failed'))
       const handler = findRouteHandler(notificationsRoutes, 'post', '/send-reminders')
       const { req, res } = createMockReqRes()
       await handler!(req, res, vi.fn())
@@ -226,7 +237,7 @@ describe('Notifications Routes Integration', () => {
     it('should not update reminderSentAt when email send fails', async () => {
       const appointment = createMockAppointment()
       setupSingleAppointmentMocks(appointment)
-      mockSendReminder.mockRejectedValueOnce(new Error('Email send failed'))
+      mockSendAppointmentReminder.mockRejectedValueOnce(new Error('Email send failed'))
       const handler = findRouteHandler(notificationsRoutes, 'post', '/send-reminders')
       const { req, res } = createMockReqRes()
       await handler!(req, res, vi.fn())
@@ -241,7 +252,7 @@ describe('Notifications Routes Integration', () => {
       await handler!(req, res, vi.fn())
       expect(res.status).toHaveBeenCalledWith(200)
       expect(res.json).toHaveBeenCalledWith({ data: { sent: 0, failed: 1 } })
-      expect(mockSendReminder).not.toHaveBeenCalled()
+      expect(mockSendAppointmentReminder).not.toHaveBeenCalled()
     })
 
     it('should increment failed count when service is not found', async () => {
@@ -252,7 +263,7 @@ describe('Notifications Routes Integration', () => {
       await handler!(req, res, vi.fn())
       expect(res.status).toHaveBeenCalledWith(200)
       expect(res.json).toHaveBeenCalledWith({ data: { sent: 0, failed: 1 } })
-      expect(mockSendReminder).not.toHaveBeenCalled()
+      expect(mockSendAppointmentReminder).not.toHaveBeenCalled()
     })
 
     it('should handle batch of multiple appointments with mixed success and failure', async () => {
@@ -268,7 +279,7 @@ describe('Notifications Routes Integration', () => {
         .mockReturnValueOnce(mockSelectChain([mockOrganization], true))
         .mockReturnValueOnce(mockSelectChain([mockService], true))
       mockDbUpdate.mockReturnValue(mockUpdateChain())
-      mockSendReminder
+      mockSendAppointmentReminder
         .mockResolvedValueOnce(undefined)
         .mockRejectedValueOnce(new Error('Email send failed'))
         .mockResolvedValueOnce(undefined)
@@ -277,7 +288,7 @@ describe('Notifications Routes Integration', () => {
       await handler!(req, res, vi.fn())
       expect(res.status).toHaveBeenCalledWith(200)
       expect(res.json).toHaveBeenCalledWith({ data: { sent: 2, failed: 1 } })
-      expect(mockSendReminder).toHaveBeenCalledTimes(3)
+      expect(mockSendAppointmentReminder).toHaveBeenCalledTimes(3)
     })
 
     it('should return 500 on unexpected database error', async () => {
@@ -319,15 +330,16 @@ describe('Notifications Routes Integration', () => {
       expect(res.json).toHaveBeenCalledWith({ data: { sent: 2, failed: 1 } })
     })
 
-    it('should format dateTime using organization timezone', async () => {
+    it('should send separate appointmentDate and appointmentTime', async () => {
       const appointment = createMockAppointment()
       setupSingleAppointmentMocks(appointment)
       const handler = findRouteHandler(notificationsRoutes, 'post', '/send-reminders')
       const { req, res } = createMockReqRes()
       await handler!(req, res, vi.fn())
-      const reminderCall = mockSendReminder.mock.calls[0] as unknown[]
-      const params = reminderCall[0] as { dateTime: string }
-      expect(params.dateTime).toMatch(/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}$/)
+      const reminderCall = mockSendAppointmentReminder.mock.calls[0] as unknown[]
+      const params = reminderCall[0] as { appointmentDate: string; appointmentTime: string }
+      expect(params.appointmentDate).toMatch(/^\d{2}\/\d{2}\/\d{4}$/)
+      expect(params.appointmentTime).toMatch(/^\d{2}:\d{2}$/)
     })
   })
 })

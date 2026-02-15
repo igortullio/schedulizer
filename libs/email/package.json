@@ -1,0 +1,13 @@
+{
+  "name": "@schedulizer/email",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "resend": "^6.9.1"
+  }
+}

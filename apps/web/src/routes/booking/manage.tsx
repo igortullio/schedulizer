@@ -31,7 +31,7 @@ export function Component() {
   async function handleCancel() {
     setActionError(null)
     setIsCancelling(true)
-    const success = await cancelAppointment()
+    const success = await cancelAppointment(i18n.language)
     setIsCancelling(false)
     if (!success) {
       setActionError(t('manage.errors.cancelFailed'))
@@ -47,7 +47,7 @@ export function Component() {
   async function handleSelectNewSlot(slot: TimeSlot) {
     setActionError(null)
     setIsRescheduling(true)
-    const success = await rescheduleAppointment(slot.startTime)
+    const success = await rescheduleAppointment(slot.startTime, i18n.language)
     setIsRescheduling(false)
     if (success) {
       setManageStep('details')

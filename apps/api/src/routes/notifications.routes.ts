@@ -1,17 +1,20 @@
 import { createDb, schema } from '@schedulizer/db'
+import { EmailService, type Locale } from '@schedulizer/email'
 import { serverEnv } from '@schedulizer/env/server'
 import { formatInTimeZone } from 'date-fns-tz'
 import { and, eq, gt, inArray, isNull, lt } from 'drizzle-orm'
 import { Router } from 'express'
-import { sendReminder } from '../lib/email'
 import { requireApiKey } from '../middlewares/require-api-key.middleware'
 
 const router = Router()
 const db = createDb(serverEnv.databaseUrl)
+const emailService = new EmailService({ apiKey: serverEnv.resendApiKey })
 
 const REMINDER_WINDOW_START_HOURS = 23
 const REMINDER_WINDOW_END_HOURS = 25
 const MS_PER_HOUR = 3600000
+const DATE_FORMAT = 'dd/MM/yyyy'
+const TIME_FORMAT = 'HH:mm'
 
 router.use(requireApiKey)
 
@@ -49,15 +52,19 @@ router.post('/send-reminders', async (_req, res) => {
           failed++
           continue
         }
-        const formattedDateTime = formatInTimeZone(appointment.startDatetime, organization.timezone, 'dd/MM/yyyy HH:mm')
+        const appointmentDate = formatInTimeZone(appointment.startDatetime, organization.timezone, DATE_FORMAT)
+        const appointmentTime = formatInTimeZone(appointment.startDatetime, organization.timezone, TIME_FORMAT)
         const managementUrl = `${serverEnv.frontendUrl}/booking/${organization.slug}/manage/${appointment.managementToken}`
-        await sendReminder({
+        await emailService.sendAppointmentReminder({
           to: appointment.customerEmail,
+          locale: (appointment.language ?? 'pt-BR') as Locale,
           customerName: appointment.customerName,
           serviceName: service.name,
-          dateTime: formattedDateTime,
+          appointmentDate,
+          appointmentTime,
           organizationName: organization.name,
-          managementUrl,
+          cancelUrl: `${managementUrl}?action=cancel`,
+          rescheduleUrl: `${managementUrl}?action=reschedule`,
         })
         await db
           .update(schema.appointments)

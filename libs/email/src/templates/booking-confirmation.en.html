@@ -13,7 +13,7 @@
             <!-- Header -->
             <tr>
               <td style="background-color: #f54900; padding: 32px; text-align: center;">
-                <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700;">{{organizationName}}</h1>
+                <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700;">{{{organizationName}}}</h1>
               </td>
             </tr>
             <!-- Content -->
@@ -21,26 +21,26 @@
               <td style="padding: 40px 32px;">
                 <h2 style="margin: 0 0 16px; color: #18181b; font-size: 20px; font-weight: 600;">Booking confirmed!</h2>
                 <p style="margin: 0 0 24px; color: #3f3f46; font-size: 16px; line-height: 24px;">
-                  Hi {{customerName}}, your booking has been confirmed successfully.
+                  Hi {{{customerName}}}, your booking has been confirmed successfully.
                 </p>
                 <!-- Appointment Details -->
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #fafafa; border-radius: 6px; padding: 20px; margin-bottom: 24px;">
                   <tr>
                     <td style="padding: 12px 16px; border-bottom: 1px solid #e4e4e7;">
                       <p style="margin: 0; color: #71717a; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Service</p>
-                      <p style="margin: 4px 0 0; color: #18181b; font-size: 16px; font-weight: 500;">{{serviceName}}</p>
+                      <p style="margin: 4px 0 0; color: #18181b; font-size: 16px; font-weight: 500;">{{{serviceName}}}</p>
                     </td>
                   </tr>
                   <tr>
                     <td style="padding: 12px 16px; border-bottom: 1px solid #e4e4e7;">
                       <p style="margin: 0; color: #71717a; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Date</p>
-                      <p style="margin: 4px 0 0; color: #18181b; font-size: 16px; font-weight: 500;">{{appointmentDate}}</p>
+                      <p style="margin: 4px 0 0; color: #18181b; font-size: 16px; font-weight: 500;">{{{appointmentDate}}}</p>
                     </td>
                   </tr>
                   <tr>
                     <td style="padding: 12px 16px;">
                       <p style="margin: 0; color: #71717a; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Time</p>
-                      <p style="margin: 4px 0 0; color: #18181b; font-size: 16px; font-weight: 500;">{{appointmentTime}}</p>
+                      <p style="margin: 4px 0 0; color: #18181b; font-size: 16px; font-weight: 500;">{{{appointmentTime}}}</p>
                     </td>
                   </tr>
                 </table>
@@ -48,10 +48,10 @@
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 24px;">
                   <tr>
                     <td align="center" style="padding: 0 4px;">
-                      <a href="{{rescheduleUrl}}" target="_blank" style="display: inline-block; padding: 12px 24px; background-color: #f54900; color: #ffffff; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: 6px; margin-right: 8px;">
+                      <a href="{{{rescheduleUrl}}}" target="_blank" style="display: inline-block; padding: 12px 24px; background-color: #f54900; color: #ffffff; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: 6px; margin-right: 8px;">
                         Reschedule
                       </a>
-                      <a href="{{cancelUrl}}" target="_blank" style="display: inline-block; padding: 12px 24px; background-color: #ffffff; color: #f54900; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: 6px; border: 1px solid #f54900;">
+                      <a href="{{{cancelUrl}}}" target="_blank" style="display: inline-block; padding: 12px 24px; background-color: #ffffff; color: #f54900; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: 6px; border: 1px solid #f54900;">
                         Cancel
                       </a>
                     </td>

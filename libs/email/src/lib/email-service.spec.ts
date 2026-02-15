@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { EmailService } from './email-service'
 import { EMAIL_FROM } from './types'
 
@@ -11,33 +11,11 @@ vi.mock('resend', () => ({
 }))
 
 describe('EmailService', () => {
-  const originalEnv = process.env
   let emailService: EmailService
 
   beforeEach(() => {
-    process.env = { ...originalEnv }
-    process.env.RESEND_TPL_MAGIC_LINK_PT_BR = 'tmpl_magic_pt'
-    process.env.RESEND_TPL_MAGIC_LINK_EN = 'tmpl_magic_en'
-    process.env.RESEND_TPL_BOOKING_CONFIRMATION_PT_BR = 'tmpl_confirm_pt'
-    process.env.RESEND_TPL_BOOKING_CONFIRMATION_EN = 'tmpl_confirm_en'
-    process.env.RESEND_TPL_BOOKING_CANCELLATION_PT_BR = 'tmpl_cancel_pt'
-    process.env.RESEND_TPL_BOOKING_CANCELLATION_EN = 'tmpl_cancel_en'
-    process.env.RESEND_TPL_BOOKING_RESCHEDULE_PT_BR = 'tmpl_reschedule_pt'
-    process.env.RESEND_TPL_BOOKING_RESCHEDULE_EN = 'tmpl_reschedule_en'
-    process.env.RESEND_TPL_APPOINTMENT_REMINDER_PT_BR = 'tmpl_reminder_pt'
-    process.env.RESEND_TPL_APPOINTMENT_REMINDER_EN = 'tmpl_reminder_en'
-    process.env.RESEND_TPL_OWNER_NEW_BOOKING_PT_BR = 'tmpl_owner_new_pt'
-    process.env.RESEND_TPL_OWNER_NEW_BOOKING_EN = 'tmpl_owner_new_en'
-    process.env.RESEND_TPL_OWNER_CANCELLATION_PT_BR = 'tmpl_owner_cancel_pt'
-    process.env.RESEND_TPL_OWNER_CANCELLATION_EN = 'tmpl_owner_cancel_en'
-    process.env.RESEND_TPL_OWNER_RESCHEDULE_PT_BR = 'tmpl_owner_reschedule_pt'
-    process.env.RESEND_TPL_OWNER_RESCHEDULE_EN = 'tmpl_owner_reschedule_en'
     emailService = new EmailService({ apiKey: 'test_api_key' })
     mockSend.mockClear()
-  })
-
-  afterEach(() => {
-    process.env = originalEnv
   })
 
   it('should send magic link email in pt-BR', async () => {
@@ -51,7 +29,7 @@ describe('EmailService', () => {
       to: 'user@example.com',
       subject: 'Seu link de acesso',
       template: {
-        id: 'tmpl_magic_pt',
+        id: 'magic-link_pt-br',
         variables: { magicLinkUrl: 'https://app.schedulizer.me/auth/verify?token=abc' },
       },
     })
@@ -68,7 +46,7 @@ describe('EmailService', () => {
       to: 'user@example.com',
       subject: 'Your login link',
       template: {
-        id: 'tmpl_magic_en',
+        id: 'magic-link_en',
         variables: { magicLinkUrl: 'https://app.schedulizer.me/auth/verify?token=abc' },
       },
     })
@@ -91,7 +69,7 @@ describe('EmailService', () => {
       to: 'customer@example.com',
       subject: 'Reserva confirmada - Barbearia do João',
       template: {
-        id: 'tmpl_confirm_pt',
+        id: 'booking-confirmation_pt-br',
         variables: {
           customerName: 'João Silva',
           serviceName: 'Corte de cabelo',
@@ -122,7 +100,7 @@ describe('EmailService', () => {
       to: 'customer@example.com',
       subject: 'Booking confirmed - John Barber Shop',
       template: {
-        id: 'tmpl_confirm_en',
+        id: 'booking-confirmation_en',
         variables: {
           customerName: 'John Doe',
           serviceName: 'Haircut',
@@ -151,7 +129,7 @@ describe('EmailService', () => {
       to: 'customer@example.com',
       subject: 'Reserva cancelada - Barbearia do João',
       template: {
-        id: 'tmpl_cancel_pt',
+        id: 'booking-cancellation_pt-br',
         variables: {
           customerName: 'João Silva',
           serviceName: 'Corte de cabelo',
@@ -178,7 +156,7 @@ describe('EmailService', () => {
       to: 'customer@example.com',
       subject: 'Booking cancelled - John Barber Shop',
       template: {
-        id: 'tmpl_cancel_en',
+        id: 'booking-cancellation_en',
         variables: {
           customerName: 'John Doe',
           serviceName: 'Haircut',
@@ -209,7 +187,7 @@ describe('EmailService', () => {
       to: 'customer@example.com',
       subject: 'Reserva reagendada - Barbearia do João',
       template: {
-        id: 'tmpl_reschedule_pt',
+        id: 'booking-reschedule_pt-br',
         variables: {
           customerName: 'João Silva',
           serviceName: 'Corte de cabelo',
@@ -244,7 +222,7 @@ describe('EmailService', () => {
       to: 'customer@example.com',
       subject: 'Booking rescheduled - John Barber Shop',
       template: {
-        id: 'tmpl_reschedule_en',
+        id: 'booking-reschedule_en',
         variables: {
           customerName: 'John Doe',
           serviceName: 'Haircut',
@@ -277,7 +255,7 @@ describe('EmailService', () => {
       to: 'customer@example.com',
       subject: 'Lembrete: sua reserva amanhã - Barbearia do João',
       template: {
-        id: 'tmpl_reminder_pt',
+        id: 'appointment-reminder_pt-br',
         variables: {
           customerName: 'João Silva',
           serviceName: 'Corte de cabelo',
@@ -308,7 +286,7 @@ describe('EmailService', () => {
       to: 'customer@example.com',
       subject: 'Reminder: your booking tomorrow - John Barber Shop',
       template: {
-        id: 'tmpl_reminder_en',
+        id: 'appointment-reminder_en',
         variables: {
           customerName: 'John Doe',
           serviceName: 'Haircut',
@@ -337,7 +315,7 @@ describe('EmailService', () => {
       to: 'owner@example.com',
       subject: 'Nova reserva recebida',
       template: {
-        id: 'tmpl_owner_new_pt',
+        id: 'owner-new-booking_pt-br',
         variables: {
           customerName: 'João Silva',
           customerEmail: 'joao@example.com',
@@ -364,7 +342,7 @@ describe('EmailService', () => {
       to: 'owner@example.com',
       subject: 'New booking received',
       template: {
-        id: 'tmpl_owner_new_en',
+        id: 'owner-new-booking_en',
         variables: {
           customerName: 'John Doe',
           customerEmail: 'john@example.com',
@@ -391,7 +369,7 @@ describe('EmailService', () => {
       to: 'owner@example.com',
       subject: 'Reserva cancelada pelo cliente',
       template: {
-        id: 'tmpl_owner_cancel_pt',
+        id: 'owner-cancellation_pt-br',
         variables: {
           customerName: 'João Silva',
           customerEmail: 'joao@example.com',
@@ -418,7 +396,7 @@ describe('EmailService', () => {
       to: 'owner@example.com',
       subject: 'Booking cancelled by customer',
       template: {
-        id: 'tmpl_owner_cancel_en',
+        id: 'owner-cancellation_en',
         variables: {
           customerName: 'John Doe',
           customerEmail: 'john@example.com',
@@ -447,7 +425,7 @@ describe('EmailService', () => {
       to: 'owner@example.com',
       subject: 'Reserva reagendada pelo cliente',
       template: {
-        id: 'tmpl_owner_reschedule_pt',
+        id: 'owner-reschedule_pt-br',
         variables: {
           customerName: 'João Silva',
           customerEmail: 'joao@example.com',
@@ -478,7 +456,7 @@ describe('EmailService', () => {
       to: 'owner@example.com',
       subject: 'Booking rescheduled by customer',
       template: {
-        id: 'tmpl_owner_reschedule_en',
+        id: 'owner-reschedule_en',
         variables: {
           customerName: 'John Doe',
           customerEmail: 'john@example.com',
@@ -529,7 +507,7 @@ describe('EmailService', () => {
       magicLinkUrl: 'https://example.com',
     })
     expect(consoleSpy).toHaveBeenCalledWith('Email send failed', {
-      templateId: 'tmpl_magic_pt',
+      templateId: 'magic-link_pt-br',
       error: 'Template not found',
     })
     consoleSpy.mockRestore()
@@ -543,7 +521,7 @@ describe('EmailService', () => {
       magicLinkUrl: 'https://example.com',
     })
     expect(consoleSpy).toHaveBeenCalledWith('Email sent', {
-      templateId: 'tmpl_magic_pt',
+      templateId: 'magic-link_pt-br',
       resendEmailId: 'email_123',
     })
     consoleSpy.mockRestore()

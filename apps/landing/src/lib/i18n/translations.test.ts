@@ -131,8 +131,8 @@ describe('Translation Files', () => {
     it('should have same number of features for each pricing plan', () => {
       expect(enCommon.pricing.plans.essential.features).toHaveLength(5)
       expect(ptBRCommon.pricing.plans.essential.features).toHaveLength(5)
-      expect(enCommon.pricing.plans.professional.features).toHaveLength(6)
-      expect(ptBRCommon.pricing.plans.professional.features).toHaveLength(6)
+      expect(enCommon.pricing.plans.professional.features).toHaveLength(5)
+      expect(ptBRCommon.pricing.plans.professional.features).toHaveLength(5)
     })
   })
 

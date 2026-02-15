@@ -19,24 +19,22 @@
         "name": "Essential",
         "description": "Perfect for small businesses getting started",
         "features": {
-          "teamMembers": "Up to 5 team members",
-          "basicScheduling": "Basic scheduling",
+          "singleMember": "1 organization member",
+          "limitedServices": "Up to 5 services",
           "emailNotifications": "Email notifications",
           "customerSupport": "Customer support",
-          "advancedAnalytics": "Advanced analytics",
-          "apiAccess": "API access"
+          "advancedAnalytics": "Advanced analytics"
         }
       },
       "professional": {
         "name": "Professional",
         "description": "For growing teams that need more power",
         "features": {
-          "unlimitedTeam": "Unlimited team members",
-          "advancedScheduling": "Advanced scheduling",
-          "emailSmsNotifications": "Email & SMS notifications",
+          "teamMembers": "Up to 5 organization members",
+          "unlimitedServices": "Unlimited services",
+          "emailWhatsappNotifications": "Email & WhatsApp notifications (coming soon)",
           "prioritySupport": "Priority support",
-          "advancedAnalytics": "Advanced analytics",
-          "apiAccess": "API access"
+          "advancedAnalytics": "Advanced analytics"
         }
       }
     },

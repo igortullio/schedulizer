@@ -10,10 +10,13 @@
   "exclude": ["node_modules", "dist"],
   "references": [
     {
+      "path": "../../libs/billing"
+    },
+    {
       "path": "../../libs/shared/types"
     },
     {
-      "path": "../../libs/billing"
+      "path": "../../libs/email"
     },
     {
       "path": "../../libs/db"

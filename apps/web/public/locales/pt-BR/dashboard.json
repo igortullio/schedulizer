@@ -5,7 +5,9 @@
     "appointments": "Agendamentos",
     "timeBlocks": "Bloqueios",
     "settings": "Configurações",
-    "signOut": "Sair"
+    "signOut": "Sair",
+    "collapse": "Recolher sidebar",
+    "expand": "Expandir sidebar"
   },
   "overview": {
     "title": "Visão Geral",

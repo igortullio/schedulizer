@@ -30,6 +30,13 @@
     "next": "Next",
     "month": "Month",
     "week": "Week",
+    "day": "Day",
+    "agenda": "Agenda",
+    "date": "Date",
+    "time": "Time",
+    "event": "Event",
+    "allDay": "All day",
+    "showMore": "+{{count}} more",
     "noEvents": "No appointments in this period."
   }
 }

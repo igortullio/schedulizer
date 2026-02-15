@@ -30,6 +30,13 @@
     "next": "Próximo",
     "month": "Mês",
     "week": "Semana",
+    "day": "Dia",
+    "agenda": "Agenda",
+    "date": "Data",
+    "time": "Hora",
+    "event": "Evento",
+    "allDay": "Dia inteiro",
+    "showMore": "+{{count}} mais",
     "noEvents": "Nenhum agendamento neste período."
   }
 }

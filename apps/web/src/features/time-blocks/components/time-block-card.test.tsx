@@ -35,7 +35,7 @@ describe('TimeBlockCard', () => {
 
   it('renders the reason when provided', () => {
     render(<TimeBlockCard {...defaultProps} />)
-    expect(screen.getByText('(Doctor appointment)')).toBeInTheDocument()
+    expect(screen.getByText('Doctor appointment')).toBeInTheDocument()
   })
 
   it('does not render reason when null', () => {
@@ -56,8 +56,8 @@ describe('TimeBlockCard', () => {
     expect(onDelete).toHaveBeenCalledWith('tb-1')
   })
 
-  it('renders delete button text from translation', () => {
+  it('renders delete button as icon-only', () => {
     render(<TimeBlockCard {...defaultProps} />)
-    expect(screen.getByTestId('delete-time-block-tb-1')).toHaveTextContent('actions.delete')
+    expect(screen.getByTestId('delete-time-block-tb-1')).toBeInTheDocument()
   })
 })

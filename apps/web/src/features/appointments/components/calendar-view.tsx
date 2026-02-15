@@ -4,9 +4,10 @@ import { enUS, ptBR } from 'date-fns/locale'
 import { useCallback, useMemo, useState } from 'react'
 import { Calendar, dateFnsLocalizer, type View } from 'react-big-calendar'
 import { useTranslation } from 'react-i18next'
-import 'react-big-calendar/lib/css/react-big-calendar.css'
 import type { TimeBlockResponse } from '@/features/time-blocks'
+import { getLocale } from '@/lib/format'
 import type { AppointmentResponse } from '../hooks/use-appointments'
+import './calendar-view.css'
 
 const locales = {
   'en-US': enUS,
@@ -52,9 +53,10 @@ interface CalendarViewProps {
 const BUSINESS_START_HOUR = 7
 
 export function CalendarView({ appointments, timeBlocks, onSelectEvent }: CalendarViewProps) {
-  const { t } = useTranslation('appointments')
+  const { t, i18n } = useTranslation('appointments')
   const [view, setView] = useState<View>('week')
   const [date, setDate] = useState(new Date())
+  const culture = getLocale(i18n.language)
   const scrollToTime = useMemo(() => {
     const time = new Date()
     time.setHours(BUSINESS_START_HOUR, 0, 0, 0)
@@ -80,12 +82,9 @@ export function CalendarView({ appointments, timeBlocks, onSelectEvent }: Calend
   }, [appointments, timeBlocks, t])
   const eventPropGetter = useCallback(
     (event: CalendarEvent) => ({
+      className: `rbc-event--${event.status}`,
       style: {
         backgroundColor: STATUS_COLORS[event.status],
-        borderRadius: '4px',
-        opacity: event.status === 'cancelled' || event.status === 'time_block' ? 0.5 : 0.9,
-        color: 'white',
-        border: 'none',
       },
     }),
     [],
@@ -99,9 +98,13 @@ export function CalendarView({ appointments, timeBlocks, onSelectEvent }: Calend
     [onSelectEvent],
   )
   return (
-    <div data-testid="calendar-view" className="min-h-[400px] flex-1">
+    <div
+      data-testid="calendar-view"
+      className="schedulizer-calendar min-h-[500px] flex-1 rounded-lg border border-border bg-card"
+    >
       <Calendar
         localizer={localizer}
+        culture={culture}
         events={events}
         startAccessor="start"
         endAccessor="end"
@@ -119,7 +122,14 @@ export function CalendarView({ appointments, timeBlocks, onSelectEvent }: Calend
           next: t('calendar.next'),
           month: t('calendar.month'),
           week: t('calendar.week'),
+          day: t('calendar.day'),
+          agenda: t('calendar.agenda'),
+          date: t('calendar.date'),
+          time: t('calendar.time'),
+          event: t('calendar.event'),
+          allDay: t('calendar.allDay'),
           noEventsInRange: t('calendar.noEvents'),
+          showMore: total => t('calendar.showMore', { count: total }),
         }}
       />
     </div>

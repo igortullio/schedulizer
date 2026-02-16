@@ -5,6 +5,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { Calendar, dateFnsLocalizer, type View } from 'react-big-calendar'
 import { useTranslation } from 'react-i18next'
 import type { TimeBlockResponse } from '@/features/time-blocks'
+import { useIsMobile } from '@/hooks/use-is-mobile'
 import { getLocale } from '@/lib/format'
 import type { AppointmentResponse } from '../hooks/use-appointments'
 import './calendar-view.css'
@@ -22,7 +23,7 @@ const localizer = dateFnsLocalizer({
   locales,
 })
 
-const AVAILABLE_VIEWS: View[] = ['month', 'week']
+const AVAILABLE_VIEWS: View[] = ['month', 'week', 'day']
 
 type CalendarEventType = AppointmentStatus | 'time_block'
 
@@ -54,7 +55,8 @@ const BUSINESS_START_HOUR = 7
 
 export function CalendarView({ appointments, timeBlocks, onSelectEvent }: CalendarViewProps) {
   const { t, i18n } = useTranslation('appointments')
-  const [view, setView] = useState<View>('week')
+  const isMobile = useIsMobile()
+  const [view, setView] = useState<View>(isMobile ? 'day' : 'week')
   const [date, setDate] = useState(new Date())
   const culture = getLocale(i18n.language)
   const scrollToTime = useMemo(() => {

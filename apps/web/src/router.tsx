@@ -1,7 +1,18 @@
+import { SentryErrorBoundary } from '@schedulizer/observability'
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { AuthLayout } from '@/components/layout/auth-layout'
 import { DashboardLayout } from '@/components/layout/dashboard-layout'
 import { PublicLayout } from '@/components/layout/public-layout'
+
+const routeErrorFallback = (
+  <div style={{ padding: '2rem', textAlign: 'center' }}>
+    <h1>Something went wrong</h1>
+    <p>An error occurred while loading this page. Please try again.</p>
+    <button type="button" onClick={() => window.location.reload()}>
+      Reload
+    </button>
+  </div>
+)
 
 export const router = createBrowserRouter([
   {
@@ -50,11 +61,31 @@ export const router = createBrowserRouter([
   },
   {
     path: '/checkout/success',
-    lazy: () => import('@/routes/checkout/success'),
+    lazy: async () => {
+      const module = await import('@/routes/checkout/success')
+      return {
+        ...module,
+        Component: () => (
+          <SentryErrorBoundary fallback={routeErrorFallback} context="checkout-success">
+            <module.Component />
+          </SentryErrorBoundary>
+        ),
+      }
+    },
   },
   {
     path: '/checkout/cancel',
-    lazy: () => import('@/routes/checkout/cancel'),
+    lazy: async () => {
+      const module = await import('@/routes/checkout/cancel')
+      return {
+        ...module,
+        Component: () => (
+          <SentryErrorBoundary fallback={routeErrorFallback} context="checkout-cancel">
+            <module.Component />
+          </SentryErrorBoundary>
+        ),
+      }
+    },
   },
   {
     path: '/booking',
@@ -62,11 +93,31 @@ export const router = createBrowserRouter([
     children: [
       {
         path: ':slug',
-        lazy: () => import('@/routes/booking/index'),
+        lazy: async () => {
+          const module = await import('@/routes/booking/index')
+          return {
+            ...module,
+            Component: () => (
+              <SentryErrorBoundary fallback={routeErrorFallback} context="booking-page">
+                <module.Component />
+              </SentryErrorBoundary>
+            ),
+          }
+        },
       },
       {
         path: ':slug/manage/:token',
-        lazy: () => import('@/routes/booking/manage'),
+        lazy: async () => {
+          const module = await import('@/routes/booking/manage')
+          return {
+            ...module,
+            Component: () => (
+              <SentryErrorBoundary fallback={routeErrorFallback} context="booking-manage">
+                <module.Component />
+              </SentryErrorBoundary>
+            ),
+          }
+        },
       },
     ],
   },

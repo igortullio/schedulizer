@@ -45,7 +45,8 @@ global.fetch = mockFetch
 
 describe('CheckoutButton', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    vi.resetAllMocks()
+    global.fetch = mockFetch
     mockUseSession.mockReturnValue({
       data: { user: { id: 'user-1', email: 'test@example.com' } },
       isPending: false,

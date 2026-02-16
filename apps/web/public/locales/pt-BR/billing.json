@@ -122,6 +122,25 @@
       },
       "continueToPortal": "Continuar para o Portal"
     },
+    "downgradeDialog": {
+      "title": "Validação de Downgrade",
+      "validating": "Verificando se sua organização está pronta para o downgrade...",
+      "canDowngrade": "Sua organização está pronta para o downgrade.",
+      "cannotDowngrade": "Sua organização excede os limites do plano de destino.",
+      "error": "Ocorreu um erro ao validar o downgrade.",
+      "errorMessage": "Falha ao validar o downgrade. Tente novamente mais tarde.",
+      "reduceResources": "Para fazer downgrade para o Essencial, você precisa reduzir os seguintes recursos:",
+      "exceeded": {
+        "members": "Membros: você tem {{current}}, mas o limite é {{limit}}",
+        "services": "Serviços: você tem {{current}}, mas o limite é {{limit}}"
+      },
+      "confirmMessage": "Você será redirecionado ao Portal do Cliente Stripe para concluir a alteração do plano.",
+      "continueToPortal": "Continuar para o Portal",
+      "loading": "Carregando...",
+      "retry": "Tentar Novamente",
+      "cancel": "Cancelar",
+      "close": "Fechar"
+    },
     "cancelDialog": {
       "title": "Cancelar Assinatura",
       "description": "Tem certeza que deseja cancelar sua assinatura?",

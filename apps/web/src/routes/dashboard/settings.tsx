@@ -7,6 +7,7 @@ import { useSubscriptionContext } from '@/contexts/subscription-context'
 import {
   BillingHistoryTable,
   CancelSubscriptionDialog,
+  DowngradeValidationDialog,
   PaymentMethodCard,
   PlanLimitBanner,
   SubscriptionCard,
@@ -15,6 +16,7 @@ import {
   useBillingHistory,
   useCustomerPortal,
   useSubscription,
+  useValidateDowngrade,
 } from '@/features/billing'
 import { useOrganizationSettings } from '@/features/settings'
 
@@ -37,6 +39,14 @@ export function Component() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false)
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false)
+  const [isDowngradeDialogOpen, setIsDowngradeDialogOpen] = useState(false)
+  const {
+    validation: downgradeValidation,
+    state: downgradeState,
+    error: downgradeError,
+    validateDowngrade,
+    reset: resetDowngrade,
+  } = useValidateDowngrade()
   const isPortalLoading = portalState === 'loading'
   const isSubscriptionLoading = subscriptionState === 'loading'
   const isInvoicesLoading = invoicesState === 'loading'
@@ -82,9 +92,27 @@ export function Component() {
     }
     setIsUpdateDialogOpen(true)
   }
-  function handleUpdatePlanConfirm() {
+  async function handleUpdatePlanConfirm() {
     setIsUpdateDialogOpen(false)
+    if (subscription?.plan === 'professional') {
+      resetDowngrade()
+      setIsDowngradeDialogOpen(true)
+      await validateDowngrade('essential')
+      return
+    }
     openPortal()
+  }
+  function handleDowngradeConfirm() {
+    setIsDowngradeDialogOpen(false)
+    openPortal()
+  }
+  function handleDowngradeClose() {
+    setIsDowngradeDialogOpen(false)
+    resetDowngrade()
+  }
+  async function handleDowngradeRetry() {
+    resetDowngrade()
+    await validateDowngrade('essential')
   }
   function handleCancelSubscription() {
     setIsCancelDialogOpen(true)
@@ -228,6 +256,16 @@ export function Component() {
         onConfirm={handleCancelSubscriptionConfirm}
         isLoading={isPortalLoading}
         periodEnd={subscription?.currentPeriodEnd ?? null}
+      />
+      <DowngradeValidationDialog
+        isOpen={isDowngradeDialogOpen}
+        onClose={handleDowngradeClose}
+        onConfirm={handleDowngradeConfirm}
+        onRetry={handleDowngradeRetry}
+        isLoading={isPortalLoading}
+        isValidating={downgradeState === 'loading'}
+        validation={downgradeValidation}
+        error={downgradeError}
       />
     </div>
   )

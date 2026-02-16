@@ -1,5 +1,6 @@
 export { BillingHistoryTable } from './billing-history-table'
 export { CancelSubscriptionDialog } from './cancel-subscription-dialog'
+export { DowngradeValidationDialog } from './downgrade-validation-dialog'
 export { PaymentMethodCard } from './payment-method-card'
 export { PlanLimitBanner } from './plan-limit-banner'
 export { SubscriptionCard } from './subscription-card'

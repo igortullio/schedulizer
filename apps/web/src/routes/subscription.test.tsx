@@ -9,6 +9,8 @@ const mockUseSubscription = vi.fn()
 const mockUseBillingHistory = vi.fn()
 const mockUseCustomerPortal = vi.fn()
 const mockUseOrganizationSettings = vi.fn()
+const mockValidateDowngrade = vi.fn()
+const mockResetDowngrade = vi.fn()
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -27,6 +29,12 @@ vi.mock('react-router-dom', async () => {
     useNavigate: () => mockNavigate,
   }
 })
+
+vi.mock('@/contexts/subscription-context', () => ({
+  useSubscriptionContext: () => ({
+    usage: null,
+  }),
+}))
 
 vi.mock('@/features/settings', () => ({
   useOrganizationSettings: () => mockUseOrganizationSettings(),
@@ -135,9 +143,37 @@ vi.mock('@/features/billing', () => ({
         </button>
       </div>
     ) : null,
+  DowngradeValidationDialog: ({
+    isOpen,
+    onClose,
+    onConfirm,
+  }: {
+    isOpen: boolean
+    onClose: () => void
+    onConfirm: () => void
+  }) =>
+    isOpen ? (
+      <div data-testid="downgrade-validation-dialog">
+        <button type="button" onClick={onClose}>
+          Close
+        </button>
+        <button type="button" onClick={onConfirm}>
+          Confirm Downgrade
+        </button>
+      </div>
+    ) : null,
+  UsageIndicator: () => <div data-testid="usage-indicator" />,
+  PlanLimitBanner: () => <div data-testid="plan-limit-banner" />,
   useSubscription: () => mockUseSubscription(),
   useBillingHistory: () => mockUseBillingHistory(),
   useCustomerPortal: () => mockUseCustomerPortal(),
+  useValidateDowngrade: () => ({
+    validation: null,
+    state: 'idle',
+    error: null,
+    validateDowngrade: mockValidateDowngrade,
+    reset: mockResetDowngrade,
+  }),
 }))
 
 function renderWithRouter(component: React.ReactElement) {

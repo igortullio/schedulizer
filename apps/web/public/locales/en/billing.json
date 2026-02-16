@@ -122,6 +122,25 @@
       },
       "continueToPortal": "Continue to Portal"
     },
+    "downgradeDialog": {
+      "title": "Downgrade Validation",
+      "validating": "Checking if your organization is ready for the downgrade...",
+      "canDowngrade": "Your organization is ready for the downgrade.",
+      "cannotDowngrade": "Your organization exceeds the limits of the target plan.",
+      "error": "An error occurred while validating the downgrade.",
+      "errorMessage": "Failed to validate downgrade. Please try again later.",
+      "reduceResources": "To downgrade to Essential, you need to reduce the following resources:",
+      "exceeded": {
+        "members": "Members: you have {{current}}, but the limit is {{limit}}",
+        "services": "Services: you have {{current}}, but the limit is {{limit}}"
+      },
+      "confirmMessage": "You will be redirected to the Stripe Customer Portal to complete the plan change.",
+      "continueToPortal": "Continue to Portal",
+      "loading": "Loading...",
+      "retry": "Try Again",
+      "cancel": "Cancel",
+      "close": "Close"
+    },
     "cancelDialog": {
       "title": "Cancel Subscription",
       "description": "Are you sure you want to cancel your subscription?",

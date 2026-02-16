@@ -13,6 +13,12 @@ vi.mock('react-i18next', () => ({
   initReactI18next: { type: '3rdParty', init: () => {} },
 }))
 
+const { mockIsMobile } = vi.hoisted(() => ({ mockIsMobile: vi.fn(() => false) }))
+
+vi.mock('@/hooks/use-is-mobile', () => ({
+  useIsMobile: mockIsMobile,
+}))
+
 const mockAppointments: AppointmentResponse[] = [
   {
     id: 'apt-1',
@@ -64,10 +70,25 @@ describe('CalendarView', () => {
     expect(screen.getByText('calendar.next')).toBeInTheDocument()
   })
 
-  it('renders week and month view buttons', () => {
+  it('renders week, month, and day view buttons', () => {
     render(<CalendarView appointments={[]} />)
     expect(screen.getByText('calendar.week')).toBeInTheDocument()
     expect(screen.getByText('calendar.month')).toBeInTheDocument()
+    expect(screen.getByText('calendar.day')).toBeInTheDocument()
+  })
+
+  it('defaults to day view on mobile', () => {
+    mockIsMobile.mockReturnValue(true)
+    render(<CalendarView appointments={[]} />)
+    const dayButton = screen.getByText('calendar.day')
+    expect(dayButton.closest('.rbc-active')).toBeInTheDocument()
+    mockIsMobile.mockReturnValue(false)
+  })
+
+  it('defaults to week view on desktop', () => {
+    render(<CalendarView appointments={[]} />)
+    const weekButton = screen.getByText('calendar.week')
+    expect(weekButton.closest('.rbc-active')).toBeInTheDocument()
   })
 
   it('calls onSelectEvent when provided', () => {

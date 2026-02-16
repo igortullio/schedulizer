@@ -2,12 +2,14 @@ import {
   createCheckoutSession,
   createPortalSession,
   getStripeClient,
+  resolvePlanFromSubscription,
   verifyWebhookSignature,
 } from '@schedulizer/billing'
 import { createDb, schema } from '@schedulizer/db'
 import { serverEnv } from '@schedulizer/env/server'
+import { getPlanLimits } from '@schedulizer/shared-types'
 import { fromNodeHeaders } from 'better-auth/node'
-import { eq } from 'drizzle-orm'
+import { count, eq } from 'drizzle-orm'
 import { Router, raw } from 'express'
 import type Stripe from 'stripe'
 import { z } from 'zod'
@@ -176,6 +178,31 @@ router.post('/portal', async (req, res) => {
   }
 })
 
+async function countOrganizationMembers(organizationId: string): Promise<number> {
+  const result = await db
+    .select({ value: count() })
+    .from(schema.members)
+    .where(eq(schema.members.organizationId, organizationId))
+  return result[0]?.value ?? 0
+}
+
+async function countOrganizationServices(organizationId: string): Promise<number> {
+  const result = await db
+    .select({ value: count() })
+    .from(schema.services)
+    .where(eq(schema.services.organizationId, organizationId))
+  return result[0]?.value ?? 0
+}
+
+function computeCanAdd(current: number, limit: number): boolean {
+  if (!Number.isFinite(limit)) return true
+  return current < limit
+}
+
+function serializeLimit(limit: number): number | null {
+  return Number.isFinite(limit) ? limit : null
+}
+
 router.get('/subscription', async (req, res) => {
   try {
     const session = await auth.api.getSession({
@@ -192,22 +219,155 @@ router.get('/subscription', async (req, res) => {
         error: { message: 'No active organization selected', code: 'NO_ACTIVE_ORG' },
       })
     }
-    const subscription = await db
+    const subscriptions = await db
       .select()
       .from(schema.subscriptions)
       .where(eq(schema.subscriptions.organizationId, activeOrgId))
       .limit(1)
-    if (subscription.length === 0) {
+    if (subscriptions.length === 0) {
       return res.status(200).json({
         data: null,
       })
     }
-    const { stripeCustomerId, ...subscriptionData } = subscription[0]
+    const subscription = subscriptions[0]
+    const resolvedPlan = resolvePlanFromSubscription({
+      stripePriceId: subscription.stripePriceId,
+      status: subscription.status,
+    })
+    let planType = resolvedPlan?.type ?? null
+    let limits = resolvedPlan?.limits ?? null
+    if (!resolvedPlan && subscription.status === 'active') {
+      console.error('Failed to resolve plan type from stripePriceId', {
+        organizationId: activeOrgId,
+        stripePriceId: subscription.stripePriceId,
+        fallback: 'essential',
+      })
+      planType = 'essential'
+      limits = getPlanLimits('essential')
+    }
+    const [membersCount, servicesCount] = await Promise.all([
+      countOrganizationMembers(activeOrgId),
+      countOrganizationServices(activeOrgId),
+    ])
+    const { stripeCustomerId, ...subscriptionData } = subscription
     return res.status(200).json({
-      data: subscriptionData,
+      data: {
+        ...subscriptionData,
+        plan: planType,
+        usage: limits
+          ? {
+              members: {
+                current: membersCount,
+                limit: serializeLimit(limits.maxMembers),
+                canAdd: computeCanAdd(membersCount, limits.maxMembers),
+              },
+              services: {
+                current: servicesCount,
+                limit: serializeLimit(limits.maxServices),
+                canAdd: computeCanAdd(servicesCount, limits.maxServices),
+              },
+            }
+          : null,
+        limits: limits
+          ? {
+              maxMembers: serializeLimit(limits.maxMembers),
+              maxServices: serializeLimit(limits.maxServices),
+              notifications: limits.notifications,
+            }
+          : null,
+      },
     })
   } catch (error) {
     console.error('Subscription endpoint error', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    })
+    return res.status(500).json({
+      error: { message: 'Internal server error', code: 'INTERNAL_ERROR' },
+    })
+  }
+})
+
+const validateDowngradeSchema = z.object({
+  targetPlan: z.enum(['essential']),
+})
+
+router.get('/validate-downgrade', async (req, res) => {
+  try {
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(req.headers),
+    })
+    if (!session) {
+      return res.status(401).json({
+        error: { message: 'Unauthorized', code: 'UNAUTHORIZED' },
+      })
+    }
+    const activeOrgId = session.session.activeOrganizationId
+    if (!activeOrgId) {
+      return res.status(400).json({
+        error: { message: 'No active organization selected', code: 'NO_ACTIVE_ORG' },
+      })
+    }
+    const validation = validateDowngradeSchema.safeParse(req.query)
+    if (!validation.success) {
+      return res.status(400).json({
+        error: { message: 'Invalid target plan', code: 'INVALID_TARGET_PLAN' },
+      })
+    }
+    const { targetPlan } = validation.data
+    const subscriptions = await db
+      .select()
+      .from(schema.subscriptions)
+      .where(eq(schema.subscriptions.organizationId, activeOrgId))
+      .limit(1)
+    if (subscriptions.length === 0 || !['active', 'trialing'].includes(subscriptions[0].status)) {
+      return res.status(403).json({
+        error: { message: 'No active subscription', code: 'NO_ACTIVE_SUBSCRIPTION' },
+      })
+    }
+    const targetLimits = getPlanLimits(targetPlan)
+    const [membersCount, servicesCount] = await Promise.all([
+      countOrganizationMembers(activeOrgId),
+      countOrganizationServices(activeOrgId),
+    ])
+    const exceeded: Array<{ resource: string; current: number; limit: number }> = []
+    if (membersCount > targetLimits.maxMembers) {
+      exceeded.push({ resource: 'members', current: membersCount, limit: targetLimits.maxMembers })
+    }
+    if (Number.isFinite(targetLimits.maxServices) && servicesCount > targetLimits.maxServices) {
+      exceeded.push({ resource: 'services', current: servicesCount, limit: targetLimits.maxServices })
+    }
+    const canDowngrade = exceeded.length === 0
+    if (canDowngrade) {
+      return res.status(200).json({
+        data: {
+          canDowngrade: true,
+          currentUsage: { members: membersCount, services: servicesCount },
+          targetLimits: {
+            maxMembers: targetLimits.maxMembers,
+            maxServices: serializeLimit(targetLimits.maxServices),
+          },
+        },
+      })
+    }
+    console.log('Downgrade validation failed', {
+      organizationId: activeOrgId,
+      targetPlan,
+      exceeded,
+    })
+    return res.status(200).json({
+      data: {
+        canDowngrade: false,
+        currentUsage: { members: membersCount, services: servicesCount },
+        targetLimits: {
+          maxMembers: targetLimits.maxMembers,
+          maxServices: serializeLimit(targetLimits.maxServices),
+        },
+        exceeded,
+      },
+    })
+  } catch (error) {
+    console.error('Validate downgrade endpoint error', {
       error: error instanceof Error ? error.message : 'Unknown error',
       stack: error instanceof Error ? error.stack : undefined,
     })

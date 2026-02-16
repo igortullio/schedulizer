@@ -21,6 +21,10 @@ vi.mock('@schedulizer/env/server', () => ({
     stripeSecretKey: 'sk_test_123',
     stripeWebhookSecret: 'whsec_test_123',
     stripePublishableKey: 'pk_test_123',
+    stripePriceEssentialMonthly: 'price_essential_monthly',
+    stripePriceEssentialYearly: 'price_essential_yearly',
+    stripePriceProfessionalMonthly: 'price_professional_monthly',
+    stripePriceProfessionalYearly: 'price_professional_yearly',
   },
 }))
 
@@ -54,33 +58,62 @@ vi.mock('@schedulizer/db', () => ({
     update: mockDbUpdate,
   })),
   schema: {
-    subscriptions: { organizationId: 'organization_id', stripeCustomerId: 'stripe_customer_id' },
+    subscriptions: {
+      organizationId: 'organization_id',
+      stripeCustomerId: 'stripe_customer_id',
+      stripeSubscriptionId: 'stripe_subscription_id',
+    },
+    members: { organizationId: 'organization_id' },
+    services: { organizationId: 'organization_id' },
   },
 }))
 
-const { mockCreateCheckoutSession, mockCreatePortalSession, mockVerifyWebhookSignature, mockStripe } = vi.hoisted(
-  () => ({
-    mockCreateCheckoutSession: vi.fn(),
-    mockCreatePortalSession: vi.fn(),
-    mockVerifyWebhookSignature: vi.fn(),
-    mockStripe: {
-      customers: { create: vi.fn(() => Promise.resolve({ id: 'cus_123' })) },
-      subscriptions: { retrieve: vi.fn() },
-    },
-  }),
-)
+const {
+  mockCreateCheckoutSession,
+  mockCreatePortalSession,
+  mockVerifyWebhookSignature,
+  mockResolvePlanFromSubscription,
+  mockStripe,
+} = vi.hoisted(() => ({
+  mockCreateCheckoutSession: vi.fn(),
+  mockCreatePortalSession: vi.fn(),
+  mockVerifyWebhookSignature: vi.fn(),
+  mockResolvePlanFromSubscription: vi.fn(),
+  mockStripe: {
+    customers: { create: vi.fn(() => Promise.resolve({ id: 'cus_123' })) },
+    subscriptions: { retrieve: vi.fn() },
+  },
+}))
 
 vi.mock('@schedulizer/billing', () => ({
   createCheckoutSession: (...args: unknown[]) => mockCreateCheckoutSession(...args),
   createPortalSession: (...args: unknown[]) => mockCreatePortalSession(...args),
   verifyWebhookSignature: (...args: unknown[]) => mockVerifyWebhookSignature(...args),
+  resolvePlanFromSubscription: (...args: unknown[]) => mockResolvePlanFromSubscription(...args),
   getStripeClient: vi.fn(() => mockStripe),
+}))
+
+vi.mock('@schedulizer/shared-types', () => ({
+  getPlanLimits: vi.fn((planType: string) => {
+    if (planType === 'essential') {
+      return {
+        maxMembers: 1,
+        maxServices: 5,
+        notifications: { email: true, whatsapp: false },
+      }
+    }
+    return {
+      maxMembers: 5,
+      maxServices: Infinity,
+      notifications: { email: true, whatsapp: true },
+    }
+  }),
 }))
 
 import { billingRoutes, webhookRouter } from '../billing.routes'
 
-function createMockReqRes(body: unknown, headers: Record<string, string> = {}) {
-  const req = { body, headers } as Request
+function createMockReqRes(body: unknown, headers: Record<string, string> = {}, query: Record<string, string> = {}) {
+  const req = { body, headers, query } as unknown as Request
   const res = {
     status: vi.fn().mockReturnThis(),
     json: vi.fn().mockReturnThis(),
@@ -99,16 +132,28 @@ function findRouteHandler(router: unknown, method: 'post' | 'get', path?: string
   return stack[stack.length - 1]?.handle
 }
 
+function createSelectChain(data: unknown[]) {
+  return {
+    from: vi.fn().mockReturnValue({
+      where: vi.fn().mockReturnValue({
+        limit: vi.fn().mockReturnValue(Promise.resolve(data)),
+      }),
+    }),
+  }
+}
+
+function createCountChain(value: number) {
+  return {
+    from: vi.fn().mockReturnValue({
+      where: vi.fn().mockReturnValue(Promise.resolve([{ value }])),
+    }),
+  }
+}
+
 describe('Billing Routes Integration', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mockDbSelect.mockReturnValue({
-      from: vi.fn().mockReturnValue({
-        where: vi.fn().mockReturnValue({
-          limit: vi.fn().mockReturnValue(Promise.resolve([])),
-        }),
-      }),
-    })
+    mockDbSelect.mockReturnValue(createSelectChain([]))
     mockDbInsert.mockReturnValue({
       values: vi.fn().mockReturnValue(Promise.resolve()),
     })
@@ -117,6 +162,7 @@ describe('Billing Routes Integration', () => {
         where: vi.fn().mockReturnValue(Promise.resolve()),
       }),
     })
+    mockResolvePlanFromSubscription.mockReturnValue(null)
   })
 
   describe('POST /billing/checkout', () => {
@@ -189,13 +235,7 @@ describe('Billing Routes Integration', () => {
     })
 
     it('should return portal URL for organizations with active subscription', async () => {
-      mockDbSelect.mockReturnValue({
-        from: vi.fn().mockReturnValue({
-          where: vi.fn().mockReturnValue({
-            limit: vi.fn().mockReturnValue(Promise.resolve([{ stripeCustomerId: 'cus_123' }])),
-          }),
-        }),
-      })
+      mockDbSelect.mockReturnValue(createSelectChain([{ stripeCustomerId: 'cus_123' }]))
       mockCreatePortalSession.mockResolvedValue({
         success: true,
         data: { url: 'https://billing.stripe.com/session_123' },
@@ -214,13 +254,6 @@ describe('Billing Routes Integration', () => {
     })
 
     it('should return 404 for organizations without Stripe customer', async () => {
-      mockDbSelect.mockReturnValue({
-        from: vi.fn().mockReturnValue({
-          where: vi.fn().mockReturnValue({
-            limit: vi.fn().mockReturnValue(Promise.resolve([])),
-          }),
-        }),
-      })
       const handler = findRouteHandler(billingRoutes, 'post', '/portal')
       const { req, res } = createMockReqRes({
         returnUrl: 'https://app.schedulizer.me/settings',
@@ -241,25 +274,28 @@ describe('Billing Routes Integration', () => {
       expect(handler).toBeDefined()
     })
 
-    it('should return current subscription data for organization', async () => {
+    it('should return subscription with usage and limits for professional plan', async () => {
       const subscriptionData = {
         id: 'sub-uuid',
         organizationId: 'org-123',
         stripeCustomerId: 'cus_123',
         stripeSubscriptionId: 'sub_123',
+        stripePriceId: 'price_professional_monthly',
         status: 'active',
         plan: 'professional',
         currentPeriodStart: new Date('2024-01-01'),
         currentPeriodEnd: new Date('2024-02-01'),
         cancelAtPeriodEnd: false,
       }
-      mockDbSelect.mockReturnValue({
-        from: vi.fn().mockReturnValue({
-          where: vi.fn().mockReturnValue({
-            limit: vi.fn().mockReturnValue(Promise.resolve([subscriptionData])),
-          }),
-        }),
+      mockResolvePlanFromSubscription.mockReturnValue({
+        type: 'professional',
+        limits: { maxMembers: 5, maxServices: Infinity, notifications: { email: true, whatsapp: true } },
+        stripePriceId: 'price_professional_monthly',
       })
+      mockDbSelect
+        .mockReturnValueOnce(createSelectChain([subscriptionData]))
+        .mockReturnValueOnce(createCountChain(3))
+        .mockReturnValueOnce(createCountChain(8))
       const handler = findRouteHandler(billingRoutes, 'get', '/subscription')
       const { req, res } = createMockReqRes({})
       if (handler) {
@@ -270,25 +306,315 @@ describe('Billing Routes Integration', () => {
             id: 'sub-uuid',
             status: 'active',
             plan: 'professional',
+            usage: {
+              members: { current: 3, limit: 5, canAdd: true },
+              services: { current: 8, limit: null, canAdd: true },
+            },
+            limits: {
+              maxMembers: 5,
+              maxServices: null,
+              notifications: { email: true, whatsapp: true },
+            },
+          }),
+        })
+      }
+    })
+
+    it('should return subscription with usage and limits for essential plan', async () => {
+      const subscriptionData = {
+        id: 'sub-uuid',
+        organizationId: 'org-123',
+        stripeCustomerId: 'cus_123',
+        stripeSubscriptionId: 'sub_123',
+        stripePriceId: 'price_essential_monthly',
+        status: 'active',
+        plan: 'essential',
+        currentPeriodStart: new Date('2024-01-01'),
+        currentPeriodEnd: new Date('2024-02-01'),
+        cancelAtPeriodEnd: false,
+      }
+      mockResolvePlanFromSubscription.mockReturnValue({
+        type: 'essential',
+        limits: { maxMembers: 1, maxServices: 5, notifications: { email: true, whatsapp: false } },
+        stripePriceId: 'price_essential_monthly',
+      })
+      mockDbSelect
+        .mockReturnValueOnce(createSelectChain([subscriptionData]))
+        .mockReturnValueOnce(createCountChain(1))
+        .mockReturnValueOnce(createCountChain(5))
+      const handler = findRouteHandler(billingRoutes, 'get', '/subscription')
+      const { req, res } = createMockReqRes({})
+      if (handler) {
+        await handler(req, res, vi.fn())
+        expect(res.status).toHaveBeenCalledWith(200)
+        expect(res.json).toHaveBeenCalledWith({
+          data: expect.objectContaining({
+            plan: 'essential',
+            usage: {
+              members: { current: 1, limit: 1, canAdd: false },
+              services: { current: 5, limit: 5, canAdd: false },
+            },
+            limits: {
+              maxMembers: 1,
+              maxServices: 5,
+              notifications: { email: true, whatsapp: false },
+            },
+          }),
+        })
+      }
+    })
+
+    it('should return subscription with trialing status as professional', async () => {
+      const subscriptionData = {
+        id: 'sub-uuid',
+        organizationId: 'org-123',
+        stripeCustomerId: 'cus_123',
+        stripeSubscriptionId: 'sub_123',
+        stripePriceId: null,
+        status: 'trialing',
+        plan: null,
+        currentPeriodStart: new Date('2024-01-01'),
+        currentPeriodEnd: new Date('2024-02-01'),
+        cancelAtPeriodEnd: false,
+      }
+      mockResolvePlanFromSubscription.mockReturnValue({
+        type: 'professional',
+        limits: { maxMembers: 5, maxServices: Infinity, notifications: { email: true, whatsapp: true } },
+        stripePriceId: '',
+      })
+      mockDbSelect
+        .mockReturnValueOnce(createSelectChain([subscriptionData]))
+        .mockReturnValueOnce(createCountChain(1))
+        .mockReturnValueOnce(createCountChain(2))
+      const handler = findRouteHandler(billingRoutes, 'get', '/subscription')
+      const { req, res } = createMockReqRes({})
+      if (handler) {
+        await handler(req, res, vi.fn())
+        expect(res.status).toHaveBeenCalledWith(200)
+        expect(res.json).toHaveBeenCalledWith({
+          data: expect.objectContaining({
+            plan: 'professional',
+            usage: {
+              members: { current: 1, limit: 5, canAdd: true },
+              services: { current: 2, limit: null, canAdd: true },
+            },
           }),
         })
       }
     })
 
     it('should return null for organizations without subscription', async () => {
-      mockDbSelect.mockReturnValue({
-        from: vi.fn().mockReturnValue({
-          where: vi.fn().mockReturnValue({
-            limit: vi.fn().mockReturnValue(Promise.resolve([])),
-          }),
-        }),
-      })
       const handler = findRouteHandler(billingRoutes, 'get', '/subscription')
       const { req, res } = createMockReqRes({})
       if (handler) {
         await handler(req, res, vi.fn())
         expect(res.status).toHaveBeenCalledWith(200)
         expect(res.json).toHaveBeenCalledWith({ data: null })
+      }
+    })
+
+    it('should fallback to essential when plan cannot be resolved', async () => {
+      const subscriptionData = {
+        id: 'sub-uuid',
+        organizationId: 'org-123',
+        stripeCustomerId: 'cus_123',
+        stripeSubscriptionId: 'sub_123',
+        stripePriceId: 'price_unknown',
+        status: 'active',
+        plan: null,
+        currentPeriodStart: new Date('2024-01-01'),
+        currentPeriodEnd: new Date('2024-02-01'),
+        cancelAtPeriodEnd: false,
+      }
+      mockResolvePlanFromSubscription.mockReturnValue(null)
+      mockDbSelect
+        .mockReturnValueOnce(createSelectChain([subscriptionData]))
+        .mockReturnValueOnce(createCountChain(1))
+        .mockReturnValueOnce(createCountChain(3))
+      const handler = findRouteHandler(billingRoutes, 'get', '/subscription')
+      const { req, res } = createMockReqRes({})
+      if (handler) {
+        await handler(req, res, vi.fn())
+        expect(res.status).toHaveBeenCalledWith(200)
+        expect(res.json).toHaveBeenCalledWith({
+          data: expect.objectContaining({
+            plan: 'essential',
+            usage: {
+              members: { current: 1, limit: 1, canAdd: false },
+              services: { current: 3, limit: 5, canAdd: true },
+            },
+            limits: {
+              maxMembers: 1,
+              maxServices: 5,
+              notifications: { email: true, whatsapp: false },
+            },
+          }),
+        })
+      }
+    })
+  })
+
+  describe('GET /billing/validate-downgrade', () => {
+    it('should have GET validate-downgrade route registered', () => {
+      const handler = findRouteHandler(billingRoutes, 'get', '/validate-downgrade')
+      expect(handler).toBeDefined()
+    })
+
+    it('should return canDowngrade true when usage is within limits', async () => {
+      const subscriptionData = {
+        id: 'sub-uuid',
+        organizationId: 'org-123',
+        stripeCustomerId: 'cus_123',
+        stripeSubscriptionId: 'sub_123',
+        status: 'active',
+        plan: 'professional',
+      }
+      mockDbSelect
+        .mockReturnValueOnce(createSelectChain([subscriptionData]))
+        .mockReturnValueOnce(createCountChain(1))
+        .mockReturnValueOnce(createCountChain(3))
+      const handler = findRouteHandler(billingRoutes, 'get', '/validate-downgrade')
+      const { req, res } = createMockReqRes({}, {}, { targetPlan: 'essential' })
+      if (handler) {
+        await handler(req, res, vi.fn())
+        expect(res.status).toHaveBeenCalledWith(200)
+        expect(res.json).toHaveBeenCalledWith({
+          data: {
+            canDowngrade: true,
+            currentUsage: { members: 1, services: 3 },
+            targetLimits: { maxMembers: 1, maxServices: 5 },
+          },
+        })
+      }
+    })
+
+    it('should return canDowngrade false when usage exceeds limits', async () => {
+      const subscriptionData = {
+        id: 'sub-uuid',
+        organizationId: 'org-123',
+        stripeCustomerId: 'cus_123',
+        stripeSubscriptionId: 'sub_123',
+        status: 'active',
+        plan: 'professional',
+      }
+      mockDbSelect
+        .mockReturnValueOnce(createSelectChain([subscriptionData]))
+        .mockReturnValueOnce(createCountChain(3))
+        .mockReturnValueOnce(createCountChain(8))
+      const handler = findRouteHandler(billingRoutes, 'get', '/validate-downgrade')
+      const { req, res } = createMockReqRes({}, {}, { targetPlan: 'essential' })
+      if (handler) {
+        await handler(req, res, vi.fn())
+        expect(res.status).toHaveBeenCalledWith(200)
+        expect(res.json).toHaveBeenCalledWith({
+          data: {
+            canDowngrade: false,
+            currentUsage: { members: 3, services: 8 },
+            targetLimits: { maxMembers: 1, maxServices: 5 },
+            exceeded: [
+              { resource: 'members', current: 3, limit: 1 },
+              { resource: 'services', current: 8, limit: 5 },
+            ],
+          },
+        })
+      }
+    })
+
+    it('should return canDowngrade false when only members exceed', async () => {
+      const subscriptionData = {
+        id: 'sub-uuid',
+        organizationId: 'org-123',
+        stripeCustomerId: 'cus_123',
+        stripeSubscriptionId: 'sub_123',
+        status: 'active',
+        plan: 'professional',
+      }
+      mockDbSelect
+        .mockReturnValueOnce(createSelectChain([subscriptionData]))
+        .mockReturnValueOnce(createCountChain(3))
+        .mockReturnValueOnce(createCountChain(4))
+      const handler = findRouteHandler(billingRoutes, 'get', '/validate-downgrade')
+      const { req, res } = createMockReqRes({}, {}, { targetPlan: 'essential' })
+      if (handler) {
+        await handler(req, res, vi.fn())
+        expect(res.status).toHaveBeenCalledWith(200)
+        expect(res.json).toHaveBeenCalledWith({
+          data: {
+            canDowngrade: false,
+            currentUsage: { members: 3, services: 4 },
+            targetLimits: { maxMembers: 1, maxServices: 5 },
+            exceeded: [{ resource: 'members', current: 3, limit: 1 }],
+          },
+        })
+      }
+    })
+
+    it('should return 400 for invalid target plan', async () => {
+      const handler = findRouteHandler(billingRoutes, 'get', '/validate-downgrade')
+      const { req, res } = createMockReqRes({}, {}, { targetPlan: 'invalid' })
+      if (handler) {
+        await handler(req, res, vi.fn())
+        expect(res.status).toHaveBeenCalledWith(400)
+        expect(res.json).toHaveBeenCalledWith({
+          error: { message: 'Invalid target plan', code: 'INVALID_TARGET_PLAN' },
+        })
+      }
+    })
+
+    it('should return 400 for missing target plan', async () => {
+      const handler = findRouteHandler(billingRoutes, 'get', '/validate-downgrade')
+      const { req, res } = createMockReqRes({}, {}, {})
+      if (handler) {
+        await handler(req, res, vi.fn())
+        expect(res.status).toHaveBeenCalledWith(400)
+        expect(res.json).toHaveBeenCalledWith({
+          error: { message: 'Invalid target plan', code: 'INVALID_TARGET_PLAN' },
+        })
+      }
+    })
+
+    it('should return 403 for organizations without active subscription', async () => {
+      const handler = findRouteHandler(billingRoutes, 'get', '/validate-downgrade')
+      const { req, res } = createMockReqRes({}, {}, { targetPlan: 'essential' })
+      if (handler) {
+        await handler(req, res, vi.fn())
+        expect(res.status).toHaveBeenCalledWith(403)
+        expect(res.json).toHaveBeenCalledWith({
+          error: { message: 'No active subscription', code: 'NO_ACTIVE_SUBSCRIPTION' },
+        })
+      }
+    })
+
+    it('should return 403 for organizations with canceled subscription', async () => {
+      const subscriptionData = {
+        id: 'sub-uuid',
+        organizationId: 'org-123',
+        stripeCustomerId: 'cus_123',
+        status: 'canceled',
+      }
+      mockDbSelect.mockReturnValueOnce(createSelectChain([subscriptionData]))
+      const handler = findRouteHandler(billingRoutes, 'get', '/validate-downgrade')
+      const { req, res } = createMockReqRes({}, {}, { targetPlan: 'essential' })
+      if (handler) {
+        await handler(req, res, vi.fn())
+        expect(res.status).toHaveBeenCalledWith(403)
+        expect(res.json).toHaveBeenCalledWith({
+          error: { message: 'No active subscription', code: 'NO_ACTIVE_SUBSCRIPTION' },
+        })
+      }
+    })
+
+    it('should return 401 for unauthenticated requests', async () => {
+      const authModule = await import('../../lib/auth')
+      vi.mocked(authModule.auth.api.getSession).mockResolvedValueOnce(null)
+      const handler = findRouteHandler(billingRoutes, 'get', '/validate-downgrade')
+      const { req, res } = createMockReqRes({}, {}, { targetPlan: 'essential' })
+      if (handler) {
+        await handler(req, res, vi.fn())
+        expect(res.status).toHaveBeenCalledWith(401)
+        expect(res.json).toHaveBeenCalledWith({
+          error: { message: 'Unauthorized', code: 'UNAUTHORIZED' },
+        })
       }
     })
   })
@@ -401,13 +727,7 @@ describe('Billing Routes Integration', () => {
     })
 
     it('should handle customer.subscription.deleted event', async () => {
-      mockDbSelect.mockReturnValue({
-        from: vi.fn().mockReturnValue({
-          where: vi.fn().mockReturnValue({
-            limit: vi.fn().mockReturnValue(Promise.resolve([{ organizationId: 'org-123' }])),
-          }),
-        }),
-      })
+      mockDbSelect.mockReturnValue(createSelectChain([{ organizationId: 'org-123' }]))
       mockVerifyWebhookSignature.mockReturnValue({
         success: true,
         data: {
@@ -438,14 +758,17 @@ describe('Billing Routes Integration', () => {
         organizationId: 'org-123',
         stripeCustomerId: 'cus_123',
         status: 'active',
+        stripePriceId: 'price_essential_monthly',
       }
-      mockDbSelect.mockReturnValue({
-        from: vi.fn().mockReturnValue({
-          where: vi.fn().mockReturnValue({
-            limit: vi.fn().mockReturnValue(Promise.resolve([subscriptionData])),
-          }),
-        }),
+      mockResolvePlanFromSubscription.mockReturnValue({
+        type: 'essential',
+        limits: { maxMembers: 1, maxServices: 5, notifications: { email: true, whatsapp: false } },
+        stripePriceId: 'price_essential_monthly',
       })
+      mockDbSelect
+        .mockReturnValueOnce(createSelectChain([subscriptionData]))
+        .mockReturnValueOnce(createCountChain(1))
+        .mockReturnValueOnce(createCountChain(2))
       const handler = findRouteHandler(billingRoutes, 'get', '/subscription')
       const { req, res } = createMockReqRes({})
       if (handler) {

@@ -28,6 +28,7 @@
       "options": {
         "outputPath": "dist/apps/api",
         "main": "apps/api/src/index.ts",
+        "additionalEntryPoints": ["apps/api/src/instrument.ts"],
         "tsConfig": "apps/api/tsconfig.json",
         "platform": "node",
         "format": ["cjs"],

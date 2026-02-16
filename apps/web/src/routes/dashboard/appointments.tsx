@@ -2,6 +2,7 @@ import { Alert, AlertDescription, Badge } from '@igortullio-ui/react'
 import type { AppointmentStatus } from '@schedulizer/shared-types'
 import { Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { useSubscriptionContext } from '@/contexts/subscription-context'
 import { AppointmentCard, useAppointments } from '@/features/appointments'
 
 const STATUS_OPTIONS: (AppointmentStatus | 'all')[] = [
@@ -30,6 +31,8 @@ function getBadgeClass(status: AppointmentStatus | 'all', isActive: boolean): st
 
 export function Component() {
   const { t } = useTranslation('appointments')
+  const { hasActiveSubscription, isLoading: isSubscriptionLoading } = useSubscriptionContext()
+  const isBlocked = !isSubscriptionLoading && !hasActiveSubscription
   const {
     appointments,
     state,
@@ -108,7 +111,7 @@ export function Component() {
         <div className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
         </div>
-      ) : error ? (
+      ) : error && !isBlocked ? (
         <Alert variant="destructive" className="border-0 bg-destructive/10 text-center" data-testid="error-message">
           <AlertDescription>{error}</AlertDescription>
         </Alert>

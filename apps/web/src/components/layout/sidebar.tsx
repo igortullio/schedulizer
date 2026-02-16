@@ -21,6 +21,7 @@ import {
   Package,
   PanelLeftClose,
   PanelLeftOpen,
+  Plus,
   Settings,
   X,
 } from 'lucide-react'
@@ -81,6 +82,11 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
       window.location.reload()
     }
   }
+  function handleCreateNewOrg() {
+    setIsOrgPopoverOpen(false)
+    closeSidebar()
+    navigate('/auth/org-select')
+  }
   const orgPopoverContent = (
     <PopoverContent className="w-56 p-1" side={isCollapsed ? 'right' : 'bottom'} align="start">
       {isLoadingOrgs ? (
@@ -88,23 +94,36 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" aria-hidden="true" />
         </div>
       ) : (
-        <ul className="space-y-0.5" aria-label="Organizations">
-          {organizations?.map((org: { id: string; name: string }) => (
-            <li key={org.id}>
-              <Button
-                variant="ghost"
-                onClick={() => handleOrgSelect(org.id)}
-                className="h-auto w-full justify-start gap-2 px-2 py-1.5 text-sm"
-              >
-                <Building2 className="h-4 w-4 shrink-0" aria-hidden="true" />
-                <span className="truncate">{org.name}</span>
-                {org.name === organizationName ? (
-                  <Check className="ml-auto h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-                ) : null}
-              </Button>
-            </li>
-          ))}
-        </ul>
+        <>
+          <ul className="space-y-0.5" aria-label="Organizations">
+            {organizations?.map((org: { id: string; name: string }) => (
+              <li key={org.id}>
+                <Button
+                  variant="ghost"
+                  onClick={() => handleOrgSelect(org.id)}
+                  className="h-auto w-full justify-start gap-2 px-2 py-1.5 text-sm"
+                >
+                  <Building2 className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  <span className="truncate">{org.name}</span>
+                  {org.name === organizationName ? (
+                    <Check className="ml-auto h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                  ) : null}
+                </Button>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-1 border-t border-border pt-1">
+            <Button
+              variant="ghost"
+              onClick={handleCreateNewOrg}
+              className="h-auto w-full justify-start gap-2 px-2 py-1.5 text-sm"
+              data-testid="create-new-org-button"
+            >
+              <Plus className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <span>{t('orgSelect.createNewOrg', { ns: 'auth' })}</span>
+            </Button>
+          </div>
+        </>
       )}
     </PopoverContent>
   )

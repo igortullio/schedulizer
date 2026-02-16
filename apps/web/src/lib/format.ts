@@ -46,6 +46,11 @@ export function formatDateShort(timestamp: number, language: string): string {
   })
 }
 
+export function parseCurrencyInput(valueInCents: number): string {
+  const amount = valueInCents / 100
+  return amount.toFixed(2)
+}
+
 export function formatCurrency(amountInCents: number, currency: string, language: string): string {
   const locale = getLocale(language)
   return new Intl.NumberFormat(locale, {

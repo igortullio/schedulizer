@@ -1,7 +1,16 @@
-import { Alert, AlertDescription, Button } from '@igortullio-ui/react'
+import {
+  Alert,
+  AlertDescription,
+  Button,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@igortullio-ui/react'
 import { Loader2, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useSubscriptionContext } from '@/contexts/subscription-context'
 import { ScheduleDialog } from '@/features/schedules/components/schedule-dialog'
 import { ServiceCard, useServices } from '@/features/services'
 import { ServiceFormDialog } from '@/features/services/components/service-form-dialog'
@@ -16,11 +25,14 @@ interface EditingService {
 
 export function Component() {
   const { t } = useTranslation('services')
+  const { t: tCommon } = useTranslation('common')
+  const { hasActiveSubscription, isLoading: isSubscriptionLoading } = useSubscriptionContext()
   const { services, state, error, createService, updateService, deleteService, toggleActive } = useServices()
   const isLoading = state === 'loading'
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [editingService, setEditingService] = useState<EditingService | null>(null)
   const [scheduleService, setScheduleService] = useState<{ id: string; name: string } | null>(null)
+  const isBlocked = !isSubscriptionLoading && !hasActiveSubscription
   function handleEditService(id: string) {
     const service = services.find(s => s.id === id)
     if (!service) return
@@ -64,26 +76,37 @@ export function Component() {
           <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">{t('title')}</h1>
           <p className="mt-2 text-muted-foreground">{t('description')}</p>
         </div>
-        <Button onClick={() => setIsCreateOpen(true)} data-testid="create-service-button">
-          <Plus className="h-4 w-4" aria-hidden="true" />
-          {t('actions.create')}
-        </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span>
+                <Button onClick={() => setIsCreateOpen(true)} disabled={isBlocked} data-testid="create-service-button">
+                  <Plus className="h-4 w-4" aria-hidden="true" />
+                  {t('actions.create')}
+                </Button>
+              </span>
+            </TooltipTrigger>
+            {isBlocked ? <TooltipContent>{tCommon('subscription.banner.message')}</TooltipContent> : null}
+          </Tooltip>
+        </TooltipProvider>
       </div>
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
         </div>
-      ) : error ? (
+      ) : error && !isBlocked ? (
         <Alert variant="destructive" className="border-0 bg-destructive/10 text-center" data-testid="error-message">
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       ) : services.length === 0 ? (
         <div className="rounded-md border border-dashed p-12 text-center" data-testid="empty-state">
           <p className="text-muted-foreground">{t('emptyState')}</p>
-          <Button onClick={() => setIsCreateOpen(true)} variant="outline" className="mt-4">
-            <Plus className="h-4 w-4" aria-hidden="true" />
-            {t('actions.createFirst')}
-          </Button>
+          {!isBlocked ? (
+            <Button onClick={() => setIsCreateOpen(true)} variant="outline" className="mt-4">
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              {t('actions.createFirst')}
+            </Button>
+          ) : null}
         </div>
       ) : (
         <div className="grid gap-4" data-testid="services-list">

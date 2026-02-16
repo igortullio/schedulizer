@@ -122,14 +122,14 @@ describe('PricingPage', () => {
   describe('plan features', () => {
     it('displays Essential plan features', () => {
       renderWithRouter()
-      expect(screen.getByText('pricing.plans.essential.features.teamMembers')).toBeInTheDocument()
-      expect(screen.getByText('pricing.plans.essential.features.basicScheduling')).toBeInTheDocument()
+      expect(screen.getByText('pricing.plans.essential.features.singleMember')).toBeInTheDocument()
+      expect(screen.getByText('pricing.plans.essential.features.limitedServices')).toBeInTheDocument()
     })
 
     it('displays Professional plan features', () => {
       renderWithRouter()
-      expect(screen.getByText('pricing.plans.professional.features.unlimitedTeam')).toBeInTheDocument()
-      expect(screen.getByText('pricing.plans.professional.features.advancedScheduling')).toBeInTheDocument()
+      expect(screen.getByText('pricing.plans.professional.features.teamMembers')).toBeInTheDocument()
+      expect(screen.getByText('pricing.plans.professional.features.unlimitedServices')).toBeInTheDocument()
     })
 
     it('shows recommended badge on Professional plan', () => {

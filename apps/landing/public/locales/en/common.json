@@ -63,22 +63,21 @@
       "essential": {
         "name": "Essential",
         "features": [
-          "Unlimited appointments",
-          "Automatic reminders",
-          "Online calendar",
-          "Service management",
-          "Email support"
+          "1 organization member",
+          "Up to 5 services",
+          "Email notifications",
+          "Customer support",
+          "Advanced analytics"
         ]
       },
       "professional": {
         "name": "Professional",
         "features": [
-          "Everything in Essential plan",
-          "Multiple professionals",
-          "Reports and metrics",
-          "WhatsApp integration",
+          "Up to 5 organization members",
+          "Unlimited services",
+          "Email & WhatsApp notifications (coming soon)",
           "Priority support",
-          "Advanced customization"
+          "Advanced analytics"
         ]
       }
     },

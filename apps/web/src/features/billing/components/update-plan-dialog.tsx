@@ -21,7 +21,10 @@ export function UpdatePlanDialog({ isOpen, onClose, onConfirm, isLoading }: Upda
   const { t } = useTranslation('billing')
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent data-testid="update-plan-dialog">
+      <DialogContent
+        className="max-h-screen overflow-y-auto max-sm:h-full max-sm:max-w-full max-sm:rounded-none max-sm:border-0"
+        data-testid="update-plan-dialog"
+      >
         <DialogHeader>
           <DialogTitle>{t('subscription.updatePlanDialog.title')}</DialogTitle>
           <DialogDescription>{t('subscription.updatePlanDialog.description')}</DialogDescription>

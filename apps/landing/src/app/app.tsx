@@ -1,6 +1,7 @@
 import { Button } from '@igortullio-ui/react'
 import { clientEnv, getEnvError, hasEnvError } from '@schedulizer/env/client'
-import { useRef } from 'react'
+import { Menu, X } from 'lucide-react'
+import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Benefits } from '@/components/benefits'
 import { EnvError } from '@/components/env-error'
@@ -15,6 +16,7 @@ export function App() {
   useDocumentMeta()
   const { t } = useTranslation()
   const leadFormRef = useRef<HTMLDivElement>(null)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const envError = getEnvError()
   if (hasEnvError() && envError) {
     return <EnvError error={envError} />
@@ -26,6 +28,11 @@ export function App() {
       return
     }
     leadFormRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+  function handleMobileNavClick(href: string) {
+    setIsMobileMenuOpen(false)
+    const element = document.querySelector(href)
+    element?.scrollIntoView({ behavior: 'smooth' })
   }
   return (
     <div className="min-h-screen">
@@ -72,14 +79,52 @@ export function App() {
               </a>
               <LanguageSelector />
             </nav>
-            <Button
-              type="button"
-              onClick={handleGetStarted}
-              className="gradient-accent shrink-0 cursor-pointer rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:scale-105 hover:shadow-lg sm:px-5 sm:py-2.5"
-            >
-              {t('nav.cta')}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                onClick={handleGetStarted}
+                className="gradient-accent shrink-0 cursor-pointer rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:scale-105 hover:shadow-lg sm:px-5 sm:py-2.5"
+              >
+                {t('nav.cta')}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="md:hidden"
+                aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+              >
+                {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </Button>
+            </div>
           </div>
+          {isMobileMenuOpen ? (
+            <nav className="mt-3 flex flex-col gap-3 border-t border-border/50 pt-3 md:hidden">
+              <button
+                type="button"
+                onClick={() => handleMobileNavClick('#benefits')}
+                className="text-left text-sm font-medium text-muted-foreground transition-colors duration-200 hover:text-primary"
+              >
+                {t('nav.benefits')}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleMobileNavClick('#pricing')}
+                className="text-left text-sm font-medium text-muted-foreground transition-colors duration-200 hover:text-primary"
+              >
+                {t('nav.pricing')}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleMobileNavClick('#lead-form')}
+                className="text-left text-sm font-medium text-muted-foreground transition-colors duration-200 hover:text-primary"
+              >
+                {t('nav.contact')}
+              </button>
+              <LanguageSelector />
+            </nav>
+          ) : null}
         </div>
       </header>
 

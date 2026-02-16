@@ -37,12 +37,11 @@ const PLANS: Plan[] = [
       yearly: 'price_1SzFNsPugjn24Xym53OVA3eA',
     },
     features: [
-      { key: 'teamMembers', included: true },
-      { key: 'basicScheduling', included: true },
+      { key: 'singleMember', included: true },
+      { key: 'limitedServices', included: true },
       { key: 'emailNotifications', included: true },
       { key: 'customerSupport', included: true },
-      { key: 'advancedAnalytics', included: false },
-      { key: 'apiAccess', included: false },
+      { key: 'advancedAnalytics', included: true },
     ],
   },
   {
@@ -54,12 +53,11 @@ const PLANS: Plan[] = [
       yearly: 'price_1SzFMdPugjn24Xym6BOEhk8p',
     },
     features: [
-      { key: 'unlimitedTeam', included: true },
-      { key: 'advancedScheduling', included: true },
-      { key: 'emailSmsNotifications', included: true },
+      { key: 'teamMembers', included: true },
+      { key: 'unlimitedServices', included: true },
+      { key: 'emailWhatsappNotifications', included: true },
       { key: 'prioritySupport', included: true },
       { key: 'advancedAnalytics', included: true },
-      { key: 'apiAccess', included: true },
     ],
     recommended: true,
   },
@@ -183,7 +181,7 @@ export function Component() {
                           aria-hidden="true"
                         />
                         {t(
-                          `pricing.plans.${plan.id}.features.${feature.key}` as 'pricing.plans.essential.features.teamMembers',
+                          `pricing.plans.${plan.id}.features.${feature.key}` as 'pricing.plans.essential.features.singleMember',
                         )}
                       </li>
                     ))}

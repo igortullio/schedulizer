@@ -40,7 +40,7 @@ export function ServiceCard({
               {active ? t('status.active') : t('status.inactive')}
             </Badge>
           </div>
-          <div className="mt-1 flex items-center gap-3 text-xs text-muted-foreground">
+          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
             {description ? (
               <span className="truncate" data-testid="service-description">
                 {description}
@@ -59,7 +59,7 @@ export function ServiceCard({
           </div>
         </div>
         <TooltipProvider>
-          <div className="flex shrink-0 items-center">
+          <div className="flex shrink-0 items-center max-sm:hidden">
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -119,7 +119,44 @@ export function ServiceCard({
               <TooltipContent>{t('actions.delete')}</TooltipContent>
             </Tooltip>
           </div>
+          <div className="flex shrink-0 items-center sm:hidden">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => onEdit(id)}
+                  data-testid="edit-service-button-mobile"
+                >
+                  <Pencil className="h-4 w-4" aria-hidden="true" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t('actions.edit')}</TooltipContent>
+            </Tooltip>
+          </div>
         </TooltipProvider>
+      </div>
+      <div className="mt-2 flex items-center gap-1 border-t pt-2 sm:hidden">
+        {onSchedule ? (
+          <Button variant="ghost" size="sm" className="h-8 flex-1 text-xs" onClick={() => onSchedule(id)}>
+            <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
+            {t('actions.schedule')}
+          </Button>
+        ) : null}
+        <Button variant="ghost" size="sm" className="h-8 flex-1 text-xs" onClick={() => onToggleActive(id, !active)}>
+          <Power className="h-3.5 w-3.5" aria-hidden="true" />
+          {active ? t('actions.deactivate') : t('actions.activate')}
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 flex-1 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive"
+          onClick={() => onDelete(id)}
+        >
+          <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+          {t('actions.delete')}
+        </Button>
       </div>
     </Card>
   )

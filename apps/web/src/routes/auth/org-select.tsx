@@ -1,5 +1,5 @@
 import { Alert, AlertDescription, Button, Card } from '@igortullio-ui/react'
-import { AlertCircle, Building2, ChevronRight, Loader2, Users } from 'lucide-react'
+import { AlertCircle, Building2, ChevronRight, Loader2, Plus, Users } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -23,6 +23,7 @@ export function Component() {
   const [selectionState, setSelectionState] = useState<SelectionState>('idle')
   const [selectionError, setSelectionError] = useState<SelectionError | null>(null)
   const [selectedOrgId, setSelectedOrgId] = useState<string | null>(null)
+  const [showCreateForm, setShowCreateForm] = useState(false)
   const autoSelectTriggered = useRef(false)
 
   const handleSelectOrganization = useCallback(
@@ -173,6 +174,21 @@ export function Component() {
           )
         })}
       </ul>
+      {showCreateForm ? (
+        <div className="mt-4">
+          <CreateOrganizationForm redirect={redirect} />
+        </div>
+      ) : (
+        <Button
+          variant="outline"
+          onClick={() => setShowCreateForm(true)}
+          className="mt-4 w-full gap-2"
+          data-testid="create-new-org-button"
+        >
+          <Plus className="h-4 w-4" aria-hidden="true" />
+          {t('orgSelect.createNewOrg')}
+        </Button>
+      )}
     </Card>
   )
 }

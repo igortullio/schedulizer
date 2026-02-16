@@ -23,6 +23,9 @@
     },
     {
       "path": "./libs/email"
+    },
+    {
+      "path": "./libs/observability"
     }
   ]
 }

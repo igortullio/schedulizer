@@ -16,11 +16,7 @@ export function PlanLimitBanner({ resource, current, limit }: PlanLimitBannerPro
     navigate('/pricing?plan=professional')
   }
   return (
-    <Alert
-      className="border-destructive/50 bg-destructive/10"
-      data-testid={`plan-limit-banner-${resource}`}
-      role="alert"
-    >
+    <Alert variant="destructive" className="items-baseline" data-testid={`plan-limit-banner-${resource}`}>
       <AlertTriangle className="h-4 w-4 text-destructive" aria-hidden="true" />
       <AlertDescription className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <span className="text-sm text-destructive">

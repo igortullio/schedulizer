@@ -3,7 +3,9 @@ import { DEFAULT_LOCALE, EmailService } from '@schedulizer/email'
 import { serverEnv } from '@schedulizer/env/server'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
+import { APIError } from 'better-auth/api'
 import { magicLink, organization } from 'better-auth/plugins'
+import { checkMemberLimit } from './member-limit-guard'
 
 const db = createDb(serverEnv.databaseUrl)
 const emailService = new EmailService({ apiKey: serverEnv.resendApiKey })
@@ -41,6 +43,17 @@ export const auth = betterAuth({
     }),
     organization({
       allowUserToCreateOrganization: true,
+      organizationHooks: {
+        beforeAddMember: async ({ organization: org }) => {
+          const result = await checkMemberLimit(org.id)
+          if (!result.allowed) {
+            throw new APIError('FORBIDDEN', {
+              message:
+                result.reason === 'no_subscription' ? 'No active subscription' : 'Plan limit exceeded for members',
+            })
+          }
+        },
+      },
     }),
   ],
   advanced: {

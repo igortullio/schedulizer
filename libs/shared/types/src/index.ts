@@ -222,6 +222,40 @@ export interface CreateLeadResponse {
   data: { id: string; message: string }
 }
 
+// Plan types
+export type PlanType = 'essential' | 'professional'
+
+export interface PlanLimits {
+  maxMembers: number
+  maxServices: number
+  notifications: {
+    email: boolean
+    whatsapp: boolean
+  }
+}
+
+export interface PlanConfig {
+  type: PlanType
+  limits: PlanLimits
+}
+
+export const PLAN_CONFIGS: Record<PlanType, PlanLimits> = {
+  essential: {
+    maxMembers: 1,
+    maxServices: 5,
+    notifications: { email: true, whatsapp: false },
+  },
+  professional: {
+    maxMembers: 5,
+    maxServices: Infinity,
+    notifications: { email: true, whatsapp: true },
+  },
+}
+
+export function getPlanLimits(planType: PlanType): PlanLimits {
+  return PLAN_CONFIGS[planType]
+}
+
 // API response types
 export interface ApiResponse<T> {
   data: T

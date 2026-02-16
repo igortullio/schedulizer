@@ -3,15 +3,20 @@ import { Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
+import { useSubscriptionContext } from '@/contexts/subscription-context'
 import {
   BillingHistoryTable,
   CancelSubscriptionDialog,
+  DowngradeValidationDialog,
   PaymentMethodCard,
+  PlanLimitBanner,
   SubscriptionCard,
   UpdatePlanDialog,
+  UsageIndicator,
   useBillingHistory,
   useCustomerPortal,
   useSubscription,
+  useValidateDowngrade,
 } from '@/features/billing'
 import { useOrganizationSettings } from '@/features/settings'
 
@@ -22,6 +27,7 @@ const MAX_SLUG_LENGTH = 100
 export function Component() {
   const { t } = useTranslation('settings')
   const navigate = useNavigate()
+  const { usage } = useSubscriptionContext()
   const { settings, state: settingsState, updateSettings } = useOrganizationSettings()
   const { subscription, state: subscriptionState } = useSubscription()
   const { invoices, state: invoicesState, error: invoicesError, refetch: refetchInvoices } = useBillingHistory()
@@ -33,6 +39,14 @@ export function Component() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false)
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false)
+  const [isDowngradeDialogOpen, setIsDowngradeDialogOpen] = useState(false)
+  const {
+    validation: downgradeValidation,
+    state: downgradeState,
+    error: downgradeError,
+    validateDowngrade,
+    reset: resetDowngrade,
+  } = useValidateDowngrade()
   const isPortalLoading = portalState === 'loading'
   const isSubscriptionLoading = subscriptionState === 'loading'
   const isInvoicesLoading = invoicesState === 'loading'
@@ -78,9 +92,27 @@ export function Component() {
     }
     setIsUpdateDialogOpen(true)
   }
-  function handleUpdatePlanConfirm() {
+  async function handleUpdatePlanConfirm() {
     setIsUpdateDialogOpen(false)
+    if (subscription?.plan === 'professional') {
+      resetDowngrade()
+      setIsDowngradeDialogOpen(true)
+      await validateDowngrade('essential')
+      return
+    }
     openPortal()
+  }
+  function handleDowngradeConfirm() {
+    setIsDowngradeDialogOpen(false)
+    openPortal()
+  }
+  function handleDowngradeClose() {
+    setIsDowngradeDialogOpen(false)
+    resetDowngrade()
+  }
+  async function handleDowngradeRetry() {
+    resetDowngrade()
+    await validateDowngrade('essential')
   }
   function handleCancelSubscription() {
     setIsCancelDialogOpen(true)
@@ -108,6 +140,16 @@ export function Component() {
       <div className="space-y-8">
         <div>
           <h2 className="mb-4 text-xl font-semibold tracking-tight text-foreground">{t('sections.organization')}</h2>
+          {usage?.members ? (
+            <div className="mb-4 space-y-3">
+              <div className="w-48">
+                <UsageIndicator resource="members" usage={usage.members} />
+              </div>
+              {!usage.members.canAdd && usage.members.limit !== null ? (
+                <PlanLimitBanner resource="members" current={usage.members.current} limit={usage.members.limit} />
+              ) : null}
+            </div>
+          ) : null}
           <Card>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4" data-testid="settings-form">
@@ -214,6 +256,16 @@ export function Component() {
         onConfirm={handleCancelSubscriptionConfirm}
         isLoading={isPortalLoading}
         periodEnd={subscription?.currentPeriodEnd ?? null}
+      />
+      <DowngradeValidationDialog
+        isOpen={isDowngradeDialogOpen}
+        onClose={handleDowngradeClose}
+        onConfirm={handleDowngradeConfirm}
+        onRetry={handleDowngradeRetry}
+        isLoading={isPortalLoading}
+        isValidating={downgradeState === 'loading'}
+        validation={downgradeValidation}
+        error={downgradeError}
       />
     </div>
   )

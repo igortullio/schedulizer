@@ -1,4 +1,21 @@
-import { Badge, Button, Card, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@igortullio-ui/react'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+  Badge,
+  Button,
+  Card,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@igortullio-ui/react'
 import { Calendar, Clock, DollarSign, Pencil, Power, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
@@ -104,20 +121,35 @@ export function ServiceCard({
               </TooltipTrigger>
               <TooltipContent>{active ? t('actions.deactivate') : t('actions.activate')}</TooltipContent>
             </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                  onClick={() => onDelete(id)}
-                  data-testid="delete-service-button"
-                >
-                  <Trash2 className="h-4 w-4" aria-hidden="true" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>{t('actions.delete')}</TooltipContent>
-            </Tooltip>
+            <AlertDialog>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                      data-testid="delete-service-button"
+                    >
+                      <Trash2 className="h-4 w-4" aria-hidden="true" />
+                    </Button>
+                  </AlertDialogTrigger>
+                </TooltipTrigger>
+                <TooltipContent>{t('actions.delete')}</TooltipContent>
+              </Tooltip>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{t('deleteConfirm.title')}</AlertDialogTitle>
+                  <AlertDialogDescription>{t('deleteConfirm.description', { name })}</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>{t('deleteConfirm.cancel')}</AlertDialogCancel>
+                  <AlertDialogAction variant="destructive" onClick={() => onDelete(id)}>
+                    {t('deleteConfirm.confirm')}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
           <div className="flex shrink-0 items-center sm:hidden">
             <Tooltip>
@@ -148,15 +180,30 @@ export function ServiceCard({
           <Power className="h-3.5 w-3.5" aria-hidden="true" />
           {active ? t('actions.deactivate') : t('actions.activate')}
         </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-8 flex-1 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive"
-          onClick={() => onDelete(id)}
-        >
-          <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
-          {t('actions.delete')}
-        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 flex-1 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive"
+            >
+              <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+              {t('actions.delete')}
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t('deleteConfirm.title')}</AlertDialogTitle>
+              <AlertDialogDescription>{t('deleteConfirm.description', { name })}</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>{t('deleteConfirm.cancel')}</AlertDialogCancel>
+              <AlertDialogAction variant="destructive" onClick={() => onDelete(id)}>
+                {t('deleteConfirm.confirm')}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </Card>
   )

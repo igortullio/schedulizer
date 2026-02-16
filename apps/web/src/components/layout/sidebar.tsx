@@ -29,7 +29,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { LanguageSelector } from '@/components/language-selector'
-import { useServices } from '@/features/services'
+import { useSubscriptionContext } from '@/contexts/subscription-context'
 import { authClient, signOut } from '@/lib/auth-client'
 
 interface NavItem {
@@ -51,14 +51,15 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isOrgPopoverOpen, setIsOrgPopoverOpen] = useState(false)
   const { data: organizations, isPending: isLoadingOrgs } = authClient.useListOrganizations()
-  const { services } = useServices()
+  const { usage } = useSubscriptionContext()
+  const servicesCount = usage?.services.current ?? 0
   const navItems: NavItem[] = [
     { to: '/dashboard', label: t('sidebar.overview'), icon: <LayoutDashboard className="h-5 w-5" /> },
     {
       to: '/dashboard/services',
       label: t('sidebar.services'),
       icon: <Package className="h-5 w-5" />,
-      badge: services.length,
+      badge: servicesCount,
     },
     { to: '/dashboard/appointments', label: t('sidebar.appointments'), icon: <CalendarDays className="h-5 w-5" /> },
     { to: '/dashboard/time-blocks', label: t('sidebar.timeBlocks'), icon: <Clock className="h-5 w-5" /> },

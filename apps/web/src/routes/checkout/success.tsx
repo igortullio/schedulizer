@@ -24,7 +24,7 @@ export function Component() {
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">{t('checkout.success.message')}</p>
           {sessionId ? (
-            <p className="text-xs text-muted-foreground" data-testid="session-id">
+            <p className="break-all text-xs text-muted-foreground" data-testid="session-id">
               {t('checkout.success.transactionId', { sessionId })}
             </p>
           ) : null}

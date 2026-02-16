@@ -74,11 +74,14 @@ describe('ServiceCard', () => {
     expect(onEdit).toHaveBeenCalledWith('service-1')
   })
 
-  it('calls onDelete when delete button is clicked', async () => {
+  it('calls onDelete after confirming in the dialog', async () => {
     const user = userEvent.setup()
     const onDelete = vi.fn()
     render(<ServiceCard {...defaultProps} onDelete={onDelete} />)
     await user.click(screen.getByTestId('delete-service-button'))
+    expect(onDelete).not.toHaveBeenCalled()
+    const confirmButton = await screen.findByRole('button', { name: 'deleteConfirm.confirm' })
+    await user.click(confirmButton)
     expect(onDelete).toHaveBeenCalledWith('service-1')
   })
 

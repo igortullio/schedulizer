@@ -2,7 +2,7 @@ import { createDb, schema } from '@schedulizer/db'
 import { serverEnv } from '@schedulizer/env/server'
 import { CreateServiceSchema, UpdateServiceSchema } from '@schedulizer/shared-types'
 import { fromNodeHeaders } from 'better-auth/node'
-import { and, eq, gt, ne } from 'drizzle-orm'
+import { and, count, eq, gt, ne } from 'drizzle-orm'
 import { Router } from 'express'
 import { auth } from '../lib/auth'
 import { requireSubscription } from '../middlewares/require-subscription.middleware'
@@ -38,6 +38,34 @@ router.post('/', async (req, res) => {
       return res.status(400).json({
         error: { message: 'No active organization', code: 'NO_ACTIVE_ORG' },
       })
+    }
+    const planLimits = req.subscription?.plan.limits
+    if (planLimits && Number.isFinite(planLimits.maxServices)) {
+      const [serviceCount] = await db
+        .select({ value: count() })
+        .from(schema.services)
+        .where(eq(schema.services.organizationId, organizationId))
+      const currentCount = serviceCount?.value ?? 0
+      if (currentCount >= planLimits.maxServices) {
+        console.log('Plan limit enforcement triggered', {
+          organizationId,
+          resource: 'services',
+          planType: req.subscription?.plan.type,
+          currentCount,
+          limit: planLimits.maxServices,
+          action: 'blocked',
+        })
+        return res.status(403).json({
+          error: {
+            message: 'Plan limit exceeded for services',
+            code: 'PLAN_LIMIT_EXCEEDED',
+            resource: 'services',
+            current: currentCount,
+            limit: planLimits.maxServices,
+            upgradeRequired: true,
+          },
+        })
+      }
     }
     const validation = CreateServiceSchema.safeParse(req.body)
     if (!validation.success) {

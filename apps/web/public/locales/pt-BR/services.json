@@ -18,6 +18,12 @@
     "deactivate": "Desativar",
     "schedule": "Horarios"
   },
+  "deleteConfirm": {
+    "title": "Excluir serviço",
+    "description": "Tem certeza que deseja excluir \"{{name}}\"? Esta ação não pode ser desfeita.",
+    "cancel": "Cancelar",
+    "confirm": "Excluir"
+  },
   "form": {
     "createTitle": "Novo Serviço",
     "editTitle": "Editar Serviço",

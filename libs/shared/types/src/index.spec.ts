@@ -7,6 +7,9 @@ import type {
   CreateLeadResponse,
   Lead,
   Organization,
+  PlanConfig,
+  PlanLimits,
+  PlanType,
   Schedule,
   SchedulePeriod,
   TimeBlock,
@@ -17,6 +20,8 @@ import {
   CreateAppointmentSchema,
   CreateServiceSchema,
   CreateTimeBlockSchema,
+  getPlanLimits,
+  PLAN_CONFIGS,
   RescheduleAppointmentSchema,
   SchedulePeriodSchema,
   UpdateOrganizationSettingsSchema,
@@ -483,5 +488,70 @@ describe('Zod Schemas', () => {
       })
       expect(result.success).toBe(true)
     })
+  })
+})
+
+describe('Plan Types', () => {
+  describe('PLAN_CONFIGS', () => {
+    it('should define essential plan with correct limits', () => {
+      const essential = PLAN_CONFIGS.essential
+      expect(essential.maxMembers).toBe(1)
+      expect(essential.maxServices).toBe(5)
+      expect(essential.notifications.email).toBe(true)
+      expect(essential.notifications.whatsapp).toBe(false)
+    })
+
+    it('should define professional plan with correct limits', () => {
+      const professional = PLAN_CONFIGS.professional
+      expect(professional.maxMembers).toBe(5)
+      expect(professional.maxServices).toBe(Infinity)
+      expect(professional.notifications.email).toBe(true)
+      expect(professional.notifications.whatsapp).toBe(true)
+    })
+
+    it('should have exactly two plan types', () => {
+      const planTypes = Object.keys(PLAN_CONFIGS)
+      expect(planTypes).toHaveLength(2)
+      expect(planTypes).toContain('essential')
+      expect(planTypes).toContain('professional')
+    })
+  })
+
+  describe('getPlanLimits', () => {
+    it('should return essential limits for essential plan', () => {
+      const limits = getPlanLimits('essential')
+      expect(limits).toEqual(PLAN_CONFIGS.essential)
+    })
+
+    it('should return professional limits for professional plan', () => {
+      const limits = getPlanLimits('professional')
+      expect(limits).toEqual(PLAN_CONFIGS.professional)
+    })
+  })
+
+  it('should export PlanType type correctly', () => {
+    const essential: PlanType = 'essential'
+    const professional: PlanType = 'professional'
+    expect(essential).toBe('essential')
+    expect(professional).toBe('professional')
+  })
+
+  it('should export PlanLimits interface correctly', () => {
+    const limits: PlanLimits = {
+      maxMembers: 3,
+      maxServices: 10,
+      notifications: { email: true, whatsapp: false },
+    }
+    expect(limits.maxMembers).toBe(3)
+    expect(limits.maxServices).toBe(10)
+  })
+
+  it('should export PlanConfig interface correctly', () => {
+    const config: PlanConfig = {
+      type: 'essential',
+      limits: PLAN_CONFIGS.essential,
+    }
+    expect(config.type).toBe('essential')
+    expect(config.limits).toEqual(PLAN_CONFIGS.essential)
   })
 })

@@ -12,6 +12,10 @@ const serverEnvSchema = z.object({
   STRIPE_SECRET_KEY: z.string().startsWith('sk_'),
   STRIPE_WEBHOOK_SECRET: z.string().startsWith('whsec_'),
   CRON_API_KEY: z.string().min(16),
+  STRIPE_PRICE_ESSENTIAL_MONTHLY: z.string().startsWith('price_'),
+  STRIPE_PRICE_ESSENTIAL_YEARLY: z.string().startsWith('price_'),
+  STRIPE_PRICE_PROFESSIONAL_MONTHLY: z.string().startsWith('price_'),
+  STRIPE_PRICE_PROFESSIONAL_YEARLY: z.string().startsWith('price_'),
 })
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>
@@ -35,6 +39,10 @@ function createServerEnv() {
     stripeSecretKey: result.data.STRIPE_SECRET_KEY,
     stripeWebhookSecret: result.data.STRIPE_WEBHOOK_SECRET,
     cronApiKey: result.data.CRON_API_KEY,
+    stripePriceEssentialMonthly: result.data.STRIPE_PRICE_ESSENTIAL_MONTHLY,
+    stripePriceEssentialYearly: result.data.STRIPE_PRICE_ESSENTIAL_YEARLY,
+    stripePriceProfessionalMonthly: result.data.STRIPE_PRICE_PROFESSIONAL_MONTHLY,
+    stripePriceProfessionalYearly: result.data.STRIPE_PRICE_PROFESSIONAL_YEARLY,
   } as const
 }
 

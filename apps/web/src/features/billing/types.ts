@@ -8,18 +8,44 @@ export type SubscriptionStatus =
   | 'unpaid'
   | 'paused'
 
+export interface ResourceUsage {
+  current: number
+  limit: number | null
+  canAdd: boolean
+}
+
+export interface UsageData {
+  members: ResourceUsage
+  services: ResourceUsage
+}
+
+export interface SubscriptionLimits {
+  maxMembers: number | null
+  maxServices: number | null
+  notifications: {
+    email: boolean
+    whatsapp: boolean
+  }
+}
+
+import type { PlanType } from '@schedulizer/shared-types'
+
+export type { PlanType } from '@schedulizer/shared-types'
+
 export interface Subscription {
   id: string
   organizationId: string
   stripeSubscriptionId: string | null
   stripePriceId: string | null
   status: SubscriptionStatus
-  plan: string | null
+  plan: PlanType | null
   currentPeriodStart: string | null
   currentPeriodEnd: string | null
   cancelAtPeriodEnd: boolean
   createdAt: string
   updatedAt: string
+  usage: UsageData | null
+  limits: SubscriptionLimits | null
 }
 
 export interface Invoice {

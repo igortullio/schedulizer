@@ -1,4 +1,5 @@
 import { Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@igortullio-ui/react'
+import { clientEnv } from '@schedulizer/env/client'
 import { Check } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -33,8 +34,8 @@ const PLANS: Plan[] = [
     monthlyPrice: 49.9,
     yearlyPrice: 49.9 * 12 * (1 - ANNUAL_DISCOUNT_PERCENT / 100),
     priceIds: {
-      monthly: 'price_1SybQZPugjn24Xymd9cBoSIp',
-      yearly: 'price_1SzFNsPugjn24Xym53OVA3eA',
+      monthly: clientEnv.stripePriceEssentialMonthly,
+      yearly: clientEnv.stripePriceEssentialYearly,
     },
     features: [
       { key: 'singleMember', included: true },
@@ -49,8 +50,8 @@ const PLANS: Plan[] = [
     monthlyPrice: 99.9,
     yearlyPrice: 99.9 * 12 * (1 - ANNUAL_DISCOUNT_PERCENT / 100),
     priceIds: {
-      monthly: 'price_1SybR3Pugjn24Xym0eo3tdkG',
-      yearly: 'price_1SzFMdPugjn24Xym6BOEhk8p',
+      monthly: clientEnv.stripePriceProfessionalMonthly,
+      yearly: clientEnv.stripePriceProfessionalYearly,
     },
     features: [
       { key: 'teamMembers', included: true },

@@ -11,6 +11,7 @@ import { Loader2, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSubscriptionContext } from '@/contexts/subscription-context'
+import { PlanLimitBanner, UsageIndicator } from '@/features/billing'
 import { ScheduleDialog } from '@/features/schedules/components/schedule-dialog'
 import { ServiceCard, useServices } from '@/features/services'
 import { ServiceFormDialog } from '@/features/services/components/service-form-dialog'
@@ -26,13 +27,22 @@ interface EditingService {
 export function Component() {
   const { t } = useTranslation('services')
   const { t: tCommon } = useTranslation('common')
-  const { hasActiveSubscription, isLoading: isSubscriptionLoading } = useSubscriptionContext()
+  const {
+    hasActiveSubscription,
+    isLoading: isSubscriptionLoading,
+    usage,
+    incrementUsage,
+    decrementUsage,
+    refreshSubscription,
+  } = useSubscriptionContext()
   const { services, state, error, createService, updateService, deleteService, toggleActive } = useServices()
   const isLoading = state === 'loading'
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [editingService, setEditingService] = useState<EditingService | null>(null)
   const [scheduleService, setScheduleService] = useState<{ id: string; name: string } | null>(null)
   const isBlocked = !isSubscriptionLoading && !hasActiveSubscription
+  const servicesUsage = usage?.services ?? null
+  const isAtServiceLimit = servicesUsage !== null && !servicesUsage.canAdd
   function handleEditService(id: string) {
     const service = services.find(s => s.id === id)
     if (!service) return
@@ -41,6 +51,8 @@ export function Component() {
   async function handleDeleteService(id: string) {
     try {
       await deleteService(id)
+      decrementUsage('services')
+      refreshSubscription()
     } catch {
       // Error handled in hook
     }
@@ -61,6 +73,8 @@ export function Component() {
     const created = await createService(data)
     setIsCreateOpen(false)
     if (created) {
+      incrementUsage('services')
+      refreshSubscription()
       setScheduleService({ id: created.id, name: created.name })
     }
   }
@@ -75,12 +89,21 @@ export function Component() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">{t('title')}</h1>
           <p className="mt-2 text-muted-foreground">{t('description')}</p>
+          {servicesUsage ? (
+            <div className="mt-2 w-48">
+              <UsageIndicator resource="services" usage={servicesUsage} />
+            </div>
+          ) : null}
         </div>
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
               <span>
-                <Button onClick={() => setIsCreateOpen(true)} disabled={isBlocked} data-testid="create-service-button">
+                <Button
+                  onClick={() => setIsCreateOpen(true)}
+                  disabled={isBlocked || isAtServiceLimit}
+                  data-testid="create-service-button"
+                >
                   <Plus className="h-4 w-4" aria-hidden="true" />
                   {t('actions.create')}
                 </Button>
@@ -90,6 +113,11 @@ export function Component() {
           </Tooltip>
         </TooltipProvider>
       </div>
+      {isAtServiceLimit && servicesUsage ? (
+        <div className="mb-6">
+          <PlanLimitBanner resource="services" current={servicesUsage.current} limit={servicesUsage.limit as number} />
+        </div>
+      ) : null}
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />

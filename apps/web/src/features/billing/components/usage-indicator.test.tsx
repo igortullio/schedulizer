@@ -27,11 +27,10 @@ describe('UsageIndicator', () => {
     expect(screen.getByTestId('usage-progress-services')).toBeInTheDocument()
   })
 
-  it('renders unlimited usage without progress bar', () => {
+  it('renders nothing when usage is unlimited', () => {
     const usage: ResourceUsage = { current: 8, limit: null, canAdd: true }
-    render(<UsageIndicator resource="services" usage={usage} />)
-    expect(screen.getByTestId('usage-count-services')).toHaveTextContent('usageIndicator.unlimited')
-    expect(screen.queryByTestId('usage-progress-services')).not.toBeInTheDocument()
+    const { container } = render(<UsageIndicator resource="services" usage={usage} />)
+    expect(container).toBeEmptyDOMElement()
   })
 
   it('applies destructive style when at limit', () => {

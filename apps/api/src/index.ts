@@ -8,6 +8,7 @@ import { auth } from './lib/auth'
 import { appointmentsRoutes } from './routes/appointments.routes'
 import { billingRoutes, webhookRouter } from './routes/billing.routes'
 import { bookingRoutes } from './routes/booking.routes'
+import { healthRoutes } from './routes/health.routes'
 import { leadsRoutes } from './routes/leads.routes'
 import { notificationsRoutes } from './routes/notifications.routes'
 import { organizationsRoutes } from './routes/organizations.routes'
@@ -52,9 +53,7 @@ app.use('/api/booking', bookingRoutes)
 app.use('/api/notifications', notificationsRoutes)
 
 // Health check
-app.get('/health', (_req, res) => {
-  res.json({ status: 'ok' })
-})
+app.use('/health', healthRoutes)
 
 if (serverEnv.sentryEnvironment !== 'production') {
   app.get('/api/sentry-debug', () => {

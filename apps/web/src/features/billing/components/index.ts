@@ -1,5 +1,8 @@
 export { BillingHistoryTable } from './billing-history-table'
 export { CancelSubscriptionDialog } from './cancel-subscription-dialog'
 export { PaymentMethodCard } from './payment-method-card'
+export { PlanLimitBanner } from './plan-limit-banner'
 export { SubscriptionCard } from './subscription-card'
 export { UpdatePlanDialog } from './update-plan-dialog'
+export { UsageIndicator } from './usage-indicator'
+export { WhatsAppGating } from './whatsapp-gating'

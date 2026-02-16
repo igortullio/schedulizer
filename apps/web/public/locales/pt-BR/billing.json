@@ -133,6 +133,22 @@
       "canceling": "Cancelando..."
     }
   },
+  "usageIndicator": {
+    "members": "Membros",
+    "services": "Serviços",
+    "limited": "{{current}}/{{limit}}",
+    "unlimited": "{{current}} em uso"
+  },
+  "planLimitBanner": {
+    "members": "Você atingiu o limite de {{limit}} membros do seu plano atual.",
+    "services": "Você atingiu o limite de {{limit}} serviços do seu plano atual.",
+    "upgrade": "Ver Planos"
+  },
+  "whatsappGating": {
+    "title": "Notificações por WhatsApp",
+    "badge": "Disponível no Professional",
+    "upgrade": "Fazer Upgrade"
+  },
   "dashboard": {
     "title": "Painel",
     "loggedInAs": "Logado como",

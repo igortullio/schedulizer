@@ -3,12 +3,15 @@ import { Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
+import { useSubscriptionContext } from '@/contexts/subscription-context'
 import {
   BillingHistoryTable,
   CancelSubscriptionDialog,
   PaymentMethodCard,
+  PlanLimitBanner,
   SubscriptionCard,
   UpdatePlanDialog,
+  UsageIndicator,
   useBillingHistory,
   useCustomerPortal,
   useSubscription,
@@ -22,6 +25,7 @@ const MAX_SLUG_LENGTH = 100
 export function Component() {
   const { t } = useTranslation('settings')
   const navigate = useNavigate()
+  const { usage } = useSubscriptionContext()
   const { settings, state: settingsState, updateSettings } = useOrganizationSettings()
   const { subscription, state: subscriptionState } = useSubscription()
   const { invoices, state: invoicesState, error: invoicesError, refetch: refetchInvoices } = useBillingHistory()
@@ -108,6 +112,16 @@ export function Component() {
       <div className="space-y-8">
         <div>
           <h2 className="mb-4 text-xl font-semibold tracking-tight text-foreground">{t('sections.organization')}</h2>
+          {usage?.members ? (
+            <div className="mb-4 space-y-3">
+              <div className="w-48">
+                <UsageIndicator resource="members" usage={usage.members} />
+              </div>
+              {!usage.members.canAdd && usage.members.limit !== null ? (
+                <PlanLimitBanner resource="members" current={usage.members.current} limit={usage.members.limit} />
+              ) : null}
+            </div>
+          ) : null}
           <Card>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4" data-testid="settings-form">

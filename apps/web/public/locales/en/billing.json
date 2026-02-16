@@ -133,6 +133,22 @@
       "canceling": "Canceling..."
     }
   },
+  "usageIndicator": {
+    "members": "Members",
+    "services": "Services",
+    "limited": "{{current}}/{{limit}}",
+    "unlimited": "{{current}} used"
+  },
+  "planLimitBanner": {
+    "members": "You've reached the limit of {{limit}} members on your current plan.",
+    "services": "You've reached the limit of {{limit}} services on your current plan.",
+    "upgrade": "View Plans"
+  },
+  "whatsappGating": {
+    "title": "WhatsApp Notifications",
+    "badge": "Available on Professional",
+    "upgrade": "Upgrade"
+  },
   "dashboard": {
     "title": "Dashboard",
     "loggedInAs": "Logged in as",

@@ -39,7 +39,20 @@ describe('useSubscription', () => {
   })
 
   it('sets subscription data on success', async () => {
-    const mockSubscription = { id: 'sub-1', status: 'active', plan: 'professional' }
+    const mockSubscription = {
+      id: 'sub-1',
+      status: 'active',
+      plan: 'professional',
+      usage: {
+        members: { current: 2, limit: 5, canAdd: true },
+        services: { current: 3, limit: null, canAdd: true },
+      },
+      limits: {
+        maxMembers: 5,
+        maxServices: null,
+        notifications: { email: true, whatsapp: true },
+      },
+    }
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: () => Promise.resolve({ data: mockSubscription }),

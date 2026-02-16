@@ -30,6 +30,15 @@ const mockActiveSubscription: Subscription = {
   cancelAtPeriodEnd: false,
   createdAt: '2024-01-01T00:00:00Z',
   updatedAt: '2024-01-01T00:00:00Z',
+  usage: {
+    members: { current: 2, limit: 5, canAdd: true },
+    services: { current: 3, limit: null, canAdd: true },
+  },
+  limits: {
+    maxMembers: 5,
+    maxServices: null,
+    notifications: { email: true, whatsapp: true },
+  },
 }
 
 const mockTrialingSubscription: Subscription = {

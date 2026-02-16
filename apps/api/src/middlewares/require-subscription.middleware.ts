@@ -1,5 +1,7 @@
+import { type ResolvedPlan, resolvePlanFromSubscription } from '@schedulizer/billing'
 import { createDb, schema } from '@schedulizer/db'
 import { serverEnv } from '@schedulizer/env/server'
+import { getPlanLimits } from '@schedulizer/shared-types'
 import { fromNodeHeaders } from 'better-auth/node'
 import { eq } from 'drizzle-orm'
 import type { NextFunction, Request, Response } from 'express'
@@ -10,6 +12,22 @@ const db = createDb(serverEnv.databaseUrl)
 const VALID_SUBSCRIPTION_STATUSES = ['active', 'trialing'] as const
 
 type ValidSubscriptionStatus = (typeof VALID_SUBSCRIPTION_STATUSES)[number]
+
+export interface SubscriptionData {
+  id: string
+  status: string
+  plan: ResolvedPlan
+  organizationId: string
+  stripeSubscriptionId: string | null
+}
+
+declare global {
+  namespace Express {
+    interface Request {
+      subscription?: SubscriptionData
+    }
+  }
+}
 
 function isValidSubscriptionStatus(status: string | null): status is ValidSubscriptionStatus {
   if (!status) return false
@@ -24,7 +42,10 @@ function isSubscriptionExpired(currentPeriodEnd: Date | null): boolean {
 async function getSubscriptionByOrganizationId(organizationId: string) {
   const subscriptions = await db
     .select({
+      id: schema.subscriptions.id,
       status: schema.subscriptions.status,
+      stripePriceId: schema.subscriptions.stripePriceId,
+      stripeSubscriptionId: schema.subscriptions.stripeSubscriptionId,
       currentPeriodEnd: schema.subscriptions.currentPeriodEnd,
     })
     .from(schema.subscriptions)
@@ -64,6 +85,29 @@ export async function requireSubscription(req: Request, res: Response, next: Nex
       return res.status(403).json({
         error: { message: 'Subscription has expired', code: 'SUBSCRIPTION_EXPIRED' },
       })
+    }
+    let resolvedPlan = resolvePlanFromSubscription({
+      stripePriceId: subscription.stripePriceId,
+      status: subscription.status,
+    })
+    if (!resolvedPlan) {
+      console.error('Failed to resolve plan type from stripePriceId', {
+        organizationId,
+        stripePriceId: subscription.stripePriceId,
+        fallback: 'essential',
+      })
+      resolvedPlan = {
+        type: 'essential',
+        limits: getPlanLimits('essential'),
+        stripePriceId: subscription.stripePriceId ?? '',
+      }
+    }
+    req.subscription = {
+      id: subscription.id,
+      status: subscription.status,
+      plan: resolvedPlan,
+      organizationId,
+      stripeSubscriptionId: subscription.stripeSubscriptionId,
     }
     return next()
   } catch (error) {

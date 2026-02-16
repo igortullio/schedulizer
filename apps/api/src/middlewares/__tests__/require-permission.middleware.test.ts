@@ -25,8 +25,6 @@ const mockSession = {
   session: { activeOrganizationId: 'org-123' },
 }
 
-const mockHasPermission = vi.fn()
-
 vi.mock('../../lib/auth', () => ({
   auth: {
     api: {

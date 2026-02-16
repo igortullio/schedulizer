@@ -31,7 +31,6 @@ export function ScheduleDialog({ serviceId, serviceName, isOpen, onClose }: Sche
   const [localSchedules, setLocalSchedules] = useState<DaySchedule[]>([])
   const [isSaving, setIsSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
-  const [saveSuccess, setSaveSuccess] = useState(false)
   useEffect(() => {
     if (state === 'success' && schedules.length > 0) {
       setLocalSchedules(
@@ -67,11 +66,10 @@ export function ScheduleDialog({ serviceId, serviceName, isOpen, onClose }: Sche
   }, [])
   async function handleSave() {
     setSaveError(null)
-    setSaveSuccess(false)
     setIsSaving(true)
     try {
       await updateSchedules(localSchedules)
-      setSaveSuccess(true)
+      onClose()
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : t('errors.saveFailed'))
     } finally {
@@ -80,7 +78,7 @@ export function ScheduleDialog({ serviceId, serviceName, isOpen, onClose }: Sche
   }
   return (
     <Dialog open={isOpen} onOpenChange={(open: boolean) => !open && onClose()}>
-      <DialogContent className="max-h-screen overflow-y-auto sm:max-w-2xl max-sm:h-full max-sm:max-w-full max-sm:rounded-none max-sm:border-0">
+      <DialogContent className="max-h-screen overflow-y-auto sm:max-w-2xl max-sm:flex max-sm:h-full max-sm:max-w-full max-sm:flex-col max-sm:rounded-none max-sm:border-0">
         <DialogHeader>
           <DialogTitle>
             {t('title')} - {serviceName}
@@ -91,17 +89,12 @@ export function ScheduleDialog({ serviceId, serviceName, isOpen, onClose }: Sche
             <AlertDescription>{saveError}</AlertDescription>
           </Alert>
         ) : null}
-        {saveSuccess ? (
-          <Alert className="border-0 bg-green-500/10 text-green-700" data-testid="save-success">
-            <AlertDescription>{t('saveSuccess')}</AlertDescription>
-          </Alert>
-        ) : null}
         {state === 'loading' ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
           </div>
         ) : (
-          <div className="space-y-3" data-testid="schedules-list">
+          <div className="space-y-3 max-sm:flex-1 max-sm:overflow-y-auto" data-testid="schedules-list">
             {localSchedules.map(schedule => (
               <ScheduleDayRow
                 key={schedule.dayOfWeek}

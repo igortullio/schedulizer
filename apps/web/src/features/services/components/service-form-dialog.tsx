@@ -99,11 +99,15 @@ export function ServiceFormDialog({ mode, isOpen, onClose, onSubmit, service }: 
   }
   return (
     <Dialog open={isOpen} onOpenChange={(open: boolean) => !open && onClose()}>
-      <DialogContent className="max-h-screen overflow-y-auto max-sm:h-full max-sm:max-w-full max-sm:rounded-none max-sm:border-0">
+      <DialogContent className="max-h-screen overflow-y-auto max-sm:flex max-sm:h-full max-sm:max-w-full max-sm:flex-col max-sm:rounded-none max-sm:border-0">
         <DialogHeader>
           <DialogTitle>{mode === 'create' ? t('form.createTitle') : t('form.editTitle')}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4" data-testid="service-form">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-1 flex-col gap-4 max-sm:overflow-y-auto"
+          data-testid="service-form"
+        >
           {formError ? (
             <Alert variant="destructive" className="border-0 bg-destructive/10" data-testid="form-error">
               <AlertDescription>{formError}</AlertDescription>
@@ -154,7 +158,7 @@ export function ServiceFormDialog({ mode, isOpen, onClose, onSubmit, service }: 
               data-testid="price-input"
             />
           </div>
-          <Button type="submit" disabled={isSubmitting} className="w-full" data-testid="submit-button">
+          <Button type="submit" disabled={isSubmitting} className="mt-auto w-full" data-testid="submit-button">
             {isSubmitting ? (
               <>
                 <Loader2 className="animate-spin" aria-hidden="true" />

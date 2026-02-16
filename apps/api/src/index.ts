@@ -7,6 +7,7 @@ import { appointmentsRoutes } from './routes/appointments.routes'
 import { billingRoutes, webhookRouter } from './routes/billing.routes'
 import { bookingRoutes } from './routes/booking.routes'
 import { leadsRoutes } from './routes/leads.routes'
+import { invitationsRoutes, membersRoutes } from './routes/members.routes'
 import { notificationsRoutes } from './routes/notifications.routes'
 import { organizationsRoutes } from './routes/organizations.routes'
 import { schedulesRoutes } from './routes/schedules.routes'
@@ -46,6 +47,8 @@ app.use('/api/services', schedulesRoutes)
 app.use('/api/time-blocks', timeBlocksRoutes)
 app.use('/api/appointments', appointmentsRoutes)
 app.use('/api/booking', bookingRoutes)
+app.use('/api/invitations', invitationsRoutes)
+app.use('/api/members', membersRoutes)
 app.use('/api/notifications', notificationsRoutes)
 
 // Health check

@@ -5,7 +5,10 @@ import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { APIError } from 'better-auth/api'
 import { magicLink, organization } from 'better-auth/plugins'
+import { ac, adminRole, memberRole, ownerRole } from './access-control'
 import { checkMemberLimit } from './member-limit-guard'
+
+const INVITATION_EXPIRES_IN_SECONDS = 604800
 
 const db = createDb(serverEnv.databaseUrl)
 const emailService = new EmailService({ apiKey: serverEnv.resendApiKey })
@@ -42,7 +45,29 @@ export const auth = betterAuth({
       },
     }),
     organization({
+      ac,
+      roles: {
+        owner: ownerRole,
+        admin: adminRole,
+        member: memberRole,
+      },
       allowUserToCreateOrganization: true,
+      invitationExpiresIn: INVITATION_EXPIRES_IN_SECONDS,
+      async sendInvitationEmail(data) {
+        const inviteUrl = `${serverEnv.frontendUrl}/invite/${data.id}`
+        console.log('Invitation created', {
+          invitationId: data.id,
+          organizationId: data.organization.id,
+        })
+        await emailService.sendInvitation({
+          to: data.email,
+          locale: DEFAULT_LOCALE,
+          inviterName: data.inviter.user.name ?? '',
+          organizationName: data.organization.name,
+          inviteUrl,
+          role: data.role ?? 'member',
+        })
+      },
       organizationHooks: {
         beforeAddMember: async ({ organization: org }) => {
           const result = await checkMemberLimit(org.id)

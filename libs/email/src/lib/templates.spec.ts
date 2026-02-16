@@ -77,6 +77,11 @@ const TEMPLATE_CONFIGS: Record<
     hasOrganizationHeader: false,
     hasPoweredByFooter: false,
   },
+  [EmailType.Invitation]: {
+    variables: ['inviterName', 'organizationName', 'inviteUrl', 'role'],
+    hasOrganizationHeader: true,
+    hasPoweredByFooter: true,
+  },
 }
 
 function readTemplate(emailType: string, locale: string): string {

@@ -72,6 +72,14 @@ export function Component() {
     handleSelectOrganization(organizations[0].id)
   }, [organizations, isPending, handleSelectOrganization])
 
+  const hasNoOrganizations = !isPending && !fetchError && (!organizations || organizations.length === 0)
+  const shouldRedirectToInvite = hasNoOrganizations && redirect?.startsWith('/invite/')
+
+  useEffect(() => {
+    if (!shouldRedirectToInvite || !redirect) return
+    navigate(redirect, { replace: true })
+  }, [shouldRedirectToInvite, redirect, navigate])
+
   function handleRetry() {
     if (!selectionError?.organizationId) return
     handleSelectOrganization(selectionError.organizationId)
@@ -102,6 +110,10 @@ export function Component() {
         </Button>
       </Card>
     )
+  }
+
+  if (shouldRedirectToInvite) {
+    return null
   }
 
   if (!organizations || organizations.length === 0) {

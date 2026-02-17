@@ -1,6 +1,7 @@
 import { Alert, AlertDescription, Button, Card } from '@igortullio-ui/react'
+import { clientEnv } from '@schedulizer/env/client'
 import { AlertCircle, CheckCircle2, Loader2, Mail, Users } from 'lucide-react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { authClient, signIn, useSession } from '@/lib/auth-client'
@@ -37,6 +38,7 @@ export function Component() {
   const [pageState, setPageState] = useState<PageState>('loading')
   const [invitation, setInvitation] = useState<InvitationData | null>(null)
   const [error, setError] = useState<PageError | null>(null)
+  const acceptTriggered = useRef(false)
 
   const fetchInvitation = useCallback(async () => {
     if (!id) {
@@ -45,7 +47,7 @@ export function Component() {
       return null
     }
     try {
-      const response = await fetch(`/api/invitations/${id}`)
+      const response = await fetch(`${clientEnv.apiUrl}/api/invitations/${id}`)
       const body = await response.json()
       if (!response.ok) {
         const errorCode = body.error?.code ?? 'UNKNOWN'
@@ -79,7 +81,9 @@ export function Component() {
           code: response.error.code,
           message: response.error.message,
         })
-        setError({ message: mapAcceptError(response.error.code, t), code: response.error.code })
+        const errorCode = response.error.code ?? ''
+        const errorMessage = response.error.message ?? ''
+        setError({ message: mapAcceptError(errorCode, errorMessage, t), code: errorCode })
         setPageState('error')
         return
       }
@@ -101,10 +105,12 @@ export function Component() {
 
   useEffect(() => {
     if (isSessionPending) return
+    if (acceptTriggered.current) return
     async function initialize() {
       const data = await fetchInvitation()
       if (!data) return
       if (session) {
+        acceptTriggered.current = true
         await acceptInvitation()
       } else {
         setPageState('show-invitation')
@@ -245,13 +251,20 @@ function mapFetchError(code: string, t: TranslationFn): string {
   return errorMessages[code] ?? t('errors.unknown')
 }
 
-function mapAcceptError(code: string | undefined, t: TranslationFn): string {
-  const errorMessages: Record<string, string> = {
+function mapAcceptError(code: string, message: string, t: TranslationFn): string {
+  const errorByCode: Record<string, string> = {
     INVITATION_NOT_FOUND: t('errors.notFound'),
     INVITATION_EXPIRED: t('errors.expired'),
-    EMAIL_MISMATCH: t('errors.emailMismatch'),
   }
-  return errorMessages[code ?? ''] ?? t('errors.acceptFailed')
+  if (errorByCode[code]) return errorByCode[code]
+  const errorByMessage: Record<string, string> = {
+    'Invitation not found': t('errors.notFound'),
+    'You are not the recipient of the invitation': t('errors.emailMismatch'),
+    'No active subscription': t('errors.noSubscription'),
+    'Plan limit exceeded for members': t('errors.planLimit'),
+  }
+  if (errorByMessage[message]) return errorByMessage[message]
+  return t('errors.acceptFailed')
 }
 
 export default Component

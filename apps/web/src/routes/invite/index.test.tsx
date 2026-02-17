@@ -213,7 +213,7 @@ describe('InvitePage', () => {
       mockSession = { user: { id: 'user-1', email: 'other@test.com' } }
       mockAcceptInvitation.mockResolvedValue({
         data: null,
-        error: { code: 'EMAIL_MISMATCH', message: 'Email mismatch' },
+        error: { code: 'UNKNOWN', message: 'You are not the recipient of the invitation' },
       })
       renderWithRouter()
       await waitFor(() => {

@@ -16,6 +16,7 @@
     "selectDate": "Select a date",
     "selectTime": "Select a time",
     "empty": "No available slots for this date.",
+    "noDatesAvailable": "No dates available this week.",
     "previousWeek": "Previous week",
     "nextWeek": "Next week",
     "errors": {

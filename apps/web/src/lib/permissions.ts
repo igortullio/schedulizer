@@ -3,7 +3,7 @@ export type Role = 'owner' | 'admin' | 'member'
 const PERMISSION_MAP: Record<string, Record<string, Role[]>> = {
   member: {
     invite: ['owner', 'admin'],
-    remove: ['owner', 'admin'],
+    delete: ['owner', 'admin'],
     list: ['owner', 'admin', 'member'],
   },
   organization: {

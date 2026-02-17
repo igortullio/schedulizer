@@ -1,4 +1,6 @@
 import {
+  Alert,
+  AlertDescription,
   Button,
   Dialog,
   DialogContent,
@@ -20,11 +22,12 @@ import { useTranslation } from 'react-i18next'
 
 interface InviteMemberDialogProps {
   isOpen: boolean
+  error: string | null
   onClose: () => void
   onSubmit: (email: string, role: 'admin' | 'member') => Promise<void>
 }
 
-export function InviteMemberDialog({ isOpen, onClose, onSubmit }: InviteMemberDialogProps) {
+export function InviteMemberDialog({ isOpen, error, onClose, onSubmit }: InviteMemberDialogProps) {
   const { t } = useTranslation('members')
   const { t: tCommon } = useTranslation('common')
   const [email, setEmail] = useState('')
@@ -57,6 +60,11 @@ export function InviteMemberDialog({ isOpen, onClose, onSubmit }: InviteMemberDi
           <DialogTitle>{t('inviteDialog.title')}</DialogTitle>
           <DialogDescription>{t('inviteDialog.description')}</DialogDescription>
         </DialogHeader>
+        {error ? (
+          <Alert variant="destructive" className="border-0 bg-destructive/10" data-testid="invite-error">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        ) : null}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="invite-email">{t('inviteDialog.emailLabel')}</Label>

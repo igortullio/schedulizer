@@ -17,21 +17,13 @@ const TEMPLATE_CONFIGS: Record<
     hasPoweredByFooter: false,
   },
   [EmailType.BookingConfirmation]: {
-    variables: [
-      'customerName',
-      'serviceName',
-      'appointmentDate',
-      'appointmentTime',
-      'organizationName',
-      'cancelUrl',
-      'rescheduleUrl',
-    ],
-    hasOrganizationHeader: true,
+    variables: ['customerName', 'serviceName', 'appointmentDate', 'appointmentTime', 'cancelUrl', 'rescheduleUrl'],
+    hasOrganizationHeader: false,
     hasPoweredByFooter: true,
   },
   [EmailType.BookingCancellation]: {
-    variables: ['customerName', 'serviceName', 'appointmentDate', 'appointmentTime', 'organizationName'],
-    hasOrganizationHeader: true,
+    variables: ['customerName', 'serviceName', 'appointmentDate', 'appointmentTime'],
+    hasOrganizationHeader: false,
     hasPoweredByFooter: true,
   },
   [EmailType.BookingReschedule]: {
@@ -42,24 +34,15 @@ const TEMPLATE_CONFIGS: Record<
       'oldTime',
       'newDate',
       'newTime',
-      'organizationName',
       'cancelUrl',
       'rescheduleUrl',
     ],
-    hasOrganizationHeader: true,
+    hasOrganizationHeader: false,
     hasPoweredByFooter: true,
   },
   [EmailType.AppointmentReminder]: {
-    variables: [
-      'customerName',
-      'serviceName',
-      'appointmentDate',
-      'appointmentTime',
-      'organizationName',
-      'cancelUrl',
-      'rescheduleUrl',
-    ],
-    hasOrganizationHeader: true,
+    variables: ['customerName', 'serviceName', 'appointmentDate', 'appointmentTime', 'cancelUrl', 'rescheduleUrl'],
+    hasOrganizationHeader: false,
     hasPoweredByFooter: true,
   },
   [EmailType.OwnerNewBooking]: {
@@ -80,7 +63,7 @@ const TEMPLATE_CONFIGS: Record<
   [EmailType.Invitation]: {
     variables: ['inviterName', 'organizationName', 'inviteUrl', 'role'],
     hasOrganizationHeader: true,
-    hasPoweredByFooter: true,
+    hasPoweredByFooter: false,
   },
 }
 

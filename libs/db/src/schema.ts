@@ -103,6 +103,7 @@ export const invitations = pgTable('invitations', {
   inviterId: uuid('inviter_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 })
 
 // Application tables

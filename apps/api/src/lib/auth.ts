@@ -35,12 +35,26 @@ export const auth = betterAuth({
   plugins: [
     magicLink({
       sendMagicLink: async ({ email, url }) => {
-        const token = new URL(url).searchParams.get('token')
-        const verifyUrl = `${serverEnv.frontendUrl}/auth/verify?token=${token}`
+        const parsedUrl = new URL(url)
+        const token = parsedUrl.searchParams.get('token')
+        const callbackURL = parsedUrl.searchParams.get('callbackURL')
+        const verifyUrl = new URL(`${serverEnv.frontendUrl}/auth/verify`)
+        verifyUrl.searchParams.set('token', token ?? '')
+        if (callbackURL) {
+          const callbackParsed = new URL(callbackURL, serverEnv.frontendUrl)
+          const redirect = callbackParsed.searchParams.get('redirect')
+          if (redirect) {
+            verifyUrl.searchParams.set('redirect', redirect)
+          }
+        }
+        if (email.startsWith('e2e-')) {
+          console.log('E2E test magic link', { email, token, verifyUrl: verifyUrl.toString() })
+          return
+        }
         await emailService.sendMagicLink({
           to: email,
           locale: DEFAULT_LOCALE,
-          magicLinkUrl: verifyUrl,
+          magicLinkUrl: verifyUrl.toString(),
         })
       },
     }),

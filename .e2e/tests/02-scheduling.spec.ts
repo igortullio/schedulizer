@@ -1,7 +1,6 @@
 import { test, expect } from '@playwright/test'
 import { cleanupTestData } from '../helpers/db'
 
-const FRONTEND_BASE_URL = 'http://localhost:4200'
 const API_BASE_URL = 'http://localhost:3000'
 
 test.describe('Scheduling', () => {

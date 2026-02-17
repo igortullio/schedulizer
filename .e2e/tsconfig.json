@@ -1,0 +1,23 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "outDir": "./dist",
+    "baseUrl": ".",
+    "paths": {
+      "@schedulizer/db": ["../libs/db/src/index.ts"],
+      "@schedulizer/shared-types": ["../libs/shared/types/src/index.ts"],
+      "@schedulizer/env": ["../libs/shared/env/src/index.ts"],
+      "@schedulizer/env/server": ["../libs/shared/env/src/server.ts"],
+      "@schedulizer/env/client": ["../libs/shared/env/src/client.ts"],
+      "@schedulizer/billing": ["../libs/billing/src/index.ts"],
+      "@schedulizer/email": ["../libs/email/src/index.ts"]
+    }
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", "dist", "reports", "screenshots"]
+}

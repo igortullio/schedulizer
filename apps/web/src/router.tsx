@@ -16,6 +16,7 @@ export const router = createBrowserRouter([
       { path: 'services', lazy: () => import('@/routes/dashboard/services') },
       { path: 'appointments', lazy: () => import('@/routes/dashboard/appointments') },
       { path: 'time-blocks', lazy: () => import('@/routes/dashboard/time-blocks') },
+      { path: 'members', lazy: () => import('@/routes/dashboard/members') },
       { path: 'settings', lazy: () => import('@/routes/dashboard/settings') },
       { path: 'subscription', element: <Navigate to="/dashboard/settings" replace /> },
     ],
@@ -55,6 +56,11 @@ export const router = createBrowserRouter([
   {
     path: '/checkout/cancel',
     lazy: () => import('@/routes/checkout/cancel'),
+  },
+  {
+    path: '/invite/:id',
+    element: <AuthLayout />,
+    children: [{ index: true, lazy: () => import('@/routes/invite/index') }],
   },
   {
     path: '/booking',

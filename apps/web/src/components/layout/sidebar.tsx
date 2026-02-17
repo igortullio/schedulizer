@@ -23,6 +23,7 @@ import {
   PanelLeftOpen,
   Plus,
   Settings,
+  Users,
   X,
 } from 'lucide-react'
 import { useState } from 'react'
@@ -31,6 +32,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { LanguageSelector } from '@/components/language-selector'
 import { useSubscriptionContext } from '@/contexts/subscription-context'
 import { authClient, signOut } from '@/lib/auth-client'
+import { canAccessMembersPage } from '@/lib/permissions'
 
 interface NavItem {
   to: string
@@ -51,8 +53,10 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isOrgPopoverOpen, setIsOrgPopoverOpen] = useState(false)
   const { data: organizations, isPending: isLoadingOrgs } = authClient.useListOrganizations()
+  const { data: activeMember } = authClient.useActiveMember()
   const { usage } = useSubscriptionContext()
   const servicesCount = usage?.services.current ?? 0
+  const memberRole = (activeMember?.role ?? 'member') as 'owner' | 'admin' | 'member'
   const navItems: NavItem[] = [
     { to: '/dashboard', label: t('sidebar.overview'), icon: <LayoutDashboard className="h-5 w-5" /> },
     {
@@ -63,6 +67,9 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
     },
     { to: '/dashboard/appointments', label: t('sidebar.appointments'), icon: <CalendarDays className="h-5 w-5" /> },
     { to: '/dashboard/time-blocks', label: t('sidebar.timeBlocks'), icon: <Clock className="h-5 w-5" /> },
+    ...(canAccessMembersPage(memberRole)
+      ? [{ to: '/dashboard/members', label: t('sidebar.members'), icon: <Users className="h-5 w-5" /> }]
+      : []),
   ]
   async function handleSignOut() {
     await signOut()

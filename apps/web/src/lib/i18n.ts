@@ -21,6 +21,8 @@ void i18n
       'booking',
       'settings',
       'appointments',
+      'members',
+      'invite',
     ],
     defaultNS: 'auth',
     detection: {

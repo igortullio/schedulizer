@@ -14,6 +14,7 @@ import { Router, raw } from 'express'
 import type Stripe from 'stripe'
 import { z } from 'zod'
 import { auth } from '../lib/auth'
+import { requirePermission } from '../middlewares/require-permission.middleware'
 
 const router = Router()
 const db = createDb(serverEnv.databaseUrl)
@@ -51,7 +52,7 @@ async function getOrCreateCustomer(organizationId: string, email: string): Promi
   return customer.id
 }
 
-router.post('/checkout', async (req, res) => {
+router.post('/checkout', requirePermission('billing', 'manage'), async (req, res) => {
   try {
     const session = await auth.api.getSession({
       headers: fromNodeHeaders(req.headers),
@@ -112,7 +113,7 @@ router.post('/checkout', async (req, res) => {
   }
 })
 
-router.post('/portal', async (req, res) => {
+router.post('/portal', requirePermission('billing', 'manage'), async (req, res) => {
   try {
     const session = await auth.api.getSession({
       headers: fromNodeHeaders(req.headers),

@@ -5,6 +5,7 @@ import type {
   BookingCancellationParams,
   BookingConfirmationParams,
   BookingRescheduleParams,
+  InvitationParams,
   MagicLinkParams,
   OwnerCancellationParams,
   OwnerNewBookingParams,
@@ -154,6 +155,23 @@ export class EmailService {
         serviceName: params.serviceName,
         appointmentDate: params.appointmentDate,
         appointmentTime: params.appointmentTime,
+      },
+    })
+  }
+
+  async sendInvitation(params: InvitationParams): Promise<void> {
+    const templateId = this.registry.getTemplateId(EmailType.Invitation, params.locale)
+    const subject =
+      params.locale === 'pt-BR' ? `Convite para ${params.organizationName}` : `Invitation to ${params.organizationName}`
+    await this.sendWithTemplate({
+      to: params.to,
+      subject,
+      templateId,
+      variables: {
+        inviterName: params.inviterName,
+        organizationName: params.organizationName,
+        inviteUrl: params.inviteUrl,
+        role: params.role,
       },
     })
   }

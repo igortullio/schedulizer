@@ -6,6 +6,7 @@ import { and, eq, ne } from 'drizzle-orm'
 import { Router } from 'express'
 import { z } from 'zod'
 import { auth } from '../lib/auth'
+import { requirePermission } from '../middlewares/require-permission.middleware'
 
 const router = Router()
 const db = createDb(serverEnv.databaseUrl)
@@ -107,7 +108,7 @@ router.get('/settings', async (req, res) => {
   }
 })
 
-router.patch('/settings', async (req, res) => {
+router.patch('/settings', requirePermission('organization', 'update'), async (req, res) => {
   try {
     const session = await auth.api.getSession({
       headers: fromNodeHeaders(req.headers),

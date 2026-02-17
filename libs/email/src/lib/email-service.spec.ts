@@ -470,6 +470,56 @@ describe('EmailService', () => {
     })
   })
 
+  it('should send invitation email in pt-BR', async () => {
+    await emailService.sendInvitation({
+      to: 'invited@example.com',
+      locale: 'pt-BR',
+      inviterName: 'João Silva',
+      organizationName: 'Barbearia do João',
+      inviteUrl: 'https://app.schedulizer.me/invite/abc-123',
+      role: 'member',
+    })
+    expect(mockSend).toHaveBeenCalledWith({
+      from: EMAIL_FROM,
+      to: 'invited@example.com',
+      subject: 'Convite para Barbearia do João',
+      template: {
+        id: 'invitation_pt-br',
+        variables: {
+          inviterName: 'João Silva',
+          organizationName: 'Barbearia do João',
+          inviteUrl: 'https://app.schedulizer.me/invite/abc-123',
+          role: 'member',
+        },
+      },
+    })
+  })
+
+  it('should send invitation email in en', async () => {
+    await emailService.sendInvitation({
+      to: 'invited@example.com',
+      locale: 'en',
+      inviterName: 'John Doe',
+      organizationName: 'John Barber Shop',
+      inviteUrl: 'https://app.schedulizer.me/invite/abc-123',
+      role: 'admin',
+    })
+    expect(mockSend).toHaveBeenCalledWith({
+      from: EMAIL_FROM,
+      to: 'invited@example.com',
+      subject: 'Invitation to John Barber Shop',
+      template: {
+        id: 'invitation_en',
+        variables: {
+          inviterName: 'John Doe',
+          organizationName: 'John Barber Shop',
+          inviteUrl: 'https://app.schedulizer.me/invite/abc-123',
+          role: 'admin',
+        },
+      },
+    })
+  })
+
   it('should not throw on Resend API error', async () => {
     mockSend.mockResolvedValueOnce({
       data: null,

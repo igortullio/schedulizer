@@ -85,3 +85,12 @@ export interface OwnerRescheduleParams {
   newDate: string
   newTime: string
 }
+
+export interface InvitationParams {
+  to: string
+  locale: Locale
+  inviterName: string
+  organizationName: string
+  inviteUrl: string
+  role: string
+}

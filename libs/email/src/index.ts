@@ -6,6 +6,7 @@ export type {
   BookingCancellationParams,
   BookingConfirmationParams,
   BookingRescheduleParams,
+  InvitationParams,
   MagicLinkParams,
   OwnerCancellationParams,
   OwnerNewBookingParams,

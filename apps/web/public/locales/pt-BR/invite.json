@@ -1,0 +1,37 @@
+{
+  "title": "Você foi convidado!",
+  "description": "{{inviterName}} convidou você para a organização {{organizationName}}.",
+  "organization": "Organização",
+  "role": "Papel",
+  "email": "E-mail",
+  "signInToAccept": "Entrar para aceitar o convite",
+  "loading": "Carregando convite",
+  "loadingDescription": "Aguarde enquanto carregamos os detalhes do convite…",
+  "accepting": "Aceitando convite",
+  "acceptingDescription": "Aguarde enquanto adicionamos você à organização…",
+  "accepted": "Convite aceito!",
+  "acceptedDescription": "Você foi adicionado à organização. Redirecionando…",
+  "magicLinkSent": "Verifique seu e-mail",
+  "magicLinkSentDescription": "Enviamos um link de acesso para",
+  "magicLinkSentHint": "Clique no link no e-mail para entrar e aceitar o convite.",
+  "errorTitle": "Não foi possível processar o convite",
+  "goToLogin": "Ir para o login",
+  "roles": {
+    "owner": "Proprietário",
+    "admin": "Administrador",
+    "member": "Membro"
+  },
+  "errors": {
+    "invalidId": "ID do convite inválido.",
+    "notFound": "Convite não encontrado. Verifique o link e tente novamente.",
+    "expired": "Este convite expirou. Solicite um novo convite ao administrador.",
+    "invalid": "Este convite não é mais válido.",
+    "emailMismatch": "O e-mail da sua conta não corresponde ao e-mail do convite.",
+    "noSubscription": "A organização não possui uma assinatura ativa.",
+    "planLimit": "A organização atingiu o limite de membros do plano.",
+    "acceptFailed": "Falha ao aceitar o convite. Tente novamente.",
+    "magicLinkFailed": "Falha ao enviar o link de acesso. Tente novamente.",
+    "fetchFailed": "Falha ao carregar os detalhes do convite. Tente novamente.",
+    "unknown": "Ocorreu um erro inesperado. Tente novamente."
+  }
+}

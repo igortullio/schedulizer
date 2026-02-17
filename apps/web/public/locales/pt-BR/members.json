@@ -1,0 +1,72 @@
+{
+  "me": "Eu",
+  "title": "Membros",
+  "description": "Gerencie os membros e convites da sua organização.",
+  "emptyState": "Nenhum membro encontrado.",
+  "emptyInvitations": "Nenhum convite pendente.",
+  "sections": {
+    "members": "Membros Ativos",
+    "invitations": "Convites Pendentes"
+  },
+  "roles": {
+    "owner": "Proprietário",
+    "admin": "Administrador",
+    "member": "Membro"
+  },
+  "actions": {
+    "invite": "Convidar membro",
+    "remove": "Remover",
+    "resend": "Reenviar",
+    "cancel": "Cancelar convite"
+  },
+  "inviteDialog": {
+    "title": "Convidar membro",
+    "description": "Envie um convite por email para adicionar um novo membro à sua organização.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "membro@exemplo.com",
+    "roleLabel": "Papel",
+    "selectRole": "Selecione um papel",
+    "submit": "Enviar convite",
+    "sending": "Enviando..."
+  },
+  "removeDialog": {
+    "title": "Remover membro",
+    "description": "Tem certeza que deseja remover {{name}} da organização? Esta ação não pode ser desfeita.",
+    "confirm": "Remover membro",
+    "removing": "Removendo..."
+  },
+  "cancelInvitationDialog": {
+    "title": "Cancelar convite",
+    "description": "Tem certeza que deseja cancelar o convite para {{email}}?",
+    "confirm": "Cancelar convite",
+    "cancelling": "Cancelando..."
+  },
+  "table": {
+    "name": "Nome",
+    "email": "Email",
+    "role": "Papel",
+    "actions": "Ações",
+    "expiresAt": "Expira",
+    "status": "Status"
+  },
+  "invitation": {
+    "expired": "Expirado",
+    "pending": "Pendente",
+    "expiresIn": "Expira em {{days}}d"
+  },
+  "errors": {
+    "fetchMembers": "Falha ao carregar membros.",
+    "fetchInvitations": "Falha ao carregar convites.",
+    "invite": "Falha ao enviar convite.",
+    "remove": "Falha ao remover membro.",
+    "cancel": "Falha ao cancelar convite.",
+    "resend": "Falha ao reenviar convite.",
+    "planLimit": "Você atingiu o limite de membros do seu plano."
+  },
+  "success": {
+    "invite": "Convite enviado com sucesso.",
+    "remove": "Membro removido com sucesso.",
+    "cancel": "Convite cancelado com sucesso.",
+    "resend": "Convite reenviado com sucesso."
+  }
+}

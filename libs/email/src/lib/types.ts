@@ -9,6 +9,7 @@ export enum EmailType {
   OwnerNewBooking = 'owner-new-booking',
   OwnerCancellation = 'owner-cancellation',
   OwnerReschedule = 'owner-reschedule',
+  Invitation = 'invitation',
 }
 
 export interface SendEmailParams {

@@ -3,6 +3,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { AuthLayout } from '@/components/layout/auth-layout'
 import { DashboardLayout } from '@/components/layout/dashboard-layout'
 import { PublicLayout } from '@/components/layout/public-layout'
+import { RoleGuard } from '@/components/layout/role-guard'
 
 const routeErrorFallback = (
   <div style={{ padding: '2rem', textAlign: 'center' }}>
@@ -27,8 +28,17 @@ export const router = createBrowserRouter([
       { path: 'services', lazy: () => import('@/routes/dashboard/services') },
       { path: 'appointments', lazy: () => import('@/routes/dashboard/appointments') },
       { path: 'time-blocks', lazy: () => import('@/routes/dashboard/time-blocks') },
-      { path: 'settings', lazy: () => import('@/routes/dashboard/settings') },
-      { path: 'subscription', element: <Navigate to="/dashboard/settings" replace /> },
+      {
+        element: <RoleGuard allowedRoles={['owner', 'admin']} />,
+        children: [{ path: 'members', lazy: () => import('@/routes/dashboard/members') }],
+      },
+      {
+        element: <RoleGuard allowedRoles={['owner']} />,
+        children: [
+          { path: 'settings', lazy: () => import('@/routes/dashboard/settings') },
+          { path: 'subscription', element: <Navigate to="/dashboard/settings" replace /> },
+        ],
+      },
     ],
   },
   {
@@ -86,6 +96,11 @@ export const router = createBrowserRouter([
         ),
       }
     },
+  },
+  {
+    path: '/invite/:id',
+    element: <AuthLayout />,
+    children: [{ index: true, lazy: () => import('@/routes/invite/index') }],
   },
   {
     path: '/booking',

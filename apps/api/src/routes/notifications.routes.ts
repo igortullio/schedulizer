@@ -1,7 +1,7 @@
 import { createDb, schema } from '@schedulizer/db'
 import { EmailService, type Locale } from '@schedulizer/email'
 import { serverEnv } from '@schedulizer/env/server'
-import { withMonitoring } from '@schedulizer/observability'
+import { withMonitoring } from '@schedulizer/observability/node'
 import { formatInTimeZone } from 'date-fns-tz'
 import { and, eq, gt, inArray, isNull, lt } from 'drizzle-orm'
 import { Router } from 'express'

@@ -1,5 +1,5 @@
 import { serverEnv } from '@schedulizer/env/server'
-import { captureWithContext, sentryContextMiddleware } from '@schedulizer/observability'
+import { captureWithContext, sentryContextMiddleware } from '@schedulizer/observability/node'
 import * as Sentry from '@sentry/node'
 import { toNodeHandler } from 'better-auth/node'
 import cors from 'cors'
@@ -59,7 +59,7 @@ app.use('/api/notifications', notificationsRoutes)
 app.use('/health', healthRoutes)
 
 if (serverEnv.sentryEnvironment !== 'production') {
-  app.get('/api/sentry-debug', () => {
+  app.get('/api/sentry-debug', (_req, _res) => {
     throw new Error('Sentry integration test error')
   })
 }

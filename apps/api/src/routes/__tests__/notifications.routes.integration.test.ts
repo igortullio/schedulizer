@@ -14,7 +14,7 @@ const { mockWithMonitoring } = vi.hoisted(() => ({
   mockWithMonitoring: vi.fn((_config: unknown, handler: () => Promise<unknown>) => handler()),
 }))
 
-vi.mock('@schedulizer/observability', () => ({
+vi.mock('@schedulizer/observability/node', () => ({
   withMonitoring: mockWithMonitoring,
 }))
 

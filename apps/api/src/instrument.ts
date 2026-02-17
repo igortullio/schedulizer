@@ -1,7 +1,8 @@
-import { createSentryNodeConfig } from '@schedulizer/observability'
+import { serverEnv } from '@schedulizer/env/server'
+import { createSentryNodeConfig } from '@schedulizer/observability/node'
 
 createSentryNodeConfig({
-  dsn: process.env.SENTRY_DSN ?? '',
-  environment: process.env.SENTRY_ENVIRONMENT ?? 'development',
-  release: process.env.SENTRY_RELEASE,
+  dsn: serverEnv.sentryDsnApi ?? '',
+  environment: serverEnv.sentryEnvironment,
+  release: serverEnv.sentryRelease,
 })

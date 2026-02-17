@@ -15,7 +15,7 @@
       "executor": "nx:run-commands",
       "defaultConfiguration": "development",
       "options": {
-        "command": "tsx watch apps/api/src/index.ts"
+        "command": "tsx watch --import ./apps/api/src/instrument.ts apps/api/src/index.ts"
       },
       "configurations": {
         "development": {},

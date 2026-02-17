@@ -1,6 +1,6 @@
 import express from 'express'
 import request from 'supertest'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@schedulizer/env/server', () => ({
   serverEnv: {
@@ -147,6 +147,8 @@ function selectNoLimit(data: unknown[]) {
 
 describe('Booking Routes Integration', () => {
   beforeEach(() => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2025-01-01T00:00:00Z'))
     vi.clearAllMocks()
     mockDbSelect.mockReset()
     mockDbInsert.mockReset()
@@ -155,6 +157,10 @@ describe('Booking Routes Integration', () => {
     mockDbTransaction.mockImplementation(async (cb: (tx: unknown) => unknown) =>
       cb({ select: mockDbSelect, insert: mockDbInsert, update: mockDbUpdate }),
     )
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
   describe('GET /booking/:slug', () => {

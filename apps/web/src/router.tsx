@@ -1,4 +1,4 @@
-import { SentryErrorBoundary } from '@schedulizer/observability'
+import { SentryErrorBoundary } from '@schedulizer/observability/browser'
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { AuthLayout } from '@/components/layout/auth-layout'
 import { DashboardLayout } from '@/components/layout/dashboard-layout'

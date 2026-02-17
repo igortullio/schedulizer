@@ -2,13 +2,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mockCreateSentryBrowserConfig = vi.fn()
 
-vi.mock('@schedulizer/observability', () => ({
+vi.mock('@schedulizer/observability/browser', () => ({
   createSentryBrowserConfig: mockCreateSentryBrowserConfig,
 }))
 
 vi.mock('@schedulizer/env/client', () => ({
   clientEnv: {
-    sentryDsn: 'https://examplePublicKey@o0.ingest.sentry.io/0',
+    sentryDsnWeb: undefined,
+    sentryDsnLanding: 'https://examplePublicKey@o0.ingest.sentry.io/0',
     sentryEnvironment: 'test',
     apiUrl: '',
     webUrl: undefined,
@@ -32,6 +33,8 @@ describe('instrument', () => {
     expect(mockCreateSentryBrowserConfig).toHaveBeenCalledWith({
       dsn: 'https://examplePublicKey@o0.ingest.sentry.io/0',
       environment: 'test',
+      maskAllText: false,
+      blockAllMedia: false,
     })
   })
 
@@ -47,7 +50,8 @@ describe('instrument with missing DSN', () => {
     mockCreateSentryBrowserConfig.mockClear()
     vi.doMock('@schedulizer/env/client', () => ({
       clientEnv: {
-        sentryDsn: undefined,
+        sentryDsnWeb: undefined,
+        sentryDsnLanding: undefined,
         sentryEnvironment: 'development',
         apiUrl: '',
         webUrl: undefined,
@@ -66,6 +70,8 @@ describe('instrument with missing DSN', () => {
     expect(mockCreateSentryBrowserConfig).toHaveBeenCalledWith({
       dsn: '',
       environment: 'development',
+      maskAllText: false,
+      blockAllMedia: false,
     })
   })
 })

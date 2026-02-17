@@ -24,7 +24,7 @@ export default defineConfig(() => ({
       project: process.env.SENTRY_PROJECT_LANDING,
       authToken: process.env.SENTRY_AUTH_TOKEN,
       sourcemaps: {
-        deleteAfterUpload: true,
+        deleteFilesAfterUpload: '**/*.map',
       },
       disable: !process.env.SENTRY_AUTH_TOKEN,
     }),
@@ -37,6 +37,8 @@ export default defineConfig(() => ({
       '@schedulizer/env': `${import.meta.dirname}/../../libs/shared/env/src/index.ts`,
       '@schedulizer/shared-types': `${import.meta.dirname}/../../libs/shared/types/src/index.ts`,
       '@schedulizer/db': `${import.meta.dirname}/../../libs/db/src/index.ts`,
+      '@schedulizer/observability/browser': `${import.meta.dirname}/../../libs/observability/src/browser.ts`,
+      '@schedulizer/observability/node': `${import.meta.dirname}/../../libs/observability/src/node.ts`,
       '@schedulizer/observability': `${import.meta.dirname}/../../libs/observability/src/index.ts`,
     },
   },

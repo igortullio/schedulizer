@@ -1,6 +1,6 @@
 import './instrument'
 import './lib/i18n'
-import { SentryErrorBoundary } from '@schedulizer/observability'
+import { SentryErrorBoundary } from '@schedulizer/observability/browser'
 import { StrictMode } from 'react'
 import * as ReactDOM from 'react-dom/client'
 import { RouterProvider } from 'react-router-dom'

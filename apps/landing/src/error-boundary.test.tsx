@@ -1,4 +1,4 @@
-import { SentryErrorBoundary } from '@schedulizer/observability'
+import { SentryErrorBoundary } from '@schedulizer/observability/browser'
 import * as Sentry from '@sentry/react'
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
@@ -19,7 +19,8 @@ vi.mock('@sentry/react', () => ({
 
 vi.mock('@schedulizer/env/client', () => ({
   clientEnv: {
-    sentryDsn: '',
+    sentryDsnWeb: undefined,
+    sentryDsnLanding: '',
     sentryEnvironment: 'test',
     apiUrl: '',
     webUrl: undefined,

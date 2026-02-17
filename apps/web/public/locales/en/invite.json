@@ -1,0 +1,35 @@
+{
+  "title": "You've been invited!",
+  "description": "{{inviterName}} invited you to join {{organizationName}}.",
+  "organization": "Organization",
+  "role": "Role",
+  "email": "Email",
+  "signInToAccept": "Sign in to accept invitation",
+  "loading": "Loading invitation",
+  "loadingDescription": "Please wait while we load the invitation details…",
+  "accepting": "Accepting invitation",
+  "acceptingDescription": "Please wait while we add you to the organization…",
+  "accepted": "Invitation accepted!",
+  "acceptedDescription": "You've been added to the organization. Redirecting…",
+  "magicLinkSent": "Check your email",
+  "magicLinkSentDescription": "We sent an access link to",
+  "magicLinkSentHint": "Click the link in the email to sign in and accept the invitation.",
+  "errorTitle": "Could not process invitation",
+  "goToLogin": "Go to login",
+  "roles": {
+    "owner": "Owner",
+    "admin": "Admin",
+    "member": "Member"
+  },
+  "errors": {
+    "invalidId": "Invalid invitation ID.",
+    "notFound": "Invitation not found. Please check the link and try again.",
+    "expired": "This invitation has expired. Please ask the administrator for a new one.",
+    "invalid": "This invitation is no longer valid.",
+    "emailMismatch": "Your account email does not match the invitation email.",
+    "acceptFailed": "Failed to accept the invitation. Please try again.",
+    "magicLinkFailed": "Failed to send the access link. Please try again.",
+    "fetchFailed": "Failed to load invitation details. Please try again.",
+    "unknown": "An unexpected error occurred. Please try again."
+  }
+}

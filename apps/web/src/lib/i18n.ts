@@ -22,6 +22,7 @@ void i18n
       'settings',
       'appointments',
       'members',
+      'invite',
     ],
     defaultNS: 'auth',
     detection: {

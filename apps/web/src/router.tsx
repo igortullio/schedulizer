@@ -58,6 +58,11 @@ export const router = createBrowserRouter([
     lazy: () => import('@/routes/checkout/cancel'),
   },
   {
+    path: '/invite/:id',
+    element: <AuthLayout />,
+    children: [{ index: true, lazy: () => import('@/routes/invite/index') }],
+  },
+  {
     path: '/booking',
     element: <PublicLayout />,
     children: [

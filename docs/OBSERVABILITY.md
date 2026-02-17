@@ -16,9 +16,9 @@ This runbook covers the operational procedures for the Schedulizer observability
 
 | Project | App | DSN Source |
 |---------|-----|-----------|
-| `schedulizer-api` | `apps/api` | `SENTRY_DSN` env var |
-| `schedulizer-web` | `apps/web` | `VITE_SENTRY_DSN` env var |
-| `schedulizer-landing` | `apps/landing` | `VITE_SENTRY_DSN` env var |
+| `schedulizer-api` | `apps/api` | `SENTRY_DSN_API` env var |
+| `schedulizer-web` | `apps/web` | `VITE_SENTRY_DSN_WEB` env var |
+| `schedulizer-landing` | `apps/landing` | `VITE_SENTRY_DSN_LANDING` env var |
 
 ## Dashboard Access
 
@@ -175,7 +175,10 @@ To verify source maps are correctly uploaded and working:
 
 **Disable error tracking without code changes:**
 
-1. In Coolify, remove the `SENTRY_DSN` environment variable from the API, web, and landing services
+1. In Coolify, remove the Sentry DSN environment variables from the services:
+   - API: Remove `SENTRY_DSN_API`
+   - Web: Remove `VITE_SENTRY_DSN_WEB`
+   - Landing: Remove `VITE_SENTRY_DSN_LANDING`
 2. Re-deploy all three services
 3. The Sentry SDK will not initialize without a DSN — the app continues working normally without error tracking
 
@@ -201,7 +204,10 @@ To verify source maps are correctly uploaded and working:
 
 To revert to the pre-observability state:
 
-1. Remove `SENTRY_DSN` from all services in Coolify
+1. Remove Sentry DSN environment variables from all services in Coolify:
+   - API: Remove `SENTRY_DSN_API`
+   - Web: Remove `VITE_SENTRY_DSN_WEB`
+   - Landing: Remove `VITE_SENTRY_DSN_LANDING`
 2. Remove `--require ./instrument.cjs` from the API entrypoint
 3. Remove `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, and `SENTRY_PROJECT_*` build arguments
 4. Stop the Uptime Kuma service in Coolify
@@ -233,7 +239,9 @@ The Sentry free tier allows 5,000 errors per month. To manage quota:
 
 | Variable | Apps | Type | Description |
 |----------|------|------|-------------|
-| `SENTRY_DSN` | api, web, landing | Runtime | Sentry project DSN for event ingestion |
+| `SENTRY_DSN_API` | api | Runtime | Sentry project DSN for API event ingestion |
+| `VITE_SENTRY_DSN_WEB` | web | Runtime | Sentry project DSN for web app event ingestion |
+| `VITE_SENTRY_DSN_LANDING` | landing | Runtime | Sentry project DSN for landing page event ingestion |
 | `SENTRY_ENVIRONMENT` | api, web, landing | Runtime | Environment identifier (`production`, `staging`, `development`) |
 | `SENTRY_AUTH_TOKEN` | web, landing | Build-time only | Token for source map upload (do NOT expose at runtime) |
 | `SENTRY_ORG` | web, landing | Build-time only | Sentry organization slug |

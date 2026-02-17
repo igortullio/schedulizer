@@ -46,7 +46,7 @@
    RESEND_API_KEY=re_your_api_key
    TURNSTILE_SECRET_KEY=your_secret_key (optional)
    NODE_ENV=production
-   SENTRY_DSN=https://xxx@xxx.ingest.sentry.io/xxx
+   SENTRY_DSN_API=https://xxx@xxx.ingest.sentry.io/xxx
    SENTRY_ENVIRONMENT=production
    ```
 
@@ -76,7 +76,7 @@ curl https://api.schedulizer.me/health
 5. In **Build Arguments** (not Environment Variables!):
    ```
    VITE_API_URL=https://api.schedulizer.me
-   VITE_SENTRY_DSN=https://xxx@xxx.ingest.sentry.io/xxx
+   VITE_SENTRY_DSN_LANDING=https://xxx@xxx.ingest.sentry.io/xxx
    VITE_SENTRY_ENVIRONMENT=production
    SENTRY_AUTH_TOKEN=sntrys_xxx
    SENTRY_ORG=your-sentry-org
@@ -181,14 +181,14 @@ Coolify configures SSL automatically via Let's Encrypt. Verify:
 | RESEND_API_KEY | re_xxx | ✅ |
 | TURNSTILE_SECRET_KEY | xxx | ❌ |
 | NODE_ENV | production | ✅ |
-| SENTRY_DSN | https://xxx@xxx.ingest.sentry.io/xxx | ❌ |
+| SENTRY_DSN_API | https://xxx@xxx.ingest.sentry.io/xxx | ❌ |
 | SENTRY_ENVIRONMENT | production | ❌ |
 
 ### Web (Environment Variables + Build Arguments)
 | Variable | Type | Example | Required |
 |----------|------|---------|----------|
 | VITE_API_URL | Build Arg | https://api.schedulizer.me | ✅ |
-| VITE_SENTRY_DSN | Build Arg | https://xxx@xxx.ingest.sentry.io/xxx | ❌ |
+| VITE_SENTRY_DSN_WEB | Build Arg | https://xxx@xxx.ingest.sentry.io/xxx | ❌ |
 | VITE_SENTRY_ENVIRONMENT | Build Arg | production | ❌ |
 | SENTRY_AUTH_TOKEN | Build Arg | sntrys_xxx | ❌ |
 | SENTRY_ORG | Build Arg | your-sentry-org | ❌ |
@@ -198,7 +198,7 @@ Coolify configures SSL automatically via Let's Encrypt. Verify:
 | Variable | Example | Required |
 |----------|---------|----------|
 | VITE_API_URL | https://api.schedulizer.me | ✅ |
-| VITE_SENTRY_DSN | https://xxx@xxx.ingest.sentry.io/xxx | ❌ |
+| VITE_SENTRY_DSN_LANDING | https://xxx@xxx.ingest.sentry.io/xxx | ❌ |
 | VITE_SENTRY_ENVIRONMENT | production | ❌ |
 | SENTRY_AUTH_TOKEN | sntrys_xxx | ❌ |
 | SENTRY_ORG | your-sentry-org | ❌ |

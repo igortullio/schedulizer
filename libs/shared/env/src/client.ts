@@ -9,7 +9,8 @@ const clientEnvSchema = z.object({
   VITE_STRIPE_PRICE_ESSENTIAL_YEARLY: z.string().startsWith('price_'),
   VITE_STRIPE_PRICE_PROFESSIONAL_MONTHLY: z.string().startsWith('price_'),
   VITE_STRIPE_PRICE_PROFESSIONAL_YEARLY: z.string().startsWith('price_'),
-  VITE_SENTRY_DSN: z.string().optional(),
+  VITE_SENTRY_DSN_WEB: z.string().optional(),
+  VITE_SENTRY_DSN_LANDING: z.string().optional(),
   VITE_SENTRY_ENVIRONMENT: z.string().optional().default('development'),
 })
 
@@ -24,7 +25,8 @@ interface ParsedClientEnv {
   stripePriceEssentialYearly: string
   stripePriceProfessionalMonthly: string
   stripePriceProfessionalYearly: string
-  sentryDsn: string | undefined
+  sentryDsnWeb: string | undefined
+  sentryDsnLanding: string | undefined
   sentryEnvironment: string | undefined
 }
 
@@ -56,7 +58,8 @@ function createClientEnv(): ClientEnvResult {
       stripePriceEssentialYearly: result.data.VITE_STRIPE_PRICE_ESSENTIAL_YEARLY,
       stripePriceProfessionalMonthly: result.data.VITE_STRIPE_PRICE_PROFESSIONAL_MONTHLY,
       stripePriceProfessionalYearly: result.data.VITE_STRIPE_PRICE_PROFESSIONAL_YEARLY,
-      sentryDsn: result.data.VITE_SENTRY_DSN,
+      sentryDsnWeb: result.data.VITE_SENTRY_DSN_WEB,
+      sentryDsnLanding: result.data.VITE_SENTRY_DSN_LANDING,
       sentryEnvironment: result.data.VITE_SENTRY_ENVIRONMENT,
     },
     error: null,
@@ -76,7 +79,8 @@ export const clientEnv: ParsedClientEnv = clientEnvResult.success
       stripePriceEssentialYearly: '',
       stripePriceProfessionalMonthly: '',
       stripePriceProfessionalYearly: '',
-      sentryDsn: undefined,
+      sentryDsnWeb: undefined,
+      sentryDsnLanding: undefined,
       sentryEnvironment: undefined,
     }
 

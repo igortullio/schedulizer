@@ -35,7 +35,8 @@ The following secrets must be configured in the GitHub repository for workflows 
 | Secret | Used in | Purpose | Example |
 |--------|---------|---------|---------|
 | `VITE_TURNSTILE_SITE_KEY` | CD (main branch) | Cloudflare Turnstile site key for captcha. If not configured, the system works without captcha. | `0x4AAAAAAxxxx` |
-| `VITE_SENTRY_DSN` | CD (main branch) | Sentry DSN for frontend error tracking. If not configured, Sentry is disabled. | `https://xxx@xxx.ingest.sentry.io/xxx` |
+| `VITE_SENTRY_DSN_WEB` | CD (main branch) | Sentry DSN for web app error tracking. If not configured, Sentry is disabled. | `https://xxx@xxx.ingest.sentry.io/xxx` |
+| `VITE_SENTRY_DSN_LANDING` | CD (main branch) | Sentry DSN for landing page error tracking. If not configured, Sentry is disabled. | `https://xxx@xxx.ingest.sentry.io/xxx` |
 | `VITE_SENTRY_ENVIRONMENT` | CD (main branch) | Sentry environment identifier for frontend. | `production` |
 | `SENTRY_AUTH_TOKEN` | CD (main branch) | Sentry auth token for source map uploads during build. | `sntrys_xxx` |
 | `SENTRY_ORG` | CD (main branch) | Sentry organization slug for source map uploads. | `your-sentry-org` |
@@ -53,7 +54,8 @@ Defined in `/libs/shared/env/src/client.ts`. **All must have `VITE_` prefix** to
 |----------|----------|---------|------------|
 | `VITE_API_URL` | ✅ Yes | Backend API base URL | Must be a valid URL |
 | `VITE_TURNSTILE_SITE_KEY` | ❌ No | Cloudflare Turnstile public key for captcha | Optional string |
-| `VITE_SENTRY_DSN` | ❌ No | Sentry DSN for frontend error tracking | Optional string |
+| `VITE_SENTRY_DSN_WEB` | ❌ No | Sentry DSN for web app error tracking | Optional string |
+| `VITE_SENTRY_DSN_LANDING` | ❌ No | Sentry DSN for landing page error tracking | Optional string |
 | `VITE_SENTRY_ENVIRONMENT` | ❌ No | Sentry environment identifier | Optional string |
 
 #### Server Variables (Backend)
@@ -67,7 +69,7 @@ Defined in `/libs/shared/env/src/server.ts`. **Must not have `VITE_` prefix**.
 | `BETTER_AUTH_URL` | ✅ Yes | Application base URL for auth | Required string |
 | `RESEND_API_KEY` | ✅ Yes | Resend API key for sending emails | Required string |
 | `TURNSTILE_SECRET_KEY` | ❌ No | Cloudflare Turnstile secret key for captcha | Optional string |
-| `SENTRY_DSN` | ❌ No | Sentry DSN for backend error tracking | Optional string |
+| `SENTRY_DSN_API` | ❌ No | Sentry DSN for backend error tracking | Optional string |
 | `SENTRY_ENVIRONMENT` | ❌ No | Sentry environment identifier (production, staging) | Optional string |
 
 ## Step-by-Step Configuration

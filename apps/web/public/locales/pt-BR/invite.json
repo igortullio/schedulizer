@@ -27,6 +27,8 @@
     "expired": "Este convite expirou. Solicite um novo convite ao administrador.",
     "invalid": "Este convite não é mais válido.",
     "emailMismatch": "O e-mail da sua conta não corresponde ao e-mail do convite.",
+    "noSubscription": "A organização não possui uma assinatura ativa.",
+    "planLimit": "A organização atingiu o limite de membros do plano.",
     "acceptFailed": "Falha ao aceitar o convite. Tente novamente.",
     "magicLinkFailed": "Falha ao enviar o link de acesso. Tente novamente.",
     "fetchFailed": "Falha ao carregar os detalhes do convite. Tente novamente.",

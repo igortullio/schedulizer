@@ -27,6 +27,8 @@
     "expired": "This invitation has expired. Please ask the administrator for a new one.",
     "invalid": "This invitation is no longer valid.",
     "emailMismatch": "Your account email does not match the invitation email.",
+    "noSubscription": "The organization does not have an active subscription.",
+    "planLimit": "The organization has reached its member limit.",
     "acceptFailed": "Failed to accept the invitation. Please try again.",
     "magicLinkFailed": "Failed to send the access link. Please try again.",
     "fetchFailed": "Failed to load invitation details. Please try again.",

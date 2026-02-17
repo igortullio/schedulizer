@@ -5,6 +5,7 @@
 - **Landing Page**: `schedulizer.me` (nginx + static files)
 - **API**: `api.schedulizer.me` (Node.js)
 - **SaaS App**: `app.schedulizer.me` (future)
+- **Uptime Kuma**: `uptime.schedulizer.me` (uptime monitoring)
 
 ## Prerequisites
 
@@ -45,6 +46,8 @@
    RESEND_API_KEY=re_your_api_key
    TURNSTILE_SECRET_KEY=your_secret_key (optional)
    NODE_ENV=production
+   SENTRY_DSN=https://xxx@xxx.ingest.sentry.io/xxx
+   SENTRY_ENVIRONMENT=production
    ```
 
 6. Click **Deploy**
@@ -53,7 +56,7 @@
 
 ```bash
 curl https://api.schedulizer.me/health
-# Expected response: {"status":"ok"}
+# Expected response: {"status":"healthy","timestamp":"...","services":{"database":"connected","uptime":"..."}}
 ```
 
 ## Step 3: Deploy Landing Page (schedulizer.me)
@@ -73,11 +76,40 @@ curl https://api.schedulizer.me/health
 5. In **Build Arguments** (not Environment Variables!):
    ```
    VITE_API_URL=https://api.schedulizer.me
+   VITE_SENTRY_DSN=https://xxx@xxx.ingest.sentry.io/xxx
+   VITE_SENTRY_ENVIRONMENT=production
+   SENTRY_AUTH_TOKEN=sntrys_xxx
+   SENTRY_ORG=your-sentry-org
+   SENTRY_PROJECT=schedulizer-landing
    ```
 
 6. Click **Deploy**
 
-## Step 4: Configure DNS
+## Step 4: Deploy Uptime Kuma (uptime.schedulizer.me)
+
+1. In Coolify, go to **Resources** → **+ New** → **Service** → Search for **Uptime Kuma**
+2. Configure:
+   - **Name**: `schedulizer-uptime`
+   - **Port**: `3001` (default)
+3. In **Domains**, add:
+   - `uptime.schedulizer.me`
+4. Click **Deploy**
+5. Access the Uptime Kuma dashboard at `https://uptime.schedulizer.me` and complete initial setup (create admin account)
+6. Add monitors:
+
+| Monitor | Type | URL | Interval | Retries | Timeout | Keyword |
+|---------|------|-----|----------|---------|---------|---------|
+| API Health | HTTP(s) - Keyword | `https://api.schedulizer.me/health` | 60s | 3 | 10s | `healthy` |
+| Web App | HTTP(s) - Keyword | `https://app.schedulizer.me` | 60s | 3 | 10s | `Schedulizer` |
+| Landing Page | HTTP(s) - Keyword | `https://schedulizer.me` | 300s | 3 | 10s | `Schedulizer` |
+
+7. Configure Slack notification:
+   - Go to **Settings** → **Notifications** → **Setup Notification**
+   - Select **Slack Incoming Webhook** and paste the `SLACK_WEBHOOK_URL`
+   - Enable for all monitors
+   - Test the notification to verify delivery
+
+## Step 5: Configure DNS
 
 In the domain registrar panel, add:
 
@@ -87,8 +119,9 @@ In the domain registrar panel, add:
 | A | www | VPS_IP | 300 |
 | A | api | VPS_IP | 300 |
 | A | app | VPS_IP | 300 |
+| A | uptime | VPS_IP | 300 |
 
-## Step 5: Run Migrations
+## Step 6: Run Migrations
 
 After API deployment:
 
@@ -148,11 +181,30 @@ Coolify configures SSL automatically via Let's Encrypt. Verify:
 | RESEND_API_KEY | re_xxx | ✅ |
 | TURNSTILE_SECRET_KEY | xxx | ❌ |
 | NODE_ENV | production | ✅ |
+| SENTRY_DSN | https://xxx@xxx.ingest.sentry.io/xxx | ❌ |
+| SENTRY_ENVIRONMENT | production | ❌ |
+
+### Web (Environment Variables + Build Arguments)
+| Variable | Type | Example | Required |
+|----------|------|---------|----------|
+| VITE_API_URL | Build Arg | https://api.schedulizer.me | ✅ |
+| VITE_SENTRY_DSN | Build Arg | https://xxx@xxx.ingest.sentry.io/xxx | ❌ |
+| VITE_SENTRY_ENVIRONMENT | Build Arg | production | ❌ |
+| SENTRY_AUTH_TOKEN | Build Arg | sntrys_xxx | ❌ |
+| SENTRY_ORG | Build Arg | your-sentry-org | ❌ |
+| SENTRY_PROJECT | Build Arg | schedulizer-web | ❌ |
 
 ### Landing (Build Arguments)
 | Variable | Example | Required |
 |----------|---------|----------|
 | VITE_API_URL | https://api.schedulizer.me | ✅ |
+| VITE_SENTRY_DSN | https://xxx@xxx.ingest.sentry.io/xxx | ❌ |
+| VITE_SENTRY_ENVIRONMENT | production | ❌ |
+| SENTRY_AUTH_TOKEN | sntrys_xxx | ❌ |
+| SENTRY_ORG | your-sentry-org | ❌ |
+| SENTRY_PROJECT | schedulizer-landing | ❌ |
+
+> **Security note**: `SENTRY_AUTH_TOKEN` must be configured as a **Build Argument** only, not as a runtime Environment Variable. It is used exclusively during the build process for source map uploads.
 
 ## Continuous Deployment
 

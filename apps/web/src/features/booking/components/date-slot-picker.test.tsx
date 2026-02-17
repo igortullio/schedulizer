@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -8,6 +8,10 @@ vi.mock('react-i18next', () => ({
     i18n: { language: 'en', changeLanguage: vi.fn() },
     ready: true,
   }),
+}))
+
+vi.mock('@schedulizer/env/client', () => ({
+  clientEnv: { apiUrl: 'http://localhost:3000' },
 }))
 
 import type { TimeSlot } from '../hooks/use-slots'
@@ -29,9 +33,24 @@ const defaultProps = {
   onBack: vi.fn(),
 }
 
+function mockFetchWithSlots() {
+  vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+    ok: true,
+    json: () => Promise.resolve({ data: { slots: mockSlots } }),
+  } as Response)
+}
+
+function mockFetchNoSlots() {
+  vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+    ok: true,
+    json: () => Promise.resolve({ data: { slots: [] } }),
+  } as Response)
+}
+
 describe('DateSlotPicker', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockFetchWithSlots()
   })
 
   it('renders date slot picker', () => {
@@ -41,9 +60,11 @@ describe('DateSlotPicker', () => {
     expect(screen.getByText('slots.selectTime')).toBeInTheDocument()
   })
 
-  it('renders slot buttons when slots are available', () => {
+  it('renders slot buttons when slots are available', async () => {
     render(<DateSlotPicker {...defaultProps} />)
-    expect(screen.getByTestId('slots-grid')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByTestId('slots-grid')).toBeInTheDocument()
+    })
   })
 
   it('renders back button and calls onBack', async () => {
@@ -54,22 +75,21 @@ describe('DateSlotPicker', () => {
     expect(onBack).toHaveBeenCalled()
   })
 
-  it('shows empty state when no slots available', () => {
-    render(<DateSlotPicker {...defaultProps} slots={[]} />)
-    expect(screen.getByTestId('no-slots')).toBeInTheDocument()
-    expect(screen.getByText('slots.empty')).toBeInTheDocument()
-  })
-
-  it('shows error state when slotsState is error', () => {
+  it('shows error state when slotsState is error', async () => {
     render(<DateSlotPicker {...defaultProps} slotsState="error" slotsError="Failed to fetch" />)
-    expect(screen.getByTestId('slots-error')).toBeInTheDocument()
-    expect(screen.getByText('Failed to fetch')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByTestId('slots-error')).toBeInTheDocument()
+      expect(screen.getByText('Failed to fetch')).toBeInTheDocument()
+    })
   })
 
   it('calls onSelectSlot when a slot is clicked', async () => {
     const user = userEvent.setup()
     const onSelectSlot = vi.fn()
     render(<DateSlotPicker {...defaultProps} onSelectSlot={onSelectSlot} />)
+    await waitFor(() => {
+      expect(screen.getByTestId('slots-grid')).toBeInTheDocument()
+    })
     const slotButton = screen.getByTestId(`slot-button-${mockSlots[0].startTime}`)
     await user.click(slotButton)
     expect(onSelectSlot).toHaveBeenCalledWith(mockSlots[0])
@@ -81,13 +101,31 @@ describe('DateSlotPicker', () => {
     expect(screen.getByTestId('next-week')).toBeInTheDocument()
   })
 
-  it('disables prev-week button at start offset 0', () => {
+  it('disables prev-week button on first page', () => {
     render(<DateSlotPicker {...defaultProps} />)
     expect(screen.getByTestId('prev-week')).toBeDisabled()
   })
 
-  it('fetches slots on mount with today date', () => {
+  it('fetches slots on mount', async () => {
     render(<DateSlotPicker {...defaultProps} />)
-    expect(defaultProps.onFetchSlots).toHaveBeenCalledWith('test-org', 'srv-1', expect.any(String))
+    await waitFor(() => {
+      expect(defaultProps.onFetchSlots).toHaveBeenCalledWith('test-org', 'srv-1', expect.any(String))
+    })
+  })
+
+  it('shows no dates message when none are available', async () => {
+    mockFetchNoSlots()
+    render(<DateSlotPicker {...defaultProps} slots={[]} />)
+    await waitFor(() => {
+      expect(screen.getByText('slots.noDatesAvailable')).toBeInTheDocument()
+    })
+  })
+
+  it('shows 7 available date buttons after loading', async () => {
+    render(<DateSlotPicker {...defaultProps} />)
+    await waitFor(() => {
+      const dateButtons = screen.getAllByTestId(/^date-button-/)
+      expect(dateButtons.length).toBe(7)
+    })
   })
 })

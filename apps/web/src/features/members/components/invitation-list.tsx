@@ -1,4 +1,14 @@
-import { Badge, Button, Card, CardContent } from '@igortullio-ui/react'
+import {
+  Avatar,
+  AvatarFallback,
+  Badge,
+  Button,
+  Card,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@igortullio-ui/react'
 import { RotateCw, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { Invitation } from '../hooks/use-members'
@@ -29,17 +39,19 @@ export function InvitationList({ invitations, onCancel, onResend }: InvitationLi
     )
   }
   return (
-    <div className="space-y-3" data-testid="invitation-list">
+    <div className="grid gap-4" data-testid="invitation-list">
       {pendingInvitations.map(invitation => {
         const expired = isExpired(invitation.expiresAt)
         const daysLeft = computeDaysUntilExpiration(invitation.expiresAt)
         return (
-          <Card key={invitation.id}>
-            <CardContent className="flex items-center justify-between py-3">
+          <Card key={invitation.id} className="px-4 py-3">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-sm font-medium text-muted-foreground">
-                  {invitation.email.charAt(0).toUpperCase()}
-                </div>
+                <Avatar>
+                  <AvatarFallback className="bg-primary/10 text-primary">
+                    {invitation.email.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
                 <div>
                   <p className="text-sm font-medium">{invitation.email}</p>
                   <p className="text-xs text-muted-foreground">
@@ -54,28 +66,40 @@ export function InvitationList({ invitations, onCancel, onResend }: InvitationLi
                 ) : (
                   <Badge variant="secondary">{t('invitation.pending')}</Badge>
                 )}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onResend(invitation)}
-                  className="h-8 w-8"
-                  title={t('actions.resend')}
-                  data-testid={`resend-invitation-${invitation.id}`}
-                >
-                  <RotateCw className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onCancel(invitation)}
-                  className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                  title={t('actions.cancel')}
-                  data-testid={`cancel-invitation-${invitation.id}`}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onResend(invitation)}
+                        className="h-8 w-8"
+                        data-testid={`resend-invitation-${invitation.id}`}
+                      >
+                        <RotateCw className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>{t('actions.resend')}</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onCancel(invitation)}
+                        className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                        data-testid={`cancel-invitation-${invitation.id}`}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>{t('actions.cancel')}</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
-            </CardContent>
+            </div>
           </Card>
         )
       })}

@@ -1,4 +1,14 @@
-import { Badge, Button, Card, CardContent } from '@igortullio-ui/react'
+import {
+  Avatar,
+  AvatarFallback,
+  Badge,
+  Button,
+  Card,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@igortullio-ui/react'
 import { Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { Role } from '@/lib/permissions'
@@ -22,7 +32,7 @@ function canRemoveMember(currentRole: Role, targetRole: string, currentUserId: s
   if (currentUserId === targetUserId) return false
   if (targetRole === 'owner') return false
   if (targetRole === 'admin' && currentRole !== 'owner') return false
-  return hasPermission(currentRole, 'member', 'remove')
+  return hasPermission(currentRole, 'member', 'delete')
 }
 
 export function MemberList({ members, currentUserId, currentUserRole, onRemove }: MemberListProps) {
@@ -35,36 +45,46 @@ export function MemberList({ members, currentUserId, currentUserRole, onRemove }
     )
   }
   return (
-    <div className="space-y-3" data-testid="member-list">
+    <div className="grid gap-4" data-testid="member-list">
       {members.map(member => (
-        <Card key={member.id}>
-          <CardContent className="flex items-center justify-between py-3">
+        <Card key={member.id} className="px-4 py-3">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-primary">
-                {(member.user.name ?? member.user.email).charAt(0).toUpperCase()}
-              </div>
+              <Avatar>
+                <AvatarFallback delayMs={0} className="bg-primary/10 text-primary">
+                  {member.user.email.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
               <div>
-                <p className="text-sm font-medium">{member.user.name ?? member.user.email}</p>
+                <p className="flex items-center gap-1.5 text-sm font-medium">{member.user.name ?? member.user.email}</p>
                 <p className="text-xs text-muted-foreground">{member.user.email}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
+              {member.userId === currentUserId ? <Badge>{t('me')}</Badge> : null}
               <Badge variant={ROLE_VARIANT[member.role] ?? 'outline'}>
                 {t(`roles.${member.role}` as 'roles.owner')}
               </Badge>
               {canRemoveMember(currentUserRole, member.role, currentUserId, member.userId) ? (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onRemove(member)}
-                  className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                  data-testid={`remove-member-${member.id}`}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onRemove(member)}
+                        className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                        data-testid={`remove-member-${member.id}`}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>{t('actions.remove')}</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               ) : null}
             </div>
-          </CardContent>
+          </div>
         </Card>
       ))}
     </div>

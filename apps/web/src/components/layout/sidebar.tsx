@@ -67,10 +67,9 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
     },
     { to: '/dashboard/appointments', label: t('sidebar.appointments'), icon: <CalendarDays className="h-5 w-5" /> },
     { to: '/dashboard/time-blocks', label: t('sidebar.timeBlocks'), icon: <Clock className="h-5 w-5" /> },
-    ...(canAccessMembersPage(memberRole)
-      ? [{ to: '/dashboard/members', label: t('sidebar.members'), icon: <Users className="h-5 w-5" /> }]
-      : []),
   ]
+  const showMembers = canAccessMembersPage(memberRole)
+  const showSettings = memberRole === 'owner'
   async function handleSignOut() {
     await signOut()
     navigate('/auth/login', { replace: true })
@@ -244,7 +243,7 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
           )}
         </div>
         <nav
-          className={`flex-1 py-4 ${isCollapsed ? 'flex flex-col items-center gap-1 px-3' : 'space-y-1 px-3'}`}
+          className={`flex-1 py-4 ${isCollapsed ? 'flex flex-col items-center gap-2 px-3' : 'space-y-1 px-3'}`}
           data-testid="sidebar-nav"
         >
           {navItems.map(item =>
@@ -297,22 +296,42 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
         >
           {isCollapsed ? (
             <>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span>
-                    <NavLink
-                      to="/dashboard/settings"
-                      onClick={closeSidebar}
-                      className={({ isActive }) =>
-                        `flex w-full items-center justify-center rounded-md p-2 text-sm font-medium transition-colors ${isActive ? 'bg-sidebar-primary text-sidebar-primary-foreground' : 'text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground'}`
-                      }
-                    >
-                      <Settings className="h-5 w-5" />
-                    </NavLink>
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent side="right">{t('sidebar.settings')}</TooltipContent>
-              </Tooltip>
+              {showMembers ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span>
+                      <NavLink
+                        to="/dashboard/members"
+                        onClick={closeSidebar}
+                        className={({ isActive }) =>
+                          `flex w-full items-center justify-center rounded-md p-2 text-sm font-medium transition-colors ${isActive ? 'bg-sidebar-primary text-sidebar-primary-foreground' : 'text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground'}`
+                        }
+                      >
+                        <Users className="h-5 w-5" />
+                      </NavLink>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">{t('sidebar.members')}</TooltipContent>
+                </Tooltip>
+              ) : null}
+              {showSettings ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span>
+                      <NavLink
+                        to="/dashboard/settings"
+                        onClick={closeSidebar}
+                        className={({ isActive }) =>
+                          `flex w-full items-center justify-center rounded-md p-2 text-sm font-medium transition-colors ${isActive ? 'bg-sidebar-primary text-sidebar-primary-foreground' : 'text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground'}`
+                        }
+                      >
+                        <Settings className="h-5 w-5" />
+                      </NavLink>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">{t('sidebar.settings')}</TooltipContent>
+                </Tooltip>
+              ) : null}
               <LanguageSelector isCollapsed />
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -330,16 +349,30 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
             </>
           ) : (
             <>
-              <NavLink
-                to="/dashboard/settings"
-                onClick={closeSidebar}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 rounded-md py-2 px-3 text-sm font-medium transition-colors ${isActive ? 'bg-sidebar-primary text-sidebar-primary-foreground' : 'text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground'}`
-                }
-              >
-                <Settings className="h-5 w-5" />
-                {t('sidebar.settings')}
-              </NavLink>
+              {showMembers ? (
+                <NavLink
+                  to="/dashboard/members"
+                  onClick={closeSidebar}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 rounded-md py-2 px-3 text-sm font-medium transition-colors ${isActive ? 'bg-sidebar-primary text-sidebar-primary-foreground' : 'text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground'}`
+                  }
+                >
+                  <Users className="h-5 w-5" />
+                  {t('sidebar.members')}
+                </NavLink>
+              ) : null}
+              {showSettings ? (
+                <NavLink
+                  to="/dashboard/settings"
+                  onClick={closeSidebar}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 rounded-md py-2 px-3 text-sm font-medium transition-colors ${isActive ? 'bg-sidebar-primary text-sidebar-primary-foreground' : 'text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground'}`
+                  }
+                >
+                  <Settings className="h-5 w-5" />
+                  {t('sidebar.settings')}
+                </NavLink>
+              ) : null}
               <LanguageSelector isCollapsed={false} />
               <Button
                 variant="ghost"

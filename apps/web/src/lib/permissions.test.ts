@@ -4,19 +4,19 @@ import { canAccessMembersPage, hasPermission } from './permissions'
 describe('hasPermission', () => {
   it('grants owner all member actions', () => {
     expect(hasPermission('owner', 'member', 'invite')).toBe(true)
-    expect(hasPermission('owner', 'member', 'remove')).toBe(true)
+    expect(hasPermission('owner', 'member', 'delete')).toBe(true)
     expect(hasPermission('owner', 'member', 'list')).toBe(true)
   })
 
   it('grants admin invite, remove and list member actions', () => {
     expect(hasPermission('admin', 'member', 'invite')).toBe(true)
-    expect(hasPermission('admin', 'member', 'remove')).toBe(true)
+    expect(hasPermission('admin', 'member', 'delete')).toBe(true)
     expect(hasPermission('admin', 'member', 'list')).toBe(true)
   })
 
   it('grants member only list action', () => {
     expect(hasPermission('member', 'member', 'invite')).toBe(false)
-    expect(hasPermission('member', 'member', 'remove')).toBe(false)
+    expect(hasPermission('member', 'member', 'delete')).toBe(false)
     expect(hasPermission('member', 'member', 'list')).toBe(true)
   })
 

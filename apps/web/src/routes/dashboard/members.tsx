@@ -55,6 +55,8 @@ export function Component() {
   const [memberToRemove, setMemberToRemove] = useState<Member | null>(null)
   const [invitationToCancel, setInvitationToCancel] = useState<Invitation | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
+  const [removeError, setRemoveError] = useState<string | null>(null)
+  const [inviteError, setInviteError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const handleInviteSuccess = useCallback(() => {
     refetchInvitations()
@@ -87,23 +89,22 @@ export function Component() {
   const canAddMembers = usage?.members.canAdd ?? true
   const isBlocked = !isSubscriptionLoading && !hasActiveSubscription
   async function handleInviteSubmit(email: string, role: 'admin' | 'member') {
-    setActionError(null)
+    setInviteError(null)
     setSuccessMessage(null)
     try {
       await inviteMember({ email, role, organizationId })
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : t('errors.invite'))
-      throw err
+      setInviteError(err instanceof Error ? err.message : t('errors.invite'))
     }
   }
   async function handleRemoveConfirm() {
     if (!memberToRemove) return
-    setActionError(null)
+    setRemoveError(null)
     setSuccessMessage(null)
     try {
-      await removeMember(memberToRemove.userId)
-    } catch (err) {
-      setActionError(err instanceof Error ? err.message : t('errors.remove'))
+      await removeMember(memberToRemove.id)
+    } catch {
+      setRemoveError(t('errors.remove'))
     }
   }
   async function handleCancelConfirm() {
@@ -216,13 +217,21 @@ export function Component() {
       </div>
       <InviteMemberDialog
         isOpen={isInviteDialogOpen}
-        onClose={() => setIsInviteDialogOpen(false)}
+        error={inviteError}
+        onClose={() => {
+          setIsInviteDialogOpen(false)
+          setInviteError(null)
+        }}
         onSubmit={handleInviteSubmit}
       />
       <RemoveMemberDialog
         isOpen={memberToRemove !== null}
         memberName={memberToRemove?.user.name ?? memberToRemove?.user.email ?? ''}
-        onClose={() => setMemberToRemove(null)}
+        error={removeError}
+        onClose={() => {
+          setMemberToRemove(null)
+          setRemoveError(null)
+        }}
         onConfirm={handleRemoveConfirm}
       />
       <CancelInvitationDialog

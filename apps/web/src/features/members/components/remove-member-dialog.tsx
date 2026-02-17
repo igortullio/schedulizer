@@ -1,4 +1,6 @@
 import {
+  Alert,
+  AlertDescription,
   Button,
   Dialog,
   DialogContent,
@@ -14,11 +16,12 @@ import { useTranslation } from 'react-i18next'
 interface RemoveMemberDialogProps {
   isOpen: boolean
   memberName: string
+  error: string | null
   onClose: () => void
   onConfirm: () => Promise<void>
 }
 
-export function RemoveMemberDialog({ isOpen, memberName, onClose, onConfirm }: RemoveMemberDialogProps) {
+export function RemoveMemberDialog({ isOpen, memberName, error, onClose, onConfirm }: RemoveMemberDialogProps) {
   const { t } = useTranslation('members')
   const { t: tCommon } = useTranslation('common')
   const [isRemoving, setIsRemoving] = useState(false)
@@ -40,6 +43,11 @@ export function RemoveMemberDialog({ isOpen, memberName, onClose, onConfirm }: R
           <DialogTitle>{t('removeDialog.title')}</DialogTitle>
           <DialogDescription>{t('removeDialog.description', { name: memberName })}</DialogDescription>
         </DialogHeader>
+        {error ? (
+          <Alert variant="destructive" className="border-0 bg-destructive/10" data-testid="remove-error">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        ) : null}
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={isRemoving} data-testid="cancel-remove-button">
             {tCommon('buttons.cancel')}

@@ -17,6 +17,7 @@ schedulizer/
 ├── libs/
 │   ├── db/               # Database schemas, migrations, and client
 │   ├── billing/          # Stripe integration wrapper
+│   ├── observability/    # Sentry integration and monitoring helpers
 │   └── shared/
 │       ├── env/          # Environment validation (server + client)
 │       └── types/        # Shared TypeScript types and Zod schemas
@@ -167,29 +168,56 @@ TypeScript interfaces and Zod validation schemas shared between apps.
 | Zod schemas | `CreateServiceSchema`, `UpsertScheduleSchema`, etc. |
 | Enums | `AppointmentStatus` (pending, confirmed, cancelled, completed, no_show) |
 
+### Observability (`libs/observability`)
+
+Shared observability library providing Sentry integration for error tracking, cron monitoring, and React error boundaries.
+
+| Aspect | Detail |
+|--------|--------|
+| Error Tracking | Sentry SDK v8+ (Node.js + Browser) |
+| Cron Monitoring | Sentry Crons via `withMonitoring` wrapper |
+| Uptime Monitoring | Uptime Kuma (self-hosted on Coolify) |
+| Alerts | Slack webhook (`#schedulizer-alerts`) |
+| Import | `@schedulizer/observability` |
+
+**Key exports:**
+
+| Export | Purpose |
+|--------|---------|
+| `createSentryNodeConfig` | Factory for Node.js Sentry initialization |
+| `createSentryBrowserConfig` | Factory for Browser Sentry initialization |
+| `captureWithContext` | Capture errors with enriched context (userId, organizationId) |
+| `withMonitoring` | Sentry Crons wrapper (automatic checkin/checkout) |
+| `sentryContextMiddleware` | Express middleware injecting user/org context into Sentry |
+| `SentryErrorBoundary` | React ErrorBoundary with Sentry error reporting |
+
 ## Dependency Graph
 
 ```
 apps/api ──────► libs/db
   │              libs/billing
+  │              libs/observability
   │              libs/shared/env (server)
   │              libs/shared/types
   │
-apps/web ──────► libs/shared/env (client)
+apps/web ──────► libs/observability
+  │              libs/shared/env (client)
   │              libs/shared/types
   │
-apps/landing ──► libs/shared/env (client)
+apps/landing ──► libs/observability
+                 libs/shared/env (client)
                  libs/shared/types
 ```
 
 Path aliases are defined in `tsconfig.base.json`:
 
 ```
-@schedulizer/db           → libs/db/src/index.ts
-@schedulizer/billing      → libs/billing/src/index.ts
-@schedulizer/shared-types → libs/shared/types/src/index.ts
-@schedulizer/env/server   → libs/shared/env/src/server.ts
-@schedulizer/env/client   → libs/shared/env/src/client.ts
+@schedulizer/db            → libs/db/src/index.ts
+@schedulizer/billing       → libs/billing/src/index.ts
+@schedulizer/observability → libs/observability/src/index.ts
+@schedulizer/shared-types  → libs/shared/types/src/index.ts
+@schedulizer/env/server    → libs/shared/env/src/server.ts
+@schedulizer/env/client    → libs/shared/env/src/client.ts
 ```
 
 ## Cross-Cutting Concerns
@@ -270,6 +298,7 @@ Production runs on Coolify with PostgreSQL, serving:
 | `schedulizer.me` | Landing page |
 | `api.schedulizer.me` | API |
 | `app.schedulizer.me` | Web dashboard |
+| `uptime.schedulizer.me` | Uptime Kuma (monitoring) |
 
 ## Code Quality
 
@@ -286,3 +315,4 @@ Production runs on Coolify with PostgreSQL, serving:
 - [CI/CD Pipeline](./CI_CD.md) - Workflow configuration, secrets, and troubleshooting
 - [Deployment Guide](./DEPLOY.md) - Coolify deployment steps and environment setup
 - [Branch Protection](./BRANCH_PROTECTION.md) - Protected branch rules and validation
+- [Observability Runbook](./runbooks/observability.md) - Alert investigation, triage, and rollback procedures

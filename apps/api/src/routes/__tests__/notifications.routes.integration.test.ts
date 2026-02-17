@@ -10,6 +10,14 @@ interface RouteLayer {
   handle?: { name?: string }
 }
 
+const { mockWithMonitoring } = vi.hoisted(() => ({
+  mockWithMonitoring: vi.fn((_config: unknown, handler: () => Promise<unknown>) => handler()),
+}))
+
+vi.mock('@schedulizer/observability/node', () => ({
+  withMonitoring: mockWithMonitoring,
+}))
+
 vi.mock('@schedulizer/env/server', () => ({
   serverEnv: {
     databaseUrl: 'postgresql://test:test@localhost:5432/test',
@@ -328,6 +336,22 @@ describe('Notifications Routes Integration', () => {
       await handler!(req, res, vi.fn())
       expect(res.status).toHaveBeenCalledWith(200)
       expect(res.json).toHaveBeenCalledWith({ data: { sent: 2, failed: 1 } })
+    })
+
+    it('should call withMonitoring with correct Sentry Crons config', async () => {
+      mockDbSelect.mockReturnValueOnce(mockSelectChain([]))
+      const handler = findRouteHandler(notificationsRoutes, 'post', '/send-reminders')
+      const { req, res } = createMockReqRes()
+      await handler!(req, res, vi.fn())
+      expect(mockWithMonitoring).toHaveBeenCalledWith(
+        {
+          monitorSlug: 'send-reminders',
+          schedule: { type: 'crontab', value: '*/15 * * * *' },
+          checkinMargin: 5,
+          maxRuntime: 10,
+        },
+        expect.any(Function),
+      )
     })
 
     it('should send separate appointmentDate and appointmentTime', async () => {

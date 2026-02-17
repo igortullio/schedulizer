@@ -43,6 +43,9 @@
       "path": "../../libs/shared/types"
     },
     {
+      "path": "../../libs/observability"
+    },
+    {
       "path": "../../libs/shared/env"
     }
   ]

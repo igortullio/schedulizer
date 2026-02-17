@@ -14,6 +14,7 @@ Use these rules for standards:
 - @.claude/rules/http.md - Creates a new backend route following the standard structure
 - @.claude/rules/logging.md - Logging best practices
 - @.claude/rules/commit.md - Commit standards and validations
+- @.claude/rules/env.md - Environment variables must be centralized in `@libs/shared/env`
 
 ## Skills
 

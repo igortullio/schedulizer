@@ -28,7 +28,10 @@
       "@schedulizer/env/server": ["libs/shared/env/src/server.ts"],
       "@schedulizer/env/client": ["libs/shared/env/src/client.ts"],
       "@schedulizer/billing": ["libs/billing/src/index.ts"],
-      "@schedulizer/email": ["libs/email/src/index.ts"]
+      "@schedulizer/email": ["libs/email/src/index.ts"],
+      "@schedulizer/observability": ["libs/observability/src/index.ts"],
+      "@schedulizer/observability/node": ["libs/observability/src/node.ts"],
+      "@schedulizer/observability/browser": ["libs/observability/src/browser.ts"]
     }
   }
 }

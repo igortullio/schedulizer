@@ -29,6 +29,13 @@ export default defineConfig({
           include: ['libs/shared/types/src/**/*.{test,spec}.ts'],
         },
       },
+      {
+        extends: './libs/observability/vitest.config.ts',
+        test: {
+          name: 'observability',
+          include: ['libs/observability/src/**/*.{test,spec}.{ts,tsx}'],
+        },
+      },
     ],
   },
 })

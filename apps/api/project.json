@@ -15,7 +15,7 @@
       "executor": "nx:run-commands",
       "defaultConfiguration": "development",
       "options": {
-        "command": "tsx watch apps/api/src/index.ts"
+        "command": "tsx watch --import ./apps/api/src/instrument.ts apps/api/src/index.ts"
       },
       "configurations": {
         "development": {},
@@ -28,6 +28,7 @@
       "options": {
         "outputPath": "dist/apps/api",
         "main": "apps/api/src/index.ts",
+        "additionalEntryPoints": ["apps/api/src/instrument.ts"],
         "tsConfig": "apps/api/tsconfig.json",
         "platform": "node",
         "format": ["cjs"],

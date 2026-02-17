@@ -16,6 +16,9 @@ const serverEnvSchema = z.object({
   STRIPE_PRICE_ESSENTIAL_YEARLY: z.string().startsWith('price_'),
   STRIPE_PRICE_PROFESSIONAL_MONTHLY: z.string().startsWith('price_'),
   STRIPE_PRICE_PROFESSIONAL_YEARLY: z.string().startsWith('price_'),
+  SENTRY_DSN_API: z.string().optional(),
+  SENTRY_ENVIRONMENT: z.string().optional().default('development'),
+  SENTRY_RELEASE: z.string().optional(),
 })
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>
@@ -43,6 +46,9 @@ function createServerEnv() {
     stripePriceEssentialYearly: result.data.STRIPE_PRICE_ESSENTIAL_YEARLY,
     stripePriceProfessionalMonthly: result.data.STRIPE_PRICE_PROFESSIONAL_MONTHLY,
     stripePriceProfessionalYearly: result.data.STRIPE_PRICE_PROFESSIONAL_YEARLY,
+    sentryDsnApi: result.data.SENTRY_DSN_API,
+    sentryEnvironment: result.data.SENTRY_ENVIRONMENT,
+    sentryRelease: result.data.SENTRY_RELEASE,
   } as const
 }
 

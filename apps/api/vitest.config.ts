@@ -23,6 +23,7 @@ export default defineConfig({
       '@schedulizer/types': path.resolve(__dirname, '../../libs/shared/types/src'),
       '@schedulizer/db': path.resolve(__dirname, '../../libs/db/src'),
       '@schedulizer/env/server': path.resolve(__dirname, '../../libs/shared/env/src/server'),
+      '@schedulizer/observability': path.resolve(__dirname, '../../libs/observability/src'),
     },
   },
 })

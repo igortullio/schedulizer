@@ -91,6 +91,7 @@ export async function calculateAvailableSlots(params: CalculateSlotsParams, db: 
     start: timeToMinutes(block.startTime),
     end: timeToMinutes(block.endTime),
   }))
+  const now = new Date()
   const slots: TimeSlot[] = []
   for (const period of periods) {
     const periodStartMin = timeToMinutes(period.startTime)
@@ -108,7 +109,7 @@ export async function calculateAvailableSlots(params: CalculateSlotsParams, db: 
           apt =>
             slotStartUtc.getTime() < apt.endDatetime.getTime() && slotEndUtc.getTime() > apt.startDatetime.getTime(),
         )
-        if (!overlapsAppointment) {
+        if (!overlapsAppointment && slotStartUtc > now) {
           slots.push({
             startTime: slotStartUtc.toISOString(),
             endTime: slotEndUtc.toISOString(),

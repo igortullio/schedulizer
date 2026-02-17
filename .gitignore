@@ -83,3 +83,6 @@ vite.config.*.timestamp*
 .vibe
 .windsurf
 .zencoder
+
+# E2E tests directory (temporary workspace)
+.e2e/

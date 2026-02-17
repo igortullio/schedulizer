@@ -15,6 +15,7 @@ export default defineConfig({
       '@schedulizer/env/client': path.resolve(import.meta.dirname, '../../libs/shared/env/src/client.ts'),
       '@schedulizer/env/server': path.resolve(import.meta.dirname, '../../libs/shared/env/src/server.ts'),
       '@schedulizer/shared-types': path.resolve(import.meta.dirname, '../../libs/shared/types/src/index.ts'),
+      '@schedulizer/observability': path.resolve(import.meta.dirname, '../../libs/observability/src/index.ts'),
     },
     preserveSymlinks: false,
   },

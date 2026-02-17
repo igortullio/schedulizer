@@ -40,6 +40,9 @@
   ],
   "references": [
     {
+      "path": "../../libs/observability"
+    },
+    {
       "path": "../../libs/shared/types"
     },
     {

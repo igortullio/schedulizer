@@ -6,6 +6,7 @@ import billing from '../public/locales/pt-BR/billing.json'
 import booking from '../public/locales/pt-BR/booking.json'
 import common from '../public/locales/pt-BR/common.json'
 import dashboard from '../public/locales/pt-BR/dashboard.json'
+import members from '../public/locales/pt-BR/members.json'
 import schedules from '../public/locales/pt-BR/schedules.json'
 import services from '../public/locales/pt-BR/services.json'
 import settings from '../public/locales/pt-BR/settings.json'
@@ -21,6 +22,7 @@ declare module 'i18next' {
       booking: typeof booking
       common: typeof common
       dashboard: typeof dashboard
+      members: typeof members
       schedules: typeof schedules
       services: typeof services
       settings: typeof settings

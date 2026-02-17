@@ -1,0 +1,71 @@
+{
+  "title": "Members",
+  "description": "Manage your organization's team members and invitations.",
+  "emptyState": "No members found.",
+  "emptyInvitations": "No pending invitations.",
+  "sections": {
+    "members": "Active Members",
+    "invitations": "Pending Invitations"
+  },
+  "roles": {
+    "owner": "Owner",
+    "admin": "Admin",
+    "member": "Member"
+  },
+  "actions": {
+    "invite": "Invite member",
+    "remove": "Remove",
+    "resend": "Resend",
+    "cancel": "Cancel invitation"
+  },
+  "inviteDialog": {
+    "title": "Invite member",
+    "description": "Send an invitation email to add a new member to your organization.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "member@example.com",
+    "roleLabel": "Role",
+    "selectRole": "Select a role",
+    "submit": "Send invitation",
+    "sending": "Sending..."
+  },
+  "removeDialog": {
+    "title": "Remove member",
+    "description": "Are you sure you want to remove {{name}} from the organization? This action cannot be undone.",
+    "confirm": "Remove member",
+    "removing": "Removing..."
+  },
+  "cancelInvitationDialog": {
+    "title": "Cancel invitation",
+    "description": "Are you sure you want to cancel the invitation to {{email}}?",
+    "confirm": "Cancel invitation",
+    "cancelling": "Cancelling..."
+  },
+  "table": {
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "actions": "Actions",
+    "expiresAt": "Expires",
+    "status": "Status"
+  },
+  "invitation": {
+    "expired": "Expired",
+    "pending": "Pending",
+    "expiresIn": "Expires in {{days}}d"
+  },
+  "errors": {
+    "fetchMembers": "Failed to load members.",
+    "fetchInvitations": "Failed to load invitations.",
+    "invite": "Failed to send invitation.",
+    "remove": "Failed to remove member.",
+    "cancel": "Failed to cancel invitation.",
+    "resend": "Failed to resend invitation.",
+    "planLimit": "You have reached the member limit for your plan."
+  },
+  "success": {
+    "invite": "Invitation sent successfully.",
+    "remove": "Member removed successfully.",
+    "cancel": "Invitation cancelled successfully.",
+    "resend": "Invitation resent successfully."
+  }
+}

@@ -192,26 +192,15 @@ export function Component() {
                       onChange={e => handleSlugChange(e.target.value)}
                       placeholder={t('form.slugPlaceholder')}
                       required
-                      className="rounded-l-none"
+                      className="rounded-l-none rounded-r-none"
                       data-testid="slug-input"
-                    />
-                  </div>
-                  <p className="text-xs text-muted-foreground">{t('form.slugHelp')}</p>
-                </div>
-                <div className="space-y-2">
-                  <Label>{t('form.publicBookingLink')}</Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      value={`${clientEnv.webUrl}/booking/${slug}`}
-                      readOnly
-                      className="flex-1 bg-muted"
-                      data-testid="public-booking-link"
                     />
                     <Button
                       type="button"
                       variant="outline"
                       size="icon"
                       onClick={handleCopyBookingLink}
+                      className="rounded-l-none border-l-0"
                       data-testid="copy-booking-link"
                       aria-label={t('form.copyLink')}
                     >
@@ -222,6 +211,7 @@ export function Component() {
                       )}
                     </Button>
                   </div>
+                  <p className="text-xs text-muted-foreground">{t('form.slugHelp')}</p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="timezone">{t('form.timezone')}</Label>

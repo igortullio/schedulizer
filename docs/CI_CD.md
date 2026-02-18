@@ -2,309 +2,254 @@
 
 ## Overview
 
-Schedulizer uses GitHub Actions to automate continuous integration (CI) and continuous deployment (CD) processes. This document describes the complete pipeline configuration, including required secrets, environment variables, and setup instructions.
+Schedulizer uses GitHub Actions to automate continuous integration, continuous deployment, and release management. All workflows use **Node 22** and **`npm install --include=dev`** (not `npm ci`) to avoid cross-platform lockfile issues.
 
-## Difference Between CI and CD
+## Pipeline Flow: From PR to Release
 
-### CI - Continuous Integration (`ci.yml`)
-- **When it runs**: On all Pull Requests to any branch
-- **Purpose**: Validate code before merge (lint, test, build)
-- **Optimization**: Uses `nx affected` to process only changed projects
-- **Required secrets**: None (uses only code)
-
-### CD - Continuous Deployment (`cd.yml`)
-- **When it runs**: Only on `main` branch after merge
-- **Purpose**: Production build and artifact generation for deploy
-- **Scope**: Builds all apps with `nx run-many -t build --all`
-- **Required secrets**: `VITE_API_URL` (required for frontend build)
-
-## Secrets and Environment Variables
-
-### GitHub Actions Secrets
-
-The following secrets must be configured in the GitHub repository for workflows to function correctly:
-
-#### Required Secrets
-
-| Secret | Used in | Purpose | Example |
-|--------|---------|---------|---------|
-| `VITE_API_URL` | CD (main branch) | API URL for frontend in production. Injects the API URL into the Vite build so the React app knows where to make HTTP requests. | `https://api.schedulizer.com` |
-
-#### Optional Secrets
-
-| Secret | Used in | Purpose | Example |
-|--------|---------|---------|---------|
-| `VITE_TURNSTILE_SITE_KEY` | CD (main branch) | Cloudflare Turnstile site key for captcha. If not configured, the system works without captcha. | `0x4AAAAAAxxxx` |
-| `VITE_SENTRY_DSN_WEB` | CD (main branch) | Sentry DSN for web app error tracking. If not configured, Sentry is disabled. | `https://xxx@xxx.ingest.sentry.io/xxx` |
-| `VITE_SENTRY_DSN_LANDING` | CD (main branch) | Sentry DSN for landing page error tracking. If not configured, Sentry is disabled. | `https://xxx@xxx.ingest.sentry.io/xxx` |
-| `VITE_SENTRY_ENVIRONMENT` | CD (main branch) | Sentry environment identifier for frontend. | `production` |
-| `SENTRY_AUTH_TOKEN` | CD (main branch) | Sentry auth token for source map uploads during build. | `sntrys_xxx` |
-| `SENTRY_ORG` | CD (main branch) | Sentry organization slug for source map uploads. | `your-sentry-org` |
-| `SENTRY_PROJECT_WEB` | CD (main branch) | Sentry project name for the web app. | `schedulizer-web` |
-| `SENTRY_PROJECT_LANDING` | CD (main branch) | Sentry project name for the landing page. | `schedulizer-landing` |
-
-### Project Environment Variables
-
-Project environment variables are validated using Zod schemas. Below is the complete list based on `.env.example` and validation schemas:
-
-#### Client Variables (Frontend)
-Defined in `/libs/shared/env/src/client.ts`. **All must have `VITE_` prefix** to be exposed to the browser.
-
-| Variable | Required | Purpose | Validation |
-|----------|----------|---------|------------|
-| `VITE_API_URL` | ✅ Yes | Backend API base URL | Must be a valid URL |
-| `VITE_TURNSTILE_SITE_KEY` | ❌ No | Cloudflare Turnstile public key for captcha | Optional string |
-| `VITE_SENTRY_DSN_WEB` | ❌ No | Sentry DSN for web app error tracking | Optional string |
-| `VITE_SENTRY_DSN_LANDING` | ❌ No | Sentry DSN for landing page error tracking | Optional string |
-| `VITE_SENTRY_ENVIRONMENT` | ❌ No | Sentry environment identifier | Optional string |
-
-#### Server Variables (Backend)
-Defined in `/libs/shared/env/src/server.ts`. **Must not have `VITE_` prefix**.
-
-| Variable | Required | Purpose | Validation |
-|----------|----------|---------|------------|
-| `DATABASE_URL` | ✅ Yes | PostgreSQL connection string | Required string |
-| `SERVER_PORT` | ❌ No | Express server port | Number (default: 3000) |
-| `BETTER_AUTH_SECRET` | ✅ Yes | Secret for token signing | Minimum 32 characters |
-| `BETTER_AUTH_URL` | ✅ Yes | Application base URL for auth | Required string |
-| `RESEND_API_KEY` | ✅ Yes | Resend API key for sending emails | Required string |
-| `TURNSTILE_SECRET_KEY` | ❌ No | Cloudflare Turnstile secret key for captcha | Optional string |
-| `SENTRY_DSN_API` | ❌ No | Sentry DSN for backend error tracking | Optional string |
-| `SENTRY_ENVIRONMENT` | ❌ No | Sentry environment identifier (production, staging) | Optional string |
-
-## Step-by-Step Configuration
-
-### 1. Configure Secrets on GitHub
-
-1. Access your repository on GitHub
-2. Go to **Settings** → **Secrets and variables** → **Actions**
-3. Click **New repository secret**
-4. For each required secret:
-   - **Name**: Exact secret name (e.g., `VITE_API_URL`)
-   - **Secret**: Secret value (e.g., `https://api.schedulizer.com`)
-   - Click **Add secret**
-
-### 2. Configure Local Environment
-
-1. Copy the example file:
-   ```bash
-   cp .env.example .env
-   ```
-
-2. Fill in all required variables in the `.env` file:
-   ```bash
-   # Database
-   DATABASE_URL="postgresql://user:password@localhost:5432/schedulizer"
-
-   # Server
-   SERVER_PORT=3000
-
-   # Authentication
-   BETTER_AUTH_SECRET="your-32-character-minimum-secret-here"
-   BETTER_AUTH_URL="http://localhost:5173"
-
-   # Email
-   RESEND_API_KEY="re_xxxxxxxxxxxxx"
-
-   # Captcha (optional)
-   TURNSTILE_SECRET_KEY="0x4AAAA..."
-
-   # Frontend
-   VITE_API_URL="http://localhost:3000"
-   VITE_TURNSTILE_SITE_KEY="0x4AAAA..."
-   ```
-
-3. **Important**: Never commit the `.env` file (already in `.gitignore`)
-
-### 3. Configure Branch Protection Rules
-
-The `main` branch protection rules ensure that only validated code is merged.
-
-1. Access **Settings** → **Branches** → **Branch protection rules**
-2. Click **Add rule**
-3. Configure:
-   - **Branch name pattern**: `main`
-   - ✅ **Require status checks to pass before merging**
-     - **Status checks that are required**:
-       - `lint` (code validation with Biome)
-       - `test` (unit tests)
-       - `build` (build validation)
-   - ✅ **Require branches to be up to date before merging**
-   - ✅ **Do not allow bypassing the above settings** (forces admins to follow rules)
-   - ✅ **Restrict who can dismiss pull request reviews** (extra protection)
-   - ❌ **Allow force pushes** (disabled for security)
-   - ❌ **Allow deletions** (disabled for security)
-4. Click **Create**
-
-Full reference: [.github/BRANCH_PROTECTION.md](.github/BRANCH_PROTECTION.md)
-
-## Workflow Structure
-
-### CI Workflow (`.github/workflows/ci.yml`)
-
-```yaml
-name: CI
-on:
-  pull_request:
-    branches: ['**']
-
-jobs:
-  lint:
-    # Validates code with Biome (format, linting, import organization)
-  test:
-    # Runs unit tests with Vitest
-  build:
-    # Validates build of all affected projects
+```
+1. Developer creates PR to main
+   │
+   ├─► PR Title Validation ── validates conventional commit format
+   ├─► Auto Changeset ─────── generates changeset file from PR title, pushes to branch
+   ├─► CI ──────────────────── runs lint, typecheck, test, docker-build
+   │
+   ▼
+2. PR is merged to main
+   │
+   ├─► CD ─────── builds all apps, uploads artifacts
+   ├─► Release ── detects changesets, creates Version PR
+   │              ("chore: version packages", auto-merge enabled)
+   │
+   ▼
+3. Version PR runs CI checks
+   │
+   ├─► CI passes ── auto-merge kicks in, PR is squash-merged
+   │
+   ▼
+4. Version PR merged to main
+   │
+   ├─► CD ─────── builds all apps again
+   ├─► Release ── no changesets left, runs `changeset tag`
+   │              creates git tags (@schedulizer/api@x.y.z, etc.)
+   │              creates GitHub Release
+   │
+   ▼
+5. Done! Tags and GitHub Release published.
 ```
 
-**Characteristics**:
-- Runs in parallel (lint, test, build simultaneously)
-- Uses `nx affected` to process only changed code
-- Requires `fetch-depth: 0` and `nrwl/nx-set-shas@v4` for change detection
-- `node_modules` cache for faster builds
-- No secrets required (no production build)
+## Workflows
 
-### CD Workflow (`.github/workflows/cd.yml`)
+### CI (`.github/workflows/ci.yml`)
 
-```yaml
-name: CD
-on:
-  push:
-    branches: [main]
+| | |
+|---|---|
+| **Trigger** | `pull_request` to `main` |
+| **Purpose** | Validate code before merge |
+| **Secrets** | None |
 
-jobs:
-  build:
-    # Production build of all apps
-    # Artifact upload (retention: 90 days)
-```
+Jobs (run in parallel):
 
-**Characteristics**:
-- Runs only on `main` branch
-- Builds **all** projects (doesn't use `affected`)
-- Injects `VITE_API_URL` into frontend build
-- Generates artifacts:
-  - `dist-web`: Built React frontend
-  - `dist-api`: Built Express backend
-- Artifacts retained for 90 days
+| Job | Command |
+|-----|---------|
+| `lint` | `npx nx affected -t lint` |
+| `typecheck` | `npx nx affected -t typecheck` |
+| `test` | `npx nx affected -t test` |
+| `docker-build` | Builds api, web, and landing Dockerfiles (push: false) |
 
-## Troubleshooting Guide
+Uses `nx affected` with `nrwl/nx-set-shas@v4` to process only changed projects. Requires `fetch-depth: 0` for change detection.
 
-### 1. Error: "VITE_API_URL is not defined"
+### CD (`.github/workflows/cd.yml`)
 
-**Symptom**: CD build fails with error about undefined environment variable.
+| | |
+|---|---|
+| **Trigger** | `push` to `main` |
+| **Purpose** | Production build and artifact generation |
+| **Secrets** | `VITE_API_URL` |
 
-**Cause**: `VITE_API_URL` secret not configured on GitHub.
+Builds **all** projects with `nx run-many -t build --all` and uploads artifacts (`dist-web`, `dist-api`) with 90-day retention.
 
-**Solution**:
-1. Go to **Settings** → **Secrets and variables** → **Actions**
-2. Add secret `VITE_API_URL` with the production API URL
-3. Re-run the workflow
+### Release (`.github/workflows/release.yml`)
 
-### 2. Error: "BETTER_AUTH_SECRET must be at least 32 characters"
+| | |
+|---|---|
+| **Trigger** | `push` to `main` |
+| **Purpose** | Version management and GitHub Releases via changesets |
+| **Secrets** | `RELEASE_APP_ID`, `RELEASE_APP_PRIVATE_KEY` |
 
-**Symptom**: Environment validation fails on server.
+Uses a **GitHub App token** (not `GITHUB_TOKEN`) so that the Version PR triggers CI checks. Flow:
 
-**Cause**: `BETTER_AUTH_SECRET` secret too short (security requirement).
+1. Changesets exist → creates Version PR (`changeset-release/main` branch) with title `chore: version packages`, label `changeset-release`, and auto-merge enabled
+2. No changesets (after Version PR merge) → runs `changeset tag` to create git tags → creates GitHub Releases
 
-**Solution**:
-```bash
-# Generate a secure secret with 32+ characters
-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-```
-Copy the result to your `.env` or GitHub secret.
+### Auto Changeset (`.github/workflows/auto-changeset.yml`)
 
-### 3. Build Fails: "Some affected projects failed"
+| | |
+|---|---|
+| **Trigger** | `pull_request` (opened, edited, synchronize) to `main` |
+| **Purpose** | Auto-generate changeset files from PR title |
+| **Secrets** | `RELEASE_APP_ID`, `RELEASE_APP_PRIVATE_KEY` |
 
-**Symptom**: CI fails at build step with TypeScript compilation error.
+Parses the PR title (conventional commits format) and generates a changeset file. Uses a **GitHub App token** so the push triggers CI on the new commit. Skips PRs with `changeset-release` label.
 
-**Cause**: Type errors not detected locally or incorrect `tsconfig.json` configuration.
+### Pre-Release (`.github/workflows/pre-release.yml`)
 
-**Solution**:
-1. Run locally: `npx nx affected -t build`
-2. Check TypeScript errors
-3. If needed, clear cache: `npx nx reset`
-4. Rebuild: `npx nx affected -t build --skip-nx-cache`
+| | |
+|---|---|
+| **Trigger** | `create` (branch `release/*`) |
+| **Purpose** | Enter changeset pre-release mode (alpha) |
 
-### 4. Tests Failing: "Cannot find module"
+When a `release/*` branch is created, activates changeset pre-release mode and commits `pre.json`.
 
-**Symptom**: CI fails at test step with module not found error.
+### PR Title Validation (`.github/workflows/pr-title-validation.yml`)
 
-**Cause**: Dependency not installed or corrupted cache.
+| | |
+|---|---|
+| **Trigger** | `pull_request_target` (opened, edited, synchronize) to `main` |
+| **Purpose** | Validate PR title follows conventional commits |
 
-**Solution**:
-1. Verify `package.json` is correct
-2. Run locally: `npm ci && npx nx affected -t test`
-3. If it works locally, the problem may be GitHub Actions cache
-4. Force reinstall in CI: add `- run: npm ci --force` in workflow
+Uses `amannn/action-semantic-pull-request@v6`. Valid types: `feat`, `fix`, `chore`, `refactor`, `docs`, `test`, `style`, `perf`, `ci`, `build`. Subject must not start with uppercase.
 
-### 5. Affected Detection Not Working
+### Send Reminders (`.github/workflows/send-reminders.yml`)
 
-**Symptom**: `nx affected` doesn't detect changed projects or detects all projects.
+| | |
+|---|---|
+| **Trigger** | `schedule` (every 15 minutes) or `workflow_dispatch` |
+| **Purpose** | Trigger appointment reminder emails |
+| **Secrets** | `API_URL`, `CRON_API_KEY` |
 
-**Cause**: Incomplete Git history or `nrwl/nx-set-shas` not configured.
+## GitHub App Token
 
-**Solution**:
-- Verify workflow has `fetch-depth: 0` in `actions/checkout`
-- Verify `nrwl/nx-set-shas@v4` is present before using `affected`
-- Run locally: `npx nx affected:apps` for debugging
+Several workflows use a GitHub App token instead of the default `GITHUB_TOKEN`. This is necessary because GitHub does not trigger workflows from events created by `GITHUB_TOKEN` (to prevent infinite loops).
 
-### 6. Cache Issues: Slow Build
+**App name**: `schedulizer-release`
 
-**Symptom**: CI builds taking too long despite configured cache.
+**Permissions**: Contents (Read & Write), Pull requests (Read & Write), Metadata (Read-only)
 
-**Cause**: npm or Nx cache not working correctly.
+**Secrets**:
 
-**Solution**:
-- Verify `actions/cache@v4` is configured with correct path: `~/.npm`
-- Nx cache is managed automatically, but can be reset: `npx nx reset`
-- If problem persists, investigate if `package-lock.json` is being committed
+| Secret | Purpose |
+|--------|---------|
+| `RELEASE_APP_ID` | GitHub App ID |
+| `RELEASE_APP_PRIVATE_KEY` | GitHub App private key (.pem) |
 
-### 7. Artifact Upload Fails
+**Workflows using it**: `release.yml`, `auto-changeset.yml`
 
-**Symptom**: CD completes build but fails to upload artifacts.
+## Why `npm install` Instead of `npm ci`
 
-**Cause**: Incorrect artifact path or insufficient permissions.
+`npm ci` fails when `package-lock.json` was generated on a different platform (e.g., macOS locally vs Linux in CI). Platform-specific optional dependencies like `@tailwindcss/oxide-wasm32-wasi` sub-packages are not included in the lockfile when generated on macOS, causing `npm ci` to fail on Linux with "Missing from lock file" errors.
 
-**Solution**:
-- Verify path in workflow points to `./dist/apps/web` and `./dist/apps/api`
-- Ensure build generated the files: add `- run: ls -la dist/apps/` before upload
-- Check workflow permissions: may need `permissions: contents: read`
+All workflows and Dockerfiles use `npm install --include=dev` instead. Dockerfiles also use `--cache /tmp/npm-cache` for Docker layer caching.
 
-## Maintenance
+## Secrets
 
-### Adding New Secrets
+### Required
 
-1. Add the variable in `/libs/shared/env/src/client.ts` (frontend) or `/libs/shared/env/src/server.ts` (backend)
-2. Add appropriate Zod validation
-3. Add to `.env.example` with example value
-4. If needed in CI/CD, add to workflow with `secrets.SECRET_NAME`
-5. Update this documentation in the "Secrets and Environment Variables" section
+| Secret | Used in | Purpose |
+|--------|---------|---------|
+| `RELEASE_APP_ID` | Release, Auto Changeset | GitHub App ID for token generation |
+| `RELEASE_APP_PRIVATE_KEY` | Release, Auto Changeset | GitHub App private key |
+| `VITE_API_URL` | CD | API URL for frontend production build |
 
-### Updating Workflows
+### Optional
 
-1. Modify `.github/workflows/*.yml` files
-2. Validate syntax: `npx yaml-lint .github/workflows/`
-3. Run validation tests: `npm run test:workflows`
-4. Test locally with [act](https://github.com/nektos/act) if possible
-5. Commit and observe execution on GitHub Actions
+| Secret | Used in | Purpose |
+|--------|---------|---------|
+| `VITE_TURNSTILE_SITE_KEY` | CD | Cloudflare Turnstile site key |
+| `VITE_STRIPE_PUBLISHABLE_KEY` | CD | Stripe publishable key |
+| `VITE_SENTRY_DSN_WEB` | CD | Sentry DSN for web app |
+| `VITE_SENTRY_DSN_LANDING` | CD | Sentry DSN for landing page |
+| `VITE_SENTRY_ENVIRONMENT` | CD | Sentry environment identifier |
+| `SENTRY_AUTH_TOKEN` | CD | Sentry auth token for source map uploads |
+| `SENTRY_ORG` | CD | Sentry organization slug |
+| `SENTRY_PROJECT_WEB` | CD | Sentry project for web app |
+| `SENTRY_PROJECT_LANDING` | CD | Sentry project for landing page |
+| `API_URL` | Send Reminders | Production API URL for cron job |
+| `CRON_API_KEY` | Send Reminders | API key for cron authentication |
 
-### Monitoring
+## Environment Variables
 
-- Access **Actions** tab on GitHub to view execution history
-- Configure notifications in **Settings** → **Notifications** → **GitHub Actions**
-- Monitor build time and consider optimizations if it exceeds 10 minutes
+See [env rule](../.claude/rules/env.md) for the centralized environment variable pattern.
+
+### Client Variables (Frontend)
+
+Defined in `/libs/shared/env/src/client.ts`. Must have `VITE_` prefix.
+
+| Variable | Required | Purpose |
+|----------|----------|---------|
+| `VITE_API_URL` | Yes | Backend API base URL |
+| `VITE_TURNSTILE_SITE_KEY` | No | Cloudflare Turnstile public key |
+| `VITE_STRIPE_PUBLISHABLE_KEY` | No | Stripe publishable key |
+| `VITE_SENTRY_DSN_WEB` | No | Sentry DSN for web app |
+| `VITE_SENTRY_DSN_LANDING` | No | Sentry DSN for landing page |
+| `VITE_SENTRY_ENVIRONMENT` | No | Sentry environment identifier |
+
+### Server Variables (Backend)
+
+Defined in `/libs/shared/env/src/server.ts`. Must not have `VITE_` prefix.
+
+| Variable | Required | Purpose |
+|----------|----------|---------|
+| `DATABASE_URL` | Yes | PostgreSQL connection string |
+| `SERVER_PORT` | No | Express server port (default: 3000) |
+| `BETTER_AUTH_SECRET` | Yes | Secret for token signing (min 32 chars) |
+| `BETTER_AUTH_URL` | Yes | Application base URL for auth |
+| `RESEND_API_KEY` | Yes | Resend API key for sending emails |
+| `TURNSTILE_SECRET_KEY` | No | Cloudflare Turnstile secret key |
+| `SENTRY_DSN_API` | No | Sentry DSN for backend |
+| `SENTRY_ENVIRONMENT` | No | Sentry environment identifier |
+
+## Troubleshooting
+
+### PR checks show "Waiting for status to be reported"
+
+**Cause**: The auto-changeset workflow pushed a commit using `GITHUB_TOKEN`, and CI didn't trigger for the new HEAD.
+
+**Solution**: This is fixed by using the GitHub App token. If it still happens, close and reopen the PR to force re-evaluation (note: this removes auto-merge).
+
+### `npm ci` fails with "Missing from lock file"
+
+**Cause**: `package-lock.json` generated on a different platform.
+
+**Solution**: Use `npm install --include=dev` instead of `npm ci`. Already configured in all workflows and Dockerfiles.
+
+### Version PR doesn't trigger CI
+
+**Cause**: The PR was created using `GITHUB_TOKEN` instead of the App token.
+
+**Solution**: Verify `release.yml` uses `actions/create-github-app-token@v1` and passes the token to both `actions/checkout` and `changesets/action`.
+
+### `changeset tag` doesn't create tags
+
+**Cause**: No pre-existing tags in the repository. `changeset tag` needs reference tags to detect version changes.
+
+**Solution**: Create initial tags manually for all packages.
+
+### Commitlint rejects merge commits
+
+**Cause**: Using non-standard commit types like `merge:`.
+
+**Solution**: Use `chore:` prefix for merge-related commits.
+
+### `pull_request` workflow changes not taking effect
+
+**Cause**: `pull_request` event uses the workflow file from the **base branch** (main), not the head branch.
+
+**Solution**: Workflow changes only take effect after being merged to main.
+
+## Branch Protection
+
+See [BRANCH_PROTECTION.md](BRANCH_PROTECTION.md) for the full branch protection configuration.
+
+Required status checks for `main`:
+- `lint`
+- `test`
+- `typecheck`
+- `docker-build (api, ., apps/api/Dockerfile)`
 
 ## Additional Resources
 
 - [GitHub Actions Documentation](https://docs.github.com/en/actions)
 - [Nx CI Documentation](https://nx.dev/ci/intro/ci-with-nx)
-- [Branch Protection Rules](.github/BRANCH_PROTECTION.md)
-- [CD Validation Checklist](.github/workflows/tests/CD_VALIDATION_CHECKLIST.md)
-- [Project Conventions](../CLAUDE.md)
-
-## Contact and Support
-
-For questions about the CI/CD pipeline:
-1. Consult this document first
-2. Check the [troubleshooting](#troubleshooting-guide)
-3. Open an issue in the repository with label `ci/cd`
+- [Changesets Documentation](https://github.com/changesets/changesets)
+- [Branch Protection Rules](BRANCH_PROTECTION.md)
+- [Deploy Guide](DEPLOY.md)

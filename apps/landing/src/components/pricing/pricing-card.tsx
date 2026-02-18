@@ -1,6 +1,6 @@
 import { Button } from '@igortullio-ui/react'
 import { clientEnv } from '@schedulizer/env/client'
-import { Check, Star } from 'lucide-react'
+import { Check, Star, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { BillingFrequency, PlanConfig } from './pricing-data'
 import { formatPrice, getMonthlyEquivalent, PRICING_CONFIG } from './pricing-data'
@@ -20,6 +20,7 @@ export function PricingCard({ plan, frequency }: PricingCardProps) {
   const planData = t(`pricing.plans.${plan.planId}`, { returnObjects: true }) as {
     name: string
     features: string[]
+    excludedFeatures?: string[]
   }
   function handleClick() {
     const webUrl = clientEnv.webUrl ?? ''
@@ -63,6 +64,14 @@ export function PricingCard({ plan, frequency }: PricingCardProps) {
               <Check className="h-4 w-4 text-primary" aria-hidden="true" />
             </div>
             <span className="text-muted-foreground">{feature}</span>
+          </li>
+        ))}
+        {planData.excludedFeatures?.map(feature => (
+          <li key={feature} className="flex items-start gap-3">
+            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted">
+              <X className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+            </div>
+            <span className="text-muted-foreground line-through">{feature}</span>
           </li>
         ))}
       </ul>

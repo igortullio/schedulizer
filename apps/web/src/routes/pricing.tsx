@@ -42,7 +42,7 @@ const PLANS: Plan[] = [
       { key: 'limitedServices', included: true },
       { key: 'emailNotifications', included: true },
       { key: 'customerSupport', included: true },
-      { key: 'advancedAnalytics', included: true },
+      { key: 'advancedAnalytics', included: false },
     ],
   },
   {

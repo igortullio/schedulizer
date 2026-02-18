@@ -62,13 +62,8 @@
     "plans": {
       "essential": {
         "name": "Essencial",
-        "features": [
-          "1 membro na organização",
-          "Até 5 serviços",
-          "Notificações por e-mail",
-          "Suporte ao cliente",
-          "Análises avançadas"
-        ]
+        "features": ["1 membro na organização", "Até 5 serviços", "Notificações por e-mail", "Suporte ao cliente"],
+        "excludedFeatures": ["Análises avançadas"]
       },
       "professional": {
         "name": "Profissional",

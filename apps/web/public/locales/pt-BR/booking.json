@@ -16,6 +16,7 @@
     "selectDate": "Selecione a data",
     "selectTime": "Selecione o horário",
     "empty": "Nenhum horário disponível nesta data.",
+    "noDatesAvailable": "Nenhuma data disponível nesta semana.",
     "previousWeek": "Semana anterior",
     "nextWeek": "Próxima semana",
     "errors": {

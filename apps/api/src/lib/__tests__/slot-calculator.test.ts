@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@schedulizer/env/server', () => ({
   serverEnv: {
@@ -132,6 +132,12 @@ const mockDb = { select: mockDbSelect } as unknown as ReturnType<typeof import('
 describe('calculateAvailableSlots', () => {
   beforeEach(() => {
     mockDbSelect.mockReset()
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2024-03-01T00:00:00Z'))
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
   describe('slot generation', () => {

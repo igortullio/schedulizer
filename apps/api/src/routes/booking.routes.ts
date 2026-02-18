@@ -13,12 +13,18 @@ const emailService = new EmailService({ apiKey: serverEnv.resendApiKey })
 
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/
 const MAX_FUTURE_DAYS = 60
-const MS_PER_DAY = 86400000
 const MS_PER_MINUTE = 60000
 const CENTS_PER_UNIT = 100
 const DATE_FORMAT = 'dd/MM/yyyy'
 const TIME_FORMAT = 'HH:mm'
 const CANCELLABLE_STATUSES = ['pending', 'confirmed']
+
+function formatDateToYmd(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
 
 function centsToPrice(cents: number | null): string | null {
   if (cents === null) return null
@@ -107,16 +113,15 @@ router.get('/:slug/services/:serviceId/slots', async (req, res) => {
         error: { message: 'Query param date is required (YYYY-MM-DD)', code: 'INVALID_REQUEST' },
       })
     }
-    const requestedDate = new Date(dateParam)
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    if (requestedDate < today) {
+    const todayStr = formatDateToYmd(new Date())
+    if (dateParam < todayStr) {
       return res.status(400).json({
         error: { message: 'Date cannot be in the past', code: 'INVALID_REQUEST' },
       })
     }
-    const maxDate = new Date(today.getTime() + MAX_FUTURE_DAYS * MS_PER_DAY)
-    if (requestedDate > maxDate) {
+    const maxDate = new Date()
+    maxDate.setDate(maxDate.getDate() + MAX_FUTURE_DAYS)
+    if (dateParam > formatDateToYmd(maxDate)) {
       return res.status(400).json({
         error: { message: 'Date cannot be more than 60 days in the future', code: 'INVALID_REQUEST' },
       })
@@ -192,6 +197,11 @@ router.post('/:slug/appointments', async (req, res) => {
       })
     }
     const startDatetime = new Date(startTime)
+    if (startDatetime < new Date()) {
+      return res.status(400).json({
+        error: { message: 'Cannot book appointment in the past', code: 'PAST_APPOINTMENT' },
+      })
+    }
     const endDatetime = new Date(startDatetime.getTime() + service.durationMinutes * MS_PER_MINUTE)
     const locale = extractLocale(req.headers['accept-language'] as string | null)
     const txResult = await db.transaction(async tx => {
@@ -493,6 +503,11 @@ router.post('/:slug/manage/:token/reschedule', async (req, res) => {
       })
     }
     const newStartDatetime = new Date(validation.data.startTime)
+    if (newStartDatetime < new Date()) {
+      return res.status(400).json({
+        error: { message: 'Cannot reschedule to a past time', code: 'PAST_APPOINTMENT' },
+      })
+    }
     const newEndDatetime = new Date(newStartDatetime.getTime() + service.durationMinutes * MS_PER_MINUTE)
     const oldDate = formatDateInTimezone(appointment.startDatetime, organization.timezone)
     const oldTime = formatTimeInTimezone(appointment.startDatetime, organization.timezone)

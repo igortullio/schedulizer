@@ -18,10 +18,18 @@ jobs:
       pullRequestNumber: ${{ steps.changesets.outputs.pullRequestNumber }}
 
     steps:
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -42,21 +50,21 @@ jobs:
           title: 'Version Packages'
           createGithubReleases: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
       - name: Add label to version PR
         if: steps.changesets.outputs.pullRequestNumber != ''
         run: |
           gh pr edit ${{ steps.changesets.outputs.pullRequestNumber }} --add-label "changeset-release"
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
 
       - name: Enable auto-merge on version PR
         if: steps.changesets.outputs.pullRequestNumber != ''
         run: |
           gh pr merge ${{ steps.changesets.outputs.pullRequestNumber }} --auto --squash
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
 
       - name: Log workflow execution
         run: |

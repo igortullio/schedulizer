@@ -70,26 +70,20 @@ jobs:
             # Generate unique filename using timestamp
             CHANGESET_FILE=".changeset/auto-$(date +%s)-${RANDOM}.md"
 
-            # Create changeset file with all packages
-            cat > "$CHANGESET_FILE" << 'CHANGESET_CONTENT'
----
-"@schedulizer/api": BUMP_LEVEL_PLACEHOLDER
-"@schedulizer/web": BUMP_LEVEL_PLACEHOLDER
-"@schedulizer/landing": BUMP_LEVEL_PLACEHOLDER
-"@schedulizer/db": BUMP_LEVEL_PLACEHOLDER
-"@schedulizer/billing": BUMP_LEVEL_PLACEHOLDER
-"@schedulizer/email": BUMP_LEVEL_PLACEHOLDER
-"@schedulizer/observability": BUMP_LEVEL_PLACEHOLDER
-"@schedulizer/env": BUMP_LEVEL_PLACEHOLDER
-"@schedulizer/shared-types": BUMP_LEVEL_PLACEHOLDER
----
-
-DESCRIPTION_PLACEHOLDER
-CHANGESET_CONTENT
-
-            # Replace placeholders with actual values
-            sed -i "s/BUMP_LEVEL_PLACEHOLDER/$BUMP_LEVEL/g" "$CHANGESET_FILE"
-            sed -i "s/DESCRIPTION_PLACEHOLDER/$DESCRIPTION/g" "$CHANGESET_FILE"
+            # Create changeset file with all packages (line by line to avoid heredoc issues in YAML)
+            echo "---" > "$CHANGESET_FILE"
+            echo "\"@schedulizer/api\": $BUMP_LEVEL" >> "$CHANGESET_FILE"
+            echo "\"@schedulizer/web\": $BUMP_LEVEL" >> "$CHANGESET_FILE"
+            echo "\"@schedulizer/landing\": $BUMP_LEVEL" >> "$CHANGESET_FILE"
+            echo "\"@schedulizer/db\": $BUMP_LEVEL" >> "$CHANGESET_FILE"
+            echo "\"@schedulizer/billing\": $BUMP_LEVEL" >> "$CHANGESET_FILE"
+            echo "\"@schedulizer/email\": $BUMP_LEVEL" >> "$CHANGESET_FILE"
+            echo "\"@schedulizer/observability\": $BUMP_LEVEL" >> "$CHANGESET_FILE"
+            echo "\"@schedulizer/env\": $BUMP_LEVEL" >> "$CHANGESET_FILE"
+            echo "\"@schedulizer/shared-types\": $BUMP_LEVEL" >> "$CHANGESET_FILE"
+            echo "---" >> "$CHANGESET_FILE"
+            echo "" >> "$CHANGESET_FILE"
+            echo "$DESCRIPTION" >> "$CHANGESET_FILE"
 
             echo "Generated changeset file: $CHANGESET_FILE"
             echo "Type: $TYPE -> Bump level: $BUMP_LEVEL"

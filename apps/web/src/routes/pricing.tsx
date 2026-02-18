@@ -127,9 +127,9 @@ export function Component() {
               data-testid="yearly-toggle"
             >
               {t('pricing.toggle.yearly')}
-              <Badge variant="success" className="ml-2">
+              <span className="ml-2 inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700 dark:bg-green-900/30 dark:text-green-400">
                 {t('pricing.toggle.savings', { percent: ANNUAL_DISCOUNT_PERCENT })}
-              </Badge>
+              </span>
             </Button>
           </div>
         </div>

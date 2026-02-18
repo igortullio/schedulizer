@@ -11,14 +11,11 @@ export function PricingToggle({ frequency, onFrequencyChange }: PricingTogglePro
   const { t } = useTranslation()
   const isYearly = frequency === 'yearly'
   return (
-    <fieldset
-      className="relative flex items-center rounded-full bg-muted p-1"
-      aria-label={t('pricing.toggle.ariaLabel')}
-    >
+    <fieldset className="inline-flex items-center rounded-full bg-muted p-1" aria-label={t('pricing.toggle.ariaLabel')}>
       <legend className="sr-only">{t('pricing.toggle.ariaLabel')}</legend>
       <label
-        className={`relative z-10 cursor-pointer rounded-full px-6 py-2 text-sm font-medium transition-all duration-200 ${
-          !isYearly ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+        className={`cursor-pointer rounded-full px-6 py-2 text-sm font-medium transition-all duration-200 ${
+          !isYearly ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
         }`}
       >
         <input
@@ -32,8 +29,8 @@ export function PricingToggle({ frequency, onFrequencyChange }: PricingTogglePro
         {t('pricing.toggle.monthly')}
       </label>
       <label
-        className={`relative z-10 cursor-pointer rounded-full px-6 py-2 text-sm font-medium transition-all duration-200 ${
-          isYearly ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+        className={`cursor-pointer rounded-full px-6 py-2 text-sm font-medium transition-all duration-200 ${
+          isYearly ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
         }`}
       >
         <input
@@ -49,12 +46,6 @@ export function PricingToggle({ frequency, onFrequencyChange }: PricingTogglePro
           {t('pricing.toggle.savings', { percent: PRICING_CONFIG.annualDiscountPercent })}
         </span>
       </label>
-      <div
-        className={`absolute top-1 h-[calc(100%-8px)] w-[calc(50%-4px)] rounded-full bg-background shadow-sm transition-all duration-200 ${
-          isYearly ? 'left-[calc(50%+2px)]' : 'left-1'
-        }`}
-        aria-hidden="true"
-      />
     </fieldset>
   )
 }

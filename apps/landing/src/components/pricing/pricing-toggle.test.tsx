@@ -50,7 +50,7 @@ describe('PricingToggle Component', () => {
   it('should have correct checked state for monthly frequency', () => {
     render(<PricingToggle frequency="monthly" onFrequencyChange={() => {}} />)
     const monthlyRadio = screen.getByRole('radio', { name: 'Mensal' })
-    const yearlyRadio = screen.getByRole('radio', { name: 'Anual' })
+    const yearlyRadio = screen.getByRole('radio', { name: /Anual/ })
     expect(monthlyRadio).toBeChecked()
     expect(yearlyRadio).not.toBeChecked()
   })
@@ -58,7 +58,7 @@ describe('PricingToggle Component', () => {
   it('should have correct checked state for yearly frequency', () => {
     render(<PricingToggle frequency="yearly" onFrequencyChange={() => {}} />)
     const monthlyRadio = screen.getByRole('radio', { name: 'Mensal' })
-    const yearlyRadio = screen.getByRole('radio', { name: 'Anual' })
+    const yearlyRadio = screen.getByRole('radio', { name: /Anual/ })
     expect(monthlyRadio).not.toBeChecked()
     expect(yearlyRadio).toBeChecked()
   })
@@ -79,10 +79,8 @@ describe('PricingToggle Component', () => {
     expect(onFrequencyChange).toHaveBeenCalledWith('yearly')
   })
 
-  it('should show savings badge only when yearly is selected', () => {
-    const { rerender } = render(<PricingToggle frequency="monthly" onFrequencyChange={() => {}} />)
-    expect(screen.queryByText(/Economize/)).not.toBeInTheDocument()
-    rerender(<PricingToggle frequency="yearly" onFrequencyChange={() => {}} />)
+  it('should always show savings badge inside toggle', () => {
+    render(<PricingToggle frequency="monthly" onFrequencyChange={() => {}} />)
     expect(screen.getByText('Economize 15%')).toBeInTheDocument()
   })
 
@@ -105,7 +103,7 @@ describe('PricingToggle Component', () => {
     const user = userEvent.setup()
     const onFrequencyChange = vi.fn()
     render(<PricingToggle frequency="monthly" onFrequencyChange={onFrequencyChange} />)
-    const yearlyRadio = screen.getByRole('radio', { name: 'Anual' })
+    const yearlyRadio = screen.getByRole('radio', { name: /Anual/ })
     await user.click(yearlyRadio)
     expect(onFrequencyChange).toHaveBeenCalledWith('yearly')
   })

@@ -1,5 +1,11 @@
 # @schedulizer/billing
 
+## 0.2.2
+
+### Patch Changes
+
+- [#46](https://github.com/igortullio/schedulizer/pull/46) [`23c534e`](https://github.com/igortullio/schedulizer/commit/23c534ed12724a3431faf2e61747b92d856048b5) Thanks [@igortullio](https://github.com/igortullio)! - update CI/CD and branch protection documentation
+
 ## 0.2.1
 
 ### Patch Changes

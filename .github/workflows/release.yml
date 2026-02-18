@@ -47,7 +47,7 @@ jobs:
           version: npx changeset version
           publish: npx changeset tag
           commit: 'chore: version packages'
-          title: 'Version Packages'
+          title: 'chore: version packages'
           createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}

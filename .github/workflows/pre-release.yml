@@ -1,0 +1,73 @@
+name: Pre-Release
+
+on:
+  create:
+
+permissions:
+  contents: write
+
+jobs:
+  pre-release:
+    runs-on: ubuntu-latest
+
+    # Only run when a release/* branch is created
+    if: ${{ github.ref_type == 'branch' && startsWith(github.ref, 'refs/heads/release/') }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install --include=dev
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Check if pre-release mode already active
+        id: check_pre
+        run: |
+          if [[ -f ".changeset/pre.json" ]]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Pre-release mode already active (pre.json exists)"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Pre-release mode not active"
+          fi
+
+      - name: Enter pre-release mode
+        if: steps.check_pre.outputs.exists == 'false'
+        run: |
+          npx changeset pre enter alpha
+          echo "✅ Pre-release mode activated with tag: alpha"
+
+      - name: Commit and push pre.json
+        if: steps.check_pre.outputs.exists == 'false'
+        run: |
+          git add .changeset/pre.json
+          git commit -m "chore: enter pre-release mode (alpha)"
+          git push origin ${{ github.ref_name }}
+          echo "✅ Pre-release configuration committed to branch: ${{ github.ref_name }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Log workflow execution
+        run: |
+          echo "Workflow execution summary:"
+          echo "- Branch: ${{ github.ref_name }}"
+          echo "- Pre-release mode already active: ${{ steps.check_pre.outputs.exists }}"
+          if [[ "${{ steps.check_pre.outputs.exists }}" == "false" ]]; then
+            echo "✅ Pre-release mode activated and committed"
+          else
+            echo "ℹ️ Pre-release mode was already active - no action taken"
+          fi

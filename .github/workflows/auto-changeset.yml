@@ -5,10 +5,6 @@ on:
     types: [opened, edited, synchronize]
     branches: [main]
 
-permissions:
-  contents: write
-  pull-requests: write
-
 jobs:
   auto-changeset:
     runs-on: ubuntu-latest
@@ -17,12 +13,20 @@ jobs:
     if: ${{ !contains(github.event.pull_request.labels.*.name, 'changeset-release') }}
 
     steps:
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           ref: ${{ github.event.pull_request.head.ref }}
           fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Configure git
         run: |

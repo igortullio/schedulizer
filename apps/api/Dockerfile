@@ -12,7 +12,7 @@ COPY apps/api ./apps/api
 COPY libs ./libs
 
 # Instalar dependências
-RUN npm ci
+RUN npm install --include=dev
 
 # Build da API
 RUN npx nx build api

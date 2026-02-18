@@ -16,7 +16,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - uses: actions/cache@v4
@@ -27,7 +27,7 @@ jobs:
             ${{ runner.os }}-nx-${{ hashFiles('package-lock.json') }}-
             ${{ runner.os }}-nx-
 
-      - run: npm ci
+      - run: npm install --include=dev
 
       - run: npx nx affected -t lint --base=$NX_BASE --head=$NX_HEAD
 
@@ -42,7 +42,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - uses: actions/cache@v4
@@ -53,7 +53,7 @@ jobs:
             ${{ runner.os }}-nx-${{ hashFiles('package-lock.json') }}-
             ${{ runner.os }}-nx-
 
-      - run: npm ci
+      - run: npm install --include=dev
 
       - run: npx nx affected -t typecheck --base=$NX_BASE --head=$NX_HEAD
 
@@ -68,7 +68,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - uses: actions/cache@v4
@@ -79,7 +79,7 @@ jobs:
             ${{ runner.os }}-nx-${{ hashFiles('package-lock.json') }}-
             ${{ runner.os }}-nx-
 
-      - run: npm ci
+      - run: npm install --include=dev
 
       - run: npx nx affected -t test --base=$NX_BASE --head=$NX_HEAD
 

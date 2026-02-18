@@ -12,7 +12,7 @@ COPY apps/web ./apps/web
 COPY libs ./libs
 
 # Instalar dependências
-RUN npm ci
+RUN npm install --include=dev
 
 # Build da aplicação web
 ARG VITE_API_URL

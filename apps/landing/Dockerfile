@@ -12,7 +12,7 @@ COPY apps/landing ./apps/landing
 COPY libs ./libs
 
 # Instalar dependências
-RUN npm ci
+RUN npm install --include=dev
 
 # Build da landing page
 ARG VITE_API_URL

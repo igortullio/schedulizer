@@ -1,5 +1,13 @@
 # @schedulizer/api
 
+## 0.2.1
+
+### Patch Changes
+
+- [#42](https://github.com/igortullio/schedulizer/pull/42) [`4696bc4`](https://github.com/igortullio/schedulizer/commit/4696bc457cab4315b1f682e7358980a3c02585bb) Thanks [@igortullio](https://github.com/igortullio)! - use conventional commit format in version PR title
+
+- [#44](https://github.com/igortullio/schedulizer/pull/44) [`7487d0c`](https://github.com/igortullio/schedulizer/commit/7487d0c877a9bb94b3dc87e45d092ccf35196e48) Thanks [@igortullio](https://github.com/igortullio)! - stabilize flaky checkout redirect test
+
 ## 0.2.0
 
 ### Minor Changes

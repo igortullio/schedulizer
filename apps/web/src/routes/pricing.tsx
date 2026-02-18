@@ -1,6 +1,6 @@
 import { Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@igortullio-ui/react'
 import { clientEnv } from '@schedulizer/env/client'
-import { Check } from 'lucide-react'
+import { Check, X } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -177,10 +177,11 @@ export function Component() {
                           feature.included ? 'text-foreground' : 'text-muted-foreground line-through'
                         }`}
                       >
-                        <Check
-                          className={`h-4 w-4 ${feature.included ? 'text-primary' : 'text-muted-foreground'}`}
-                          aria-hidden="true"
-                        />
+                        {feature.included ? (
+                          <Check className="h-4 w-4 text-primary" aria-hidden="true" />
+                        ) : (
+                          <X className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                        )}
                         {t(
                           `pricing.plans.${plan.id}.features.${feature.key}` as 'pricing.plans.essential.features.singleMember',
                         )}

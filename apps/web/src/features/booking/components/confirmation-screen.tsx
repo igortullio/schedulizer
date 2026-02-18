@@ -1,4 +1,5 @@
 import { Button, Card, CardContent } from '@igortullio-ui/react'
+import { clientEnv } from '@schedulizer/env'
 import { CalendarCheck, Check, Copy } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -21,7 +22,7 @@ export function ConfirmationScreen({ service, appointment, slug, customerName }:
   const startDate = new Date(appointment.startDatetime)
   const endDate = new Date(appointment.endDatetime)
   const managementPath = `/booking/${slug}/manage/${appointment.managementToken}`
-  const managementUrl = `${window.location.origin}${managementPath}`
+  const managementUrl = `${clientEnv.webUrl}${managementPath}`
   async function handleCopyLink() {
     try {
       await navigator.clipboard.writeText(managementUrl)

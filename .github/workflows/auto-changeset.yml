@@ -2,7 +2,7 @@ name: Auto Changeset
 
 on:
   pull_request:
-    types: [opened, edited, synchronize]
+    types: [opened, edited]
     branches: [main]
 
 jobs:
@@ -23,15 +23,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
           ref: ${{ github.event.pull_request.head.ref }}
           fetch-depth: 0
-          token: ${{ steps.app-token.outputs.token }}
-
-      - name: Configure git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Check if changeset already exists
         id: check_changeset
@@ -45,69 +38,64 @@ jobs:
             echo "No changeset file found in this PR"
           fi
 
-      - name: Parse PR title and generate changeset
+      - name: Generate and push changeset via API
         if: steps.check_changeset.outputs.exists == 'false'
-        env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
-          PR_STATE: ${{ github.event.pull_request.state }}
-          PR_MERGED: ${{ github.event.pull_request.merged }}
-        run: |
-          # Validate PR is still open
-          if [[ "$PR_STATE" != "open" ]] || [[ "$PR_MERGED" == "true" ]]; then
-            echo "PR is already closed or merged, skipping changeset generation"
-            exit 0
-          fi
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            const prTitle = context.payload.pull_request.title;
+            const prState = context.payload.pull_request.state;
+            const prMerged = context.payload.pull_request.merged;
 
-          # Extract conventional commit type from PR title
-          # Pattern: feat(scope): description or fix: description
-          if [[ "$PR_TITLE" =~ ^(feat|fix|chore|refactor|docs|test|style|perf|ci|build)(\(.+\))?!?:\ (.+)$ ]]; then
-            TYPE="${BASH_REMATCH[1]}"
-            DESCRIPTION="${BASH_REMATCH[3]}"
+            if (prState !== 'open' || prMerged) {
+              console.log('PR is already closed or merged, skipping');
+              return;
+            }
 
-            # Map type to bump level
-            if [[ "$TYPE" == "feat" ]]; then
-              BUMP_LEVEL="minor"
-            else
-              BUMP_LEVEL="patch"
-            fi
+            const match = prTitle.match(/^(feat|fix|chore|refactor|docs|test|style|perf|ci|build)(\(.+\))?!?:\s(.+)$/);
+            if (!match) {
+              core.setFailed('PR title does not follow conventional commits pattern. Expected: type(scope): description');
+              return;
+            }
 
-            # Generate unique filename using timestamp
-            CHANGESET_FILE=".changeset/auto-$(date +%s)-${RANDOM}.md"
+            const type = match[1];
+            const description = match[3];
+            const bumpLevel = type === 'feat' ? 'minor' : 'patch';
 
-            # Create changeset file with all packages (line by line to avoid heredoc issues in YAML)
-            echo "---" > "$CHANGESET_FILE"
-            echo "\"@schedulizer/api\": $BUMP_LEVEL" >> "$CHANGESET_FILE"
-            echo "\"@schedulizer/web\": $BUMP_LEVEL" >> "$CHANGESET_FILE"
-            echo "\"@schedulizer/landing\": $BUMP_LEVEL" >> "$CHANGESET_FILE"
-            echo "\"@schedulizer/db\": $BUMP_LEVEL" >> "$CHANGESET_FILE"
-            echo "\"@schedulizer/billing\": $BUMP_LEVEL" >> "$CHANGESET_FILE"
-            echo "\"@schedulizer/email\": $BUMP_LEVEL" >> "$CHANGESET_FILE"
-            echo "\"@schedulizer/observability\": $BUMP_LEVEL" >> "$CHANGESET_FILE"
-            echo "\"@schedulizer/env\": $BUMP_LEVEL" >> "$CHANGESET_FILE"
-            echo "\"@schedulizer/shared-types\": $BUMP_LEVEL" >> "$CHANGESET_FILE"
-            echo "---" >> "$CHANGESET_FILE"
-            echo "" >> "$CHANGESET_FILE"
-            echo "$DESCRIPTION" >> "$CHANGESET_FILE"
+            const filename = `auto-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
+            const path = `.changeset/${filename}.md`;
 
-            echo "Generated changeset file: $CHANGESET_FILE"
-            echo "Type: $TYPE -> Bump level: $BUMP_LEVEL"
-            echo "Description: $DESCRIPTION"
+            const packages = [
+              '@schedulizer/api',
+              '@schedulizer/web',
+              '@schedulizer/landing',
+              '@schedulizer/db',
+              '@schedulizer/billing',
+              '@schedulizer/email',
+              '@schedulizer/observability',
+              '@schedulizer/env',
+              '@schedulizer/shared-types',
+            ];
 
-            # Commit and push the changeset file
-            git add "$CHANGESET_FILE"
-            git commit -m "chore: auto-generate changeset from PR title"
+            const lines = ['---'];
+            for (const pkg of packages) {
+              lines.push(`"${pkg}": ${bumpLevel}`);
+            }
+            lines.push('---', '', description, '');
 
-            # Push with error handling
-            if ! git push origin "${{ github.event.pull_request.head.ref }}"; then
-              echo "Failed to push changeset file to branch"
-              echo "This may be due to branch protection rules or permission issues"
-              exit 1
-            fi
+            const content = Buffer.from(lines.join('\n')).toString('base64');
+            const branch = context.payload.pull_request.head.ref;
 
-            echo "Successfully pushed changeset file to PR branch"
-          else
-            echo "PR title does not follow conventional commits pattern"
-            echo "Expected format: type(scope): description"
-            echo "Valid types: feat, fix, chore, refactor, docs, test, style, perf, ci, build"
-            exit 1
-          fi
+            await github.rest.repos.createOrUpdateFileContents({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              path,
+              message: 'chore: auto-generate changeset from PR title',
+              content,
+              branch,
+            });
+
+            console.log(`Created changeset: ${path}`);
+            console.log(`Type: ${type} -> Bump level: ${bumpLevel}`);
+            console.log(`Description: ${description}`);

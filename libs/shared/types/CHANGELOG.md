@@ -1,5 +1,11 @@
 # @schedulizer/shared-types
 
+## 0.3.1
+
+### Patch Changes
+
+- [#51](https://github.com/igortullio/schedulizer/pull/51) [`b6be3a3`](https://github.com/igortullio/schedulizer/commit/b6be3a34704e8310e141c26d419863d6740e4f94) Thanks [@igortullio](https://github.com/igortullio)! - use GitHub Contents API for auto-changeset
+
 ## 0.3.0
 
 ### Minor Changes

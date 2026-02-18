@@ -9,9 +9,10 @@ const LANGUAGES = [
 
 interface LanguageSelectorProps {
   isCollapsed?: boolean
+  className?: string
 }
 
-export function LanguageSelector({ isCollapsed = false }: LanguageSelectorProps) {
+export function LanguageSelector({ isCollapsed = false, className }: LanguageSelectorProps) {
   const { i18n } = useTranslation()
   const currentLanguage = LANGUAGES.find(lang => lang.code === i18n.language) ?? LANGUAGES[0]
   function handleToggleLanguage() {
@@ -23,7 +24,7 @@ export function LanguageSelector({ isCollapsed = false }: LanguageSelectorProps)
     <Button
       variant="ghost"
       onClick={handleToggleLanguage}
-      className={`w-full gap-3 py-2 text-sm font-medium text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground ${isCollapsed ? 'justify-center px-0' : 'justify-start px-3'}`}
+      className={`gap-3 py-2 text-sm font-medium text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground ${isCollapsed ? 'justify-center px-0' : 'justify-start px-3'} ${className ?? 'w-full'}`}
       data-testid="language-selector"
       aria-label="Select language"
     >

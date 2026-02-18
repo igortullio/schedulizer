@@ -1,5 +1,11 @@
 # @schedulizer/web
 
+## 0.3.0
+
+### Minor Changes
+
+- [#49](https://github.com/igortullio/schedulizer/pull/49) [`81d3c16`](https://github.com/igortullio/schedulizer/commit/81d3c16c8f0ba3f6b62e925f56b987e18ac870c0) Thanks [@igortullio](https://github.com/igortullio)! - booking UI improvements
+
 ## 0.2.2
 
 ### Patch Changes

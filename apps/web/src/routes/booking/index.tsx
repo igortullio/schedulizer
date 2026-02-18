@@ -49,6 +49,12 @@ export function Component() {
     setSelectedSlot(null)
     setStep('slots')
   }
+  function handleBookAgain() {
+    setSelectedService(null)
+    setSelectedSlot(null)
+    setCustomerName('')
+    setStep('services')
+  }
   async function handleSubmitBooking(formData: { customerName: string; customerEmail: string; customerPhone: string }) {
     if (!selectedService || !selectedSlot) return
     setCustomerName(formData.customerName)
@@ -126,6 +132,7 @@ export function Component() {
           appointment={appointmentResult}
           slug={slug}
           customerName={customerName}
+          onBookAgain={handleBookAgain}
         />
       ) : null}
     </div>

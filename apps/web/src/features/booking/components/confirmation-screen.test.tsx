@@ -40,11 +40,14 @@ const mockAppointment: AppointmentResult = {
   managementToken: 'mgmt-token-123',
 }
 
+const mockOnBookAgain = vi.fn()
+
 const defaultProps = {
   service: mockService,
   appointment: mockAppointment,
   slug: 'test-org',
   customerName: 'John Doe',
+  onBookAgain: mockOnBookAgain,
 }
 
 const mockWriteText = vi.fn().mockResolvedValue(undefined)

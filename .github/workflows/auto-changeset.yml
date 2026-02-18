@@ -71,21 +71,25 @@ jobs:
             CHANGESET_FILE=".changeset/auto-$(date +%s)-${RANDOM}.md"
 
             # Create changeset file with all packages
-            cat > "$CHANGESET_FILE" <<EOF
+            cat > "$CHANGESET_FILE" << 'CHANGESET_CONTENT'
 ---
-"@schedulizer/api": $BUMP_LEVEL
-"@schedulizer/web": $BUMP_LEVEL
-"@schedulizer/landing": $BUMP_LEVEL
-"@schedulizer/db": $BUMP_LEVEL
-"@schedulizer/billing": $BUMP_LEVEL
-"@schedulizer/email": $BUMP_LEVEL
-"@schedulizer/observability": $BUMP_LEVEL
-"@schedulizer/env": $BUMP_LEVEL
-"@schedulizer/shared-types": $BUMP_LEVEL
+"@schedulizer/api": BUMP_LEVEL_PLACEHOLDER
+"@schedulizer/web": BUMP_LEVEL_PLACEHOLDER
+"@schedulizer/landing": BUMP_LEVEL_PLACEHOLDER
+"@schedulizer/db": BUMP_LEVEL_PLACEHOLDER
+"@schedulizer/billing": BUMP_LEVEL_PLACEHOLDER
+"@schedulizer/email": BUMP_LEVEL_PLACEHOLDER
+"@schedulizer/observability": BUMP_LEVEL_PLACEHOLDER
+"@schedulizer/env": BUMP_LEVEL_PLACEHOLDER
+"@schedulizer/shared-types": BUMP_LEVEL_PLACEHOLDER
 ---
 
-$DESCRIPTION
-EOF
+DESCRIPTION_PLACEHOLDER
+CHANGESET_CONTENT
+
+            # Replace placeholders with actual values
+            sed -i "s/BUMP_LEVEL_PLACEHOLDER/$BUMP_LEVEL/g" "$CHANGESET_FILE"
+            sed -i "s/DESCRIPTION_PLACEHOLDER/$DESCRIPTION/g" "$CHANGESET_FILE"
 
             echo "Generated changeset file: $CHANGESET_FILE"
             echo "Type: $TYPE -> Bump level: $BUMP_LEVEL"

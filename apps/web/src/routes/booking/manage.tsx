@@ -1,8 +1,8 @@
 import { Alert, AlertDescription, Button, Card, CardContent, CardHeader, CardTitle } from '@igortullio-ui/react'
-import { AlertTriangle, CalendarCheck, CalendarX, Loader2 } from 'lucide-react'
+import { AlertTriangle, CalendarCheck, CalendarPlus, CalendarX, Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { DateSlotPicker, useManageAppointment, useSlots } from '@/features/booking'
 import type { TimeSlot } from '@/features/booking/hooks/use-slots'
 
@@ -195,6 +195,14 @@ export function Component() {
           </Button>
         </div>
       ) : null}
+      <div className="mt-4">
+        <Button variant="outline" asChild className="w-full" data-testid="book-again">
+          <Link to={`/booking/${slug}`}>
+            <CalendarPlus className="h-4 w-4" aria-hidden="true" />
+            {t('manage.bookAgain')}
+          </Link>
+        </Button>
+      </div>
     </div>
   )
 }

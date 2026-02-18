@@ -80,6 +80,7 @@
       "cancel": "Cancel booking",
       "cancelling": "Cancelling..."
     },
+    "bookAgain": "Book new appointment",
     "reschedule": {
       "title": "Reschedule"
     },

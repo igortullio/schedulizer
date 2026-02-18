@@ -1,5 +1,5 @@
 import { Alert, AlertDescription, Button, Card, CardContent, Input, Label } from '@igortullio-ui/react'
-import { clientEnv } from '@schedulizer/env'
+import { clientEnv } from '@schedulizer/env/client'
 import { Check, Copy, Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'

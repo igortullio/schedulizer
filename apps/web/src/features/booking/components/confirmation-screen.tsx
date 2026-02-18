@@ -1,5 +1,5 @@
 import { Button, Card, CardContent } from '@igortullio-ui/react'
-import { clientEnv } from '@schedulizer/env'
+import { clientEnv } from '@schedulizer/env/client'
 import { CalendarCheck, CalendarPlus, Check, Copy } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'

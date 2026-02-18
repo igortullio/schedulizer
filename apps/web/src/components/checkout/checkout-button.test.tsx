@@ -42,6 +42,7 @@ vi.mock('react-router-dom', async () => {
 
 const mockFetch = vi.fn()
 global.fetch = mockFetch
+const mockLocationHref = vi.fn()
 
 describe('CheckoutButton', () => {
   beforeEach(() => {
@@ -56,7 +57,15 @@ describe('CheckoutButton', () => {
       isPending: false,
     })
     Object.defineProperty(window, 'location', {
-      value: { origin: 'http://localhost:5173', href: '' },
+      value: {
+        origin: 'http://localhost:5173',
+        get href() {
+          return ''
+        },
+        set href(url: string) {
+          mockLocationHref(url)
+        },
+      },
       writable: true,
       configurable: true,
     })
@@ -265,7 +274,7 @@ describe('CheckoutButton', () => {
       )
       await user.click(screen.getByTestId('checkout-button'))
       await waitFor(() => {
-        expect(window.location.href).toBe('https://checkout.stripe.com/session123')
+        expect(mockLocationHref).toHaveBeenCalledWith('https://checkout.stripe.com/session123')
       })
     })
   })

@@ -1,4 +1,16 @@
-import { Alert, AlertDescription, Button, Card, CardContent, Input, Label } from '@igortullio-ui/react'
+import {
+  Alert,
+  AlertDescription,
+  Button,
+  Card,
+  CardContent,
+  Input,
+  Label,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@igortullio-ui/react'
 import { clientEnv } from '@schedulizer/env/client'
 import { Check, Copy, Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -195,21 +207,28 @@ export function Component() {
                       className="rounded-l-none rounded-r-none"
                       data-testid="slug-input"
                     />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={handleCopyBookingLink}
-                      className="rounded-l-none border-l-0"
-                      data-testid="copy-booking-link"
-                      aria-label={t('form.copyLink')}
-                    >
-                      {linkCopied ? (
-                        <Check className="h-4 w-4 text-green-600" aria-hidden="true" />
-                      ) : (
-                        <Copy className="h-4 w-4" aria-hidden="true" />
-                      )}
-                    </Button>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={handleCopyBookingLink}
+                            className="rounded-l-none border-l-0"
+                            data-testid="copy-booking-link"
+                            aria-label={t('form.copyLink')}
+                          >
+                            {linkCopied ? (
+                              <Check className="h-4 w-4 text-green-600" aria-hidden="true" />
+                            ) : (
+                              <Copy className="h-4 w-4" aria-hidden="true" />
+                            )}
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>{t('form.copyLink')}</TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
                   <p className="text-xs text-muted-foreground">{t('form.slugHelp')}</p>
                 </div>

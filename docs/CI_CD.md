@@ -4,6 +4,39 @@
 
 Schedulizer uses GitHub Actions to automate continuous integration, continuous deployment, and release management. All workflows use **Node 22** and **`npm install --include=dev`** (not `npm ci`) to avoid cross-platform lockfile issues.
 
+## Pipeline Flow: From PR to Release
+
+```
+1. Developer creates PR to main
+   │
+   ├─► PR Title Validation ── validates conventional commit format
+   ├─► Auto Changeset ─────── generates changeset file from PR title, pushes to branch
+   ├─► CI ──────────────────── runs lint, typecheck, test, docker-build
+   │
+   ▼
+2. PR is merged to main
+   │
+   ├─► CD ─────── builds all apps, uploads artifacts
+   ├─► Release ── detects changesets, creates Version PR
+   │              ("chore: version packages", auto-merge enabled)
+   │
+   ▼
+3. Version PR runs CI checks
+   │
+   ├─► CI passes ── auto-merge kicks in, PR is squash-merged
+   │
+   ▼
+4. Version PR merged to main
+   │
+   ├─► CD ─────── builds all apps again
+   ├─► Release ── no changesets left, runs `changeset tag`
+   │              creates git tags (@schedulizer/api@x.y.z, etc.)
+   │              creates GitHub Release
+   │
+   ▼
+5. Done! Tags and GitHub Release published.
+```
+
 ## Workflows
 
 ### CI (`.github/workflows/ci.yml`)

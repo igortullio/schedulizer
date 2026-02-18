@@ -1,5 +1,18 @@
-import { Alert, AlertDescription, Button, Card, CardContent, Input, Label } from '@igortullio-ui/react'
-import { Loader2 } from 'lucide-react'
+import {
+  Alert,
+  AlertDescription,
+  Button,
+  Card,
+  CardContent,
+  Input,
+  Label,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@igortullio-ui/react'
+import { clientEnv } from '@schedulizer/env/client'
+import { Check, Copy, Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -47,6 +60,7 @@ export function Component() {
     validateDowngrade,
     reset: resetDowngrade,
   } = useValidateDowngrade()
+  const [linkCopied, setLinkCopied] = useState(false)
   const isPortalLoading = portalState === 'loading'
   const isSubscriptionLoading = subscriptionState === 'loading'
   const isInvoicesLoading = invoicesState === 'loading'
@@ -58,6 +72,18 @@ export function Component() {
   }, [settings])
   function handleSlugChange(value: string) {
     setSlug(value.toLowerCase().replace(/[^a-z0-9-]/g, ''))
+  }
+  async function handleCopyBookingLink() {
+    try {
+      const bookingUrl = `${clientEnv.webUrl}/booking/${slug}`
+      await navigator.clipboard.writeText(bookingUrl)
+      setLinkCopied(true)
+      setTimeout(() => setLinkCopied(false), 2000)
+    } catch (err) {
+      console.error('Failed to copy booking link', {
+        error: err instanceof Error ? err.message : 'Unknown error',
+      })
+    }
   }
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -178,9 +204,31 @@ export function Component() {
                       onChange={e => handleSlugChange(e.target.value)}
                       placeholder={t('form.slugPlaceholder')}
                       required
-                      className="rounded-l-none"
+                      className="rounded-l-none rounded-r-none"
                       data-testid="slug-input"
                     />
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={handleCopyBookingLink}
+                            className="rounded-l-none border-l-0"
+                            data-testid="copy-booking-link"
+                            aria-label={t('form.copyLink')}
+                          >
+                            {linkCopied ? (
+                              <Check className="h-4 w-4 text-green-600" aria-hidden="true" />
+                            ) : (
+                              <Copy className="h-4 w-4" aria-hidden="true" />
+                            )}
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>{t('form.copyLink')}</TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
                   <p className="text-xs text-muted-foreground">{t('form.slugHelp')}</p>
                 </div>

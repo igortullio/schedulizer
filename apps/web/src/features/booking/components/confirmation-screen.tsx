@@ -1,5 +1,6 @@
 import { Button, Card, CardContent } from '@igortullio-ui/react'
-import { CalendarCheck, Check, Copy } from 'lucide-react'
+import { clientEnv } from '@schedulizer/env/client'
+import { CalendarCheck, CalendarPlus, Check, Copy } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -11,9 +12,10 @@ interface ConfirmationScreenProps {
   appointment: AppointmentResult
   slug: string
   customerName: string
+  onBookAgain: () => void
 }
 
-export function ConfirmationScreen({ service, appointment, slug, customerName }: ConfirmationScreenProps) {
+export function ConfirmationScreen({ service, appointment, slug, customerName, onBookAgain }: ConfirmationScreenProps) {
   const { t, i18n } = useTranslation('booking')
   const navigate = useNavigate()
   const [copied, setCopied] = useState(false)
@@ -21,7 +23,7 @@ export function ConfirmationScreen({ service, appointment, slug, customerName }:
   const startDate = new Date(appointment.startDatetime)
   const endDate = new Date(appointment.endDatetime)
   const managementPath = `/booking/${slug}/manage/${appointment.managementToken}`
-  const managementUrl = `${window.location.origin}${managementPath}`
+  const managementUrl = `${clientEnv.webUrl}${managementPath}`
   async function handleCopyLink() {
     try {
       await navigator.clipboard.writeText(managementUrl)
@@ -88,6 +90,10 @@ export function ConfirmationScreen({ service, appointment, slug, customerName }:
           data-testid="go-to-management"
         >
           {t('confirmation.manageBooking')}
+        </Button>
+        <Button variant="outline" onClick={onBookAgain} className="w-full" data-testid="book-again">
+          <CalendarPlus className="h-4 w-4" aria-hidden="true" />
+          {t('confirmation.bookAgain')}
         </Button>
       </div>
     </div>

@@ -308,7 +308,7 @@ describe('Pricing Component', () => {
     it('should be keyboard navigable', async () => {
       const user = userEvent.setup()
       render(<Pricing />)
-      const yearlyRadio = screen.getByRole('radio', { name: 'Anual' })
+      const yearlyRadio = screen.getByRole('radio', { name: /Anual/ })
       await user.click(yearlyRadio)
       expect(screen.getByText('Economize 15%')).toBeInTheDocument()
     })

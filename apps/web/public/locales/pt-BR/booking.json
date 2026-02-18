@@ -52,7 +52,8 @@
     "managementInfo": "Você receberá um e-mail de confirmação com um link para gerenciar seu agendamento.",
     "copyLink": "Copiar link de gerenciamento",
     "copied": "Link copiado!",
-    "manageBooking": "Gerenciar agendamento"
+    "manageBooking": "Gerenciar agendamento",
+    "bookAgain": "Fazer novo agendamento"
   },
   "manage": {
     "notFound": {
@@ -79,6 +80,7 @@
       "cancel": "Cancelar agendamento",
       "cancelling": "Cancelando..."
     },
+    "bookAgain": "Fazer novo agendamento",
     "reschedule": {
       "title": "Reagendar"
     },

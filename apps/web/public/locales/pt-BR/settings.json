@@ -10,6 +10,7 @@
     "slug": "URL de agendamento (slug)",
     "slugPlaceholder": "meu-negocio",
     "slugHelp": "Usado no link público de agendamento: /booking/seu-slug",
+    "copyLink": "Copiar link",
     "timezone": "Fuso horário",
     "timezoneHelp": "Fuso horário usado para agendamentos. Exemplo: America/Sao_Paulo",
     "save": "Salvar configurações",

@@ -1,6 +1,6 @@
 import { Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@igortullio-ui/react'
 import { clientEnv } from '@schedulizer/env/client'
-import { Check } from 'lucide-react'
+import { Check, X } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -42,7 +42,7 @@ const PLANS: Plan[] = [
       { key: 'limitedServices', included: true },
       { key: 'emailNotifications', included: true },
       { key: 'customerSupport', included: true },
-      { key: 'advancedAnalytics', included: true },
+      { key: 'advancedAnalytics', included: false },
     ],
   },
   {
@@ -127,9 +127,9 @@ export function Component() {
               data-testid="yearly-toggle"
             >
               {t('pricing.toggle.yearly')}
-              <Badge variant="success" className="ml-2">
+              <span className="ml-2 inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700 dark:bg-green-900/30 dark:text-green-400">
                 {t('pricing.toggle.savings', { percent: ANNUAL_DISCOUNT_PERCENT })}
-              </Badge>
+              </span>
             </Button>
           </div>
         </div>
@@ -177,10 +177,11 @@ export function Component() {
                           feature.included ? 'text-foreground' : 'text-muted-foreground line-through'
                         }`}
                       >
-                        <Check
-                          className={`h-4 w-4 ${feature.included ? 'text-primary' : 'text-muted-foreground'}`}
-                          aria-hidden="true"
-                        />
+                        {feature.included ? (
+                          <Check className="h-4 w-4 text-primary" aria-hidden="true" />
+                        ) : (
+                          <X className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                        )}
                         {t(
                           `pricing.plans.${plan.id}.features.${feature.key}` as 'pricing.plans.essential.features.singleMember',
                         )}

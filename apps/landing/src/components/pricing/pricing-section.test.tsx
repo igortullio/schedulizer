@@ -166,11 +166,8 @@ describe('PricingSection Component', () => {
     expect(monthlyRadio).toBeChecked()
   })
 
-  it('should show savings badge after switching to yearly', async () => {
-    const user = userEvent.setup()
+  it('should always show savings badge inside toggle', () => {
     render(<PricingSection />)
-    expect(screen.queryByText(/Economize/)).not.toBeInTheDocument()
-    await user.click(screen.getByText('Anual'))
     expect(screen.getByText('Economize 15%')).toBeInTheDocument()
   })
 })

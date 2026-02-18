@@ -32,7 +32,7 @@ export function PublicLayout() {
       <header className="border-b border-border px-4 py-3">
         <div className="mx-auto flex max-w-2xl items-center justify-between">
           {logoHeader}
-          <LanguageSelector />
+          <LanguageSelector className="w-auto" />
         </div>
       </header>
       <main className="mx-auto max-w-2xl px-4 py-6" aria-label="Booking content">

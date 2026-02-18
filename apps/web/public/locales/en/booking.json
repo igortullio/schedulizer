@@ -52,7 +52,8 @@
     "managementInfo": "You will receive a confirmation email with a link to manage your booking.",
     "copyLink": "Copy management link",
     "copied": "Link copied!",
-    "manageBooking": "Manage booking"
+    "manageBooking": "Manage booking",
+    "bookAgain": "Book another appointment"
   },
   "manage": {
     "notFound": {
@@ -79,6 +80,7 @@
       "cancel": "Cancel booking",
       "cancelling": "Cancelling..."
     },
+    "bookAgain": "Book new appointment",
     "reschedule": {
       "title": "Reschedule"
     },

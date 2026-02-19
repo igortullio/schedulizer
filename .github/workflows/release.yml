@@ -62,7 +62,7 @@ jobs:
       - name: Enable auto-merge on version PR
         if: steps.changesets.outputs.pullRequestNumber != ''
         run: |
-          gh pr merge ${{ steps.changesets.outputs.pullRequestNumber }} --auto --squash
+          gh pr merge ${{ steps.changesets.outputs.pullRequestNumber }} --auto --merge
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
 

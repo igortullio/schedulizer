@@ -1,5 +1,11 @@
 # @schedulizer/api
 
+## 0.3.2
+
+### Patch Changes
+
+- [#53](https://github.com/igortullio/schedulizer/pull/53) [`c725755`](https://github.com/igortullio/schedulizer/commit/c72575558e73470d29eb53133e7325c8e0f60ae4) Thanks [@igortullio](https://github.com/igortullio)! - use merge commit for version PR instead of squash
+
 ## 0.3.1
 
 ### Patch Changes

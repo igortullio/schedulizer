@@ -32,7 +32,8 @@
       "@schedulizer/observability": ["libs/observability/src/index.ts"],
       "@schedulizer/observability/node": ["libs/observability/src/node.ts"],
       "@schedulizer/observability/browser": ["libs/observability/src/browser.ts"],
-      "@schedulizer/whatsapp": ["libs/whatsapp/src/index.ts"]
+      "@schedulizer/whatsapp": ["libs/whatsapp/src/index.ts"],
+      "@schedulizer/notifications": ["libs/notifications/src/index.ts"]
     }
   }
 }

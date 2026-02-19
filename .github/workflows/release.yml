@@ -11,11 +11,6 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
-    outputs:
-      published: ${{ steps.changesets.outputs.published }}
-      publishedPackages: ${{ steps.changesets.outputs.publishedPackages }}
-      hasChangesets: ${{ steps.changesets.outputs.hasChangesets }}
-      pullRequestNumber: ${{ steps.changesets.outputs.pullRequestNumber }}
 
     steps:
       - name: Generate GitHub App token
@@ -40,15 +35,15 @@ jobs:
       - name: Install dependencies
         run: npm install --include=dev
 
-      - name: Create version PR or publish releases
+      - name: Create version PR or detect publish phase
         id: changesets
         uses: changesets/action@v1
         with:
           version: npx changeset version
-          publish: npx changeset tag
+          publish: echo '[]'
           commit: 'chore: version packages'
           title: 'chore: version packages'
-          createGithubReleases: true
+          createGithubReleases: false
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
@@ -66,18 +61,67 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
 
+      - name: Create git tags and GitHub release
+        if: steps.changesets.outputs.hasChangesets == 'false' && steps.changesets.outputs.pullRequestNumber == ''
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          # Find all workspace packages and check for missing tags
+          CREATED_TAGS=""
+          VERSION=""
+
+          for pkg_json in apps/*/package.json libs/*/package.json libs/*/*/package.json; do
+            [ -f "$pkg_json" ] || continue
+            PKG_NAME=$(node -p "require('./$pkg_json').name")
+            PKG_VERSION=$(node -p "require('./$pkg_json').version")
+            TAG="${PKG_NAME}@${PKG_VERSION}"
+
+            if ! git tag -l "$TAG" | grep -q "$TAG"; then
+              git tag "$TAG"
+              CREATED_TAGS="$CREATED_TAGS $TAG"
+              VERSION="$PKG_VERSION"
+              echo "Created tag: $TAG"
+            fi
+          done
+
+          if [ -z "$CREATED_TAGS" ]; then
+            echo "All tags already exist, nothing to do"
+            exit 0
+          fi
+
+          # Create version tag (e.g., v0.3.2)
+          VERSION_TAG="v${VERSION}"
+          if ! git tag -l "$VERSION_TAG" | grep -q "$VERSION_TAG"; then
+            git tag "$VERSION_TAG"
+            CREATED_TAGS="$CREATED_TAGS $VERSION_TAG"
+            echo "Created tag: $VERSION_TAG"
+          fi
+
+          # Push all tags
+          git push origin --tags
+          echo "Pushed tags to remote"
+
+          # Generate release notes from CHANGELOG
+          CHANGELOG="apps/web/CHANGELOG.md"
+          NOTES=""
+          if [ -f "$CHANGELOG" ]; then
+            # Extract the latest version section from changelog
+            NOTES=$(sed -n "/^## ${VERSION}/,/^## [0-9]/p" "$CHANGELOG" | sed '1d;$d')
+          fi
+
+          if [ -z "$NOTES" ]; then
+            NOTES="Release ${VERSION_TAG}"
+          fi
+
+          # Create GitHub release
+          gh release create "$VERSION_TAG" \
+            --title "$VERSION_TAG" \
+            --notes "$NOTES"
+
+          echo "Created GitHub release: $VERSION_TAG"
+
       - name: Log workflow execution
         run: |
           echo "Workflow execution summary:"
-          echo "- Published: ${{ steps.changesets.outputs.published }}"
           echo "- Has changesets: ${{ steps.changesets.outputs.hasChangesets }}"
           echo "- Version PR number: ${{ steps.changesets.outputs.pullRequestNumber }}"
-          if [[ "${{ steps.changesets.outputs.published }}" == "true" ]]; then
-            echo "✅ Phase: GitHub Release published"
-            echo "Published packages: ${{ steps.changesets.outputs.publishedPackages }}"
-          elif [[ "${{ steps.changesets.outputs.pullRequestNumber }}" != "" ]]; then
-            echo "✅ Phase: Version PR created/updated with auto-merge enabled"
-            echo "PR #${{ steps.changesets.outputs.pullRequestNumber }} will auto-merge when CI passes"
-          else
-            echo "ℹ️ No changesets found - workflow completed without action"
-          fi

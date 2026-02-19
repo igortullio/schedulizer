@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import { z } from 'zod'
 
-const serverEnvSchema = z.object({
+export const serverEnvSchema = z.object({
   DATABASE_URL: z.url(),
   SERVER_PORT: z.coerce.number().default(3000),
   BETTER_AUTH_SECRET: z.string().min(32),
@@ -19,6 +19,10 @@ const serverEnvSchema = z.object({
   SENTRY_DSN_API: z.string().optional(),
   SENTRY_ENVIRONMENT: z.string().optional().default('development'),
   SENTRY_RELEASE: z.string().optional(),
+  WHATSAPP_PHONE_NUMBER_ID: z.string().min(1),
+  WHATSAPP_ACCESS_TOKEN: z.string().min(1),
+  WHATSAPP_VERIFY_TOKEN: z.string().min(1),
+  WHATSAPP_APP_SECRET: z.string().min(1),
 })
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>
@@ -49,6 +53,10 @@ function createServerEnv() {
     sentryDsnApi: result.data.SENTRY_DSN_API,
     sentryEnvironment: result.data.SENTRY_ENVIRONMENT,
     sentryRelease: result.data.SENTRY_RELEASE,
+    whatsappPhoneNumberId: result.data.WHATSAPP_PHONE_NUMBER_ID,
+    whatsappAccessToken: result.data.WHATSAPP_ACCESS_TOKEN,
+    whatsappVerifyToken: result.data.WHATSAPP_VERIFY_TOKEN,
+    whatsappAppSecret: result.data.WHATSAPP_APP_SECRET,
   } as const
 }
 

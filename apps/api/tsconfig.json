@@ -13,6 +13,9 @@
       "path": "../../libs/whatsapp"
     },
     {
+      "path": "../../libs/notifications"
+    },
+    {
       "path": "../../libs/shared/types"
     },
     {

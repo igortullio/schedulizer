@@ -1,7 +1,9 @@
 import { createDb, schema } from '@schedulizer/db'
 import { EmailService, extractLocale, type Locale } from '@schedulizer/email'
 import { serverEnv } from '@schedulizer/env/server'
+import { ChannelResolver, NotificationService } from '@schedulizer/notifications'
 import { CreateAppointmentSchema, RescheduleAppointmentSchema } from '@schedulizer/shared-types'
+import { WhatsAppService } from '@schedulizer/whatsapp'
 import { formatInTimeZone } from 'date-fns-tz'
 import { and, eq, gt, lt, ne } from 'drizzle-orm'
 import { Router } from 'express'
@@ -9,7 +11,14 @@ import { calculateAvailableSlots } from '../lib/slot-calculator'
 
 const router = Router()
 const db = createDb(serverEnv.databaseUrl)
+const channelResolver = new ChannelResolver()
+const whatsAppService = new WhatsAppService({
+  phoneNumberId: serverEnv.whatsappPhoneNumberId,
+  accessToken: serverEnv.whatsappAccessToken,
+  apiVersion: 'v21.0',
+})
 const emailService = new EmailService({ apiKey: serverEnv.resendApiKey })
+const notificationService = new NotificationService({ channelResolver, whatsAppService, emailService })
 
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/
 const MAX_FUTURE_DAYS = 60
@@ -65,6 +74,15 @@ async function getOrganizationOwnerEmail(organizationId: string): Promise<string
     .where(eq(schema.users.id, ownerMember.userId))
     .limit(1)
   return user?.email ?? null
+}
+
+async function getOrganizationPlanType(organizationId: string): Promise<string> {
+  const [subscription] = await db
+    .select({ plan: schema.subscriptions.plan })
+    .from(schema.subscriptions)
+    .where(eq(schema.subscriptions.organizationId, organizationId))
+    .limit(1)
+  return subscription?.plan ?? 'essential'
 }
 
 router.get('/:slug', async (req, res) => {
@@ -250,10 +268,14 @@ router.post('/:slug/appointments', async (req, res) => {
     const managementUrl = buildManagementUrl(slug, appointment.managementToken)
     const appointmentDate = formatDateInTimezone(startDatetime, organization.timezone)
     const appointmentTime = formatTimeInTimezone(startDatetime, organization.timezone)
-    emailService
-      .sendBookingConfirmation({
-        to: customerEmail,
-        locale,
+    const planType = await getOrganizationPlanType(organization.id)
+    notificationService.send({
+      event: 'appointment.confirmed',
+      organizationId: organization.id,
+      recipientPhone: customerPhone,
+      recipientEmail: customerEmail,
+      locale,
+      data: {
         customerName,
         serviceName: service.name,
         appointmentDate,
@@ -261,31 +283,28 @@ router.post('/:slug/appointments', async (req, res) => {
         organizationName: organization.name,
         cancelUrl: `${managementUrl}?action=cancel`,
         rescheduleUrl: `${managementUrl}?action=reschedule`,
-      })
-      .catch(error => {
-        console.error('Confirmation email failed', {
-          appointmentId: appointment.id,
-          error: error instanceof Error ? error.message : 'Unknown error',
-        })
-      })
+      },
+      organizationWhatsAppEnabled: false,
+      planType,
+    })
     const ownerEmail = await getOrganizationOwnerEmail(organization.id)
     if (ownerEmail) {
-      emailService
-        .sendOwnerNewBooking({
-          to: ownerEmail,
-          locale: organization.language as Locale,
+      notificationService.send({
+        event: 'appointment.confirmed',
+        organizationId: organization.id,
+        recipientEmail: ownerEmail,
+        locale: organization.language as Locale,
+        data: {
           customerName,
           customerEmail,
           serviceName: service.name,
           appointmentDate,
           appointmentTime,
-        })
-        .catch(error => {
-          console.error('Owner notification email failed', {
-            appointmentId: appointment.id,
-            error: error instanceof Error ? error.message : 'Unknown error',
-          })
-        })
+          organizationName: organization.name,
+        },
+        organizationWhatsAppEnabled: false,
+        planType,
+      })
     }
     return res.status(201).json({
       data: {
@@ -403,40 +422,40 @@ router.post('/:slug/manage/:token/cancel', async (req, res) => {
     const cancelDate = formatDateInTimezone(appointment.startDatetime, organization.timezone)
     const cancelTime = formatTimeInTimezone(appointment.startDatetime, organization.timezone)
     const cancelLocale = (appointment.language ?? 'pt-BR') as Locale
-    emailService
-      .sendBookingCancellation({
-        to: appointment.customerEmail,
-        locale: cancelLocale,
+    const cancelPlanType = await getOrganizationPlanType(organization.id)
+    notificationService.send({
+      event: 'appointment.cancelled',
+      organizationId: organization.id,
+      recipientPhone: appointment.customerPhone,
+      recipientEmail: appointment.customerEmail,
+      locale: cancelLocale,
+      data: {
         customerName: appointment.customerName,
         serviceName: service?.name ?? 'Unknown',
         appointmentDate: cancelDate,
         appointmentTime: cancelTime,
         organizationName: organization.name,
-      })
-      .catch(error => {
-        console.error('Cancellation email failed', {
-          appointmentId: appointment.id,
-          error: error instanceof Error ? error.message : 'Unknown error',
-        })
-      })
+      },
+      organizationWhatsAppEnabled: false,
+      planType: cancelPlanType,
+    })
     const ownerEmail = await getOrganizationOwnerEmail(organization.id)
     if (ownerEmail) {
-      emailService
-        .sendOwnerCancellation({
-          to: ownerEmail,
-          locale: organization.language as Locale,
+      notificationService.send({
+        event: 'appointment.cancelled',
+        organizationId: organization.id,
+        recipientEmail: ownerEmail,
+        locale: organization.language as Locale,
+        data: {
           customerName: appointment.customerName,
           customerEmail: appointment.customerEmail,
           serviceName: service?.name ?? 'Unknown',
           appointmentDate: cancelDate,
           appointmentTime: cancelTime,
-        })
-        .catch(error => {
-          console.error('Owner cancellation notification failed', {
-            appointmentId: appointment.id,
-            error: error instanceof Error ? error.message : 'Unknown error',
-          })
-        })
+        },
+        organizationWhatsAppEnabled: false,
+        planType: cancelPlanType,
+      })
     }
     return res.status(200).json({
       data: { id: updated.id, status: updated.status },
@@ -553,10 +572,14 @@ router.post('/:slug/manage/:token/reschedule', async (req, res) => {
     const newTime = formatTimeInTimezone(newStartDatetime, organization.timezone)
     const managementUrl = buildManagementUrl(slug, appointment.managementToken)
     const rescheduleLocale = (appointment.language ?? 'pt-BR') as Locale
-    emailService
-      .sendBookingReschedule({
-        to: appointment.customerEmail,
-        locale: rescheduleLocale,
+    const reschedulePlanType = await getOrganizationPlanType(organization.id)
+    notificationService.send({
+      event: 'appointment.rescheduled',
+      organizationId: organization.id,
+      recipientPhone: appointment.customerPhone,
+      recipientEmail: appointment.customerEmail,
+      locale: rescheduleLocale,
+      data: {
         customerName: appointment.customerName,
         serviceName: service.name,
         oldDate,
@@ -566,19 +589,18 @@ router.post('/:slug/manage/:token/reschedule', async (req, res) => {
         organizationName: organization.name,
         cancelUrl: `${managementUrl}?action=cancel`,
         rescheduleUrl: `${managementUrl}?action=reschedule`,
-      })
-      .catch(error => {
-        console.error('Reschedule email failed', {
-          appointmentId: appointment.id,
-          error: error instanceof Error ? error.message : 'Unknown error',
-        })
-      })
+      },
+      organizationWhatsAppEnabled: false,
+      planType: reschedulePlanType,
+    })
     const ownerEmail = await getOrganizationOwnerEmail(organization.id)
     if (ownerEmail) {
-      emailService
-        .sendOwnerReschedule({
-          to: ownerEmail,
-          locale: organization.language as Locale,
+      notificationService.send({
+        event: 'appointment.rescheduled',
+        organizationId: organization.id,
+        recipientEmail: ownerEmail,
+        locale: organization.language as Locale,
+        data: {
           customerName: appointment.customerName,
           customerEmail: appointment.customerEmail,
           serviceName: service.name,
@@ -586,13 +608,10 @@ router.post('/:slug/manage/:token/reschedule', async (req, res) => {
           oldTime,
           newDate,
           newTime,
-        })
-        .catch(error => {
-          console.error('Owner reschedule notification failed', {
-            appointmentId: appointment.id,
-            error: error instanceof Error ? error.message : 'Unknown error',
-          })
-        })
+        },
+        organizationWhatsAppEnabled: false,
+        planType: reschedulePlanType,
+      })
     }
     return res.status(200).json({
       data: {

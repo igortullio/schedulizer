@@ -1,5 +1,11 @@
 # @schedulizer/observability
 
+## 0.4.1
+
+### Patch Changes
+
+- [#55](https://github.com/igortullio/schedulizer/pull/55) [`7d805a3`](https://github.com/igortullio/schedulizer/commit/7d805a3589ce22dca76e43bc1d87086cc02030f1) Thanks [@igortullio](https://github.com/igortullio)! - create git tags and GitHub release via custom script
+
 ## 0.4.0
 
 ### Minor Changes

@@ -12,7 +12,7 @@ i18n
     supportedLngs: ['en', 'pt-BR'],
     load: 'currentOnly',
     debug: import.meta.env.DEV && !import.meta.env.VITEST,
-    ns: ['common'],
+    ns: ['common', 'privacy'],
     defaultNS: 'common',
     backend: {
       loadPath: '/locales/{{lng}}/{{ns}}.json',

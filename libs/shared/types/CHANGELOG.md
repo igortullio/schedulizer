@@ -1,5 +1,11 @@
 # @schedulizer/shared-types
 
+## 0.4.0
+
+### Minor Changes
+
+- [#56](https://github.com/igortullio/schedulizer/pull/56) [`f5d9c0d`](https://github.com/igortullio/schedulizer/commit/f5d9c0d029e2ea539ccbb70af1fe4a2ada78c944) Thanks [@igortullio](https://github.com/igortullio)! - add privacy policy page
+
 ## 0.3.2
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@schedulizer/landing",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "private": true,
   "dependencies": {
     "@fontsource-variable/roboto": "^5.2.9",

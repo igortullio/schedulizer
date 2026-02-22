@@ -1,0 +1,95 @@
+{
+  "meta": {
+    "title": "Privacy Policy - Schedulizer"
+  },
+  "title": "Privacy Policy",
+  "effectiveDate": "Effective date: February 22, 2026",
+  "intro": "Schedulizer (\"we\", \"us\", or \"our\") operates the Schedulizer platform. This Privacy Policy explains how we collect, use, disclose, and protect your information when you use our services.",
+  "sections": {
+    "dataCollection": {
+      "title": "1. Data We Collect",
+      "content": "We collect information you provide directly when using our platform:",
+      "items": [
+        "Account information: name, email address, and password",
+        "Business information: organization name, services offered, and working hours",
+        "Scheduling data: appointments, time blocks, and availability",
+        "Phone number: when provided for WhatsApp notifications",
+        "Payment information: processed securely through Stripe (we do not store card details)"
+      ]
+    },
+    "dataUsage": {
+      "title": "2. How We Use Your Data",
+      "content": "We use the collected information to:",
+      "items": [
+        "Provide and maintain the scheduling platform",
+        "Send appointment confirmations, reminders, and notifications via email or WhatsApp",
+        "Process payments and manage subscriptions",
+        "Improve our services and user experience",
+        "Communicate important updates about the platform"
+      ]
+    },
+    "whatsapp": {
+      "title": "3. WhatsApp & Meta Integration",
+      "content": "When you or your customers opt in to WhatsApp notifications:",
+      "items": [
+        "Phone numbers are shared with Meta Platforms (WhatsApp Business API) to deliver messages",
+        "Messages include appointment details such as date, time, and service name",
+        "We use WhatsApp message templates approved by Meta for notifications",
+        "Inbound messages from customers are processed to enable chatbot-based scheduling",
+        "Conversation session data is stored temporarily (30 minutes) and automatically deleted",
+        "Meta may process data according to their own privacy policy"
+      ],
+      "metaLink": "For more information about how Meta handles data, visit Meta's Privacy Policy."
+    },
+    "cookies": {
+      "title": "4. Cookies & Tracking",
+      "content": "We use the following technologies:",
+      "items": [
+        "Language preference: stored in localStorage to remember your language choice",
+        "Authentication tokens: essential cookies to keep you logged in",
+        "Error tracking: Sentry for monitoring application errors and performance",
+        "We do not use advertising cookies or third-party tracking for marketing purposes"
+      ]
+    },
+    "sharing": {
+      "title": "5. Data Sharing",
+      "content": "We share your data only with the following third-party services necessary to operate the platform:",
+      "items": [
+        "Stripe: payment processing",
+        "Resend: email delivery",
+        "Meta (WhatsApp Business API): WhatsApp message delivery",
+        "Sentry: error monitoring and performance tracking"
+      ],
+      "additional": "We do not sell your personal data to third parties."
+    },
+    "retention": {
+      "title": "6. Data Retention",
+      "content": "We retain your data for as long as your account is active or as needed to provide services. Scheduling data is kept for the duration of your subscription. WhatsApp chatbot session data is automatically deleted after 30 minutes of inactivity. You may request deletion of your data at any time by contacting us."
+    },
+    "rights": {
+      "title": "7. Your Rights",
+      "content": "You have the right to:",
+      "items": [
+        "Access the personal data we hold about you",
+        "Request correction of inaccurate data",
+        "Request deletion of your data",
+        "Export your data in a portable format",
+        "Withdraw consent for WhatsApp notifications at any time",
+        "Lodge a complaint with a data protection authority"
+      ]
+    },
+    "security": {
+      "title": "8. Security",
+      "content": "We implement industry-standard security measures to protect your data, including encrypted connections (HTTPS), secure authentication, webhook signature verification for WhatsApp messages, and secure payment processing through Stripe."
+    },
+    "contact": {
+      "title": "9. Contact",
+      "content": "If you have questions about this Privacy Policy or wish to exercise your rights, contact us at:",
+      "email": "contato@schedulizer.com"
+    },
+    "updates": {
+      "title": "10. Policy Updates",
+      "content": "We may update this Privacy Policy from time to time. We will notify you of significant changes via email or through a notice on our platform. Continued use of the platform after changes constitutes acceptance of the updated policy."
+    }
+  }
+}

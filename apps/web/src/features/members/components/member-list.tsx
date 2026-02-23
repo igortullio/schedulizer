@@ -52,12 +52,17 @@ export function MemberList({ members, currentUserId, currentUserRole, onRemove }
             <div className="flex items-center gap-3">
               <Avatar>
                 <AvatarFallback delayMs={0} className="bg-primary/10 text-primary">
-                  {member.user.email.charAt(0).toUpperCase()}
+                  {(member.user.name ?? member.user.email ?? '?').charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div>
-                <p className="flex items-center gap-1.5 text-sm font-medium">{member.user.name ?? member.user.email}</p>
-                <p className="text-xs text-muted-foreground">{member.user.email}</p>
+                <p className="flex items-center gap-1.5 text-sm font-medium">
+                  {member.user.name ?? t('unknownMember')}
+                </p>
+                <div className="text-xs text-muted-foreground">
+                  {member.user.email ? <p>{member.user.email}</p> : null}
+                  {member.user.phoneNumber ? <p>{member.user.phoneNumber}</p> : null}
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-2">

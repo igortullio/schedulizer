@@ -2,6 +2,7 @@
   "me": "Me",
   "title": "Members",
   "description": "Manage your organization's team members and invitations.",
+  "unknownMember": "Unknown member",
   "emptyState": "No members found.",
   "emptyInvitations": "No pending invitations.",
   "sections": {

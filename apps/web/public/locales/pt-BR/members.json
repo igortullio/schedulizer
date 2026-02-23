@@ -2,6 +2,7 @@
   "me": "Eu",
   "title": "Membros",
   "description": "Gerencie os membros e convites da sua organização.",
+  "unknownMember": "Membro desconhecido",
   "emptyState": "Nenhum membro encontrado.",
   "emptyInvitations": "Nenhum convite pendente.",
   "sections": {

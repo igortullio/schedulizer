@@ -6,6 +6,7 @@ import cors from 'cors'
 import express from 'express'
 import { auth } from './lib/auth'
 import { appointmentsRoutes } from './routes/appointments.routes'
+import { authCheckRoutes } from './routes/auth-check.routes'
 import { billingRoutes, webhookRouter } from './routes/billing.routes'
 import { bookingRoutes } from './routes/booking.routes'
 import { healthRoutes } from './routes/health.routes'
@@ -45,6 +46,7 @@ app.use(express.json())
 app.use(sentryContextMiddleware)
 
 // Routes
+app.use('/api/auth-check', authCheckRoutes)
 app.use('/api/billing', billingRoutes)
 app.use('/api/leads', leadsRoutes)
 app.use('/api/organizations', organizationsRoutes)

@@ -1,17 +1,24 @@
 import { createDb, schema } from '@schedulizer/db'
 import { DEFAULT_LOCALE, EmailService } from '@schedulizer/email'
 import { serverEnv } from '@schedulizer/env/server'
+import { WhatsAppService } from '@schedulizer/whatsapp'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { APIError } from 'better-auth/api'
-import { magicLink, organization } from 'better-auth/plugins'
+import { magicLink, organization, phoneNumber } from 'better-auth/plugins'
 import { ac, adminRole, memberRole, ownerRole } from './access-control'
 import { checkMemberLimit } from './member-limit-guard'
 
 const INVITATION_EXPIRES_IN_SECONDS = 604800
+const E164_PATTERN = /^\+[1-9]\d{7,14}$/
 
 const db = createDb(serverEnv.databaseUrl)
 const emailService = new EmailService({ apiKey: serverEnv.resendApiKey })
+const whatsAppService = new WhatsAppService({
+  phoneNumberId: serverEnv.whatsappPhoneNumberId,
+  accessToken: serverEnv.whatsappAccessToken,
+  apiVersion: 'v21.0',
+})
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -33,6 +40,26 @@ export const auth = betterAuth({
     enabled: false,
   },
   plugins: [
+    phoneNumber({
+      sendOTP: async ({ phoneNumber: phone, code }) => {
+        const urlSuffix = `code=${code}&phone=${encodeURIComponent(phone)}`
+        if (phone.startsWith('+0') || phone.includes('e2e')) {
+          console.log('E2E test phone OTP', { phone, code })
+          return
+        }
+        const result = await whatsAppService.sendText({
+          to: phone.replace('+', ''),
+          body: `Clique no link abaixo para acessar sua conta!\n\nhttp://localhost:4200/auth/verify-phone?${urlSuffix}`,
+        })
+        if (!result.success) {
+          throw new Error('Failed to send WhatsApp OTP')
+        }
+      },
+      signUpOnVerification: {
+        getTempEmail: () => null as unknown as string,
+      },
+      phoneNumberValidator: phone => E164_PATTERN.test(phone),
+    }),
     magicLink({
       sendMagicLink: async ({ email, url }) => {
         const parsedUrl = new URL(url)

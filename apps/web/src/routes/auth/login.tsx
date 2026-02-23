@@ -1,5 +1,16 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Alert, AlertDescription, Button, Card, Input, Label } from '@igortullio-ui/react'
+import {
+  Alert,
+  AlertDescription,
+  Button,
+  Card,
+  Input,
+  Label,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@igortullio-ui/react'
 import { CheckCircle2, Info, Loader2, Mail, Phone } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -79,7 +90,7 @@ export function Component() {
           onErrorChange={setErrorMessage}
         />
       )}
-      <div className="mt-4 text-center">
+      <div className="mt-4 flex items-center justify-center gap-1.5">
         <button
           type="button"
           onClick={() => setMode(mode === 'phone' ? 'email' : 'phone')}
@@ -88,13 +99,23 @@ export function Component() {
         >
           {mode === 'phone' ? t('login.switchToEmail') : t('login.switchToWhatsApp')}
         </button>
-      </div>
-      <div
-        className="mt-3 flex items-start gap-2 rounded-lg bg-muted/50 px-3 py-2"
-        data-testid="separate-accounts-warning"
-      >
-        <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
-        <p className="text-xs text-muted-foreground">{t('login.separateAccountsWarning')}</p>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                className="cursor-help text-muted-foreground"
+                aria-label={t('login.separateAccountsWarning')}
+                data-testid="separate-accounts-warning"
+              >
+                <Info className="h-3.5 w-3.5" aria-hidden="true" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-xs text-center">
+              {t('login.separateAccountsWarning')}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
     </Card>
   )

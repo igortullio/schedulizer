@@ -266,28 +266,32 @@ export function Component() {
             </div>
           ) : (
             <>
-              <div className="grid gap-6 md:grid-cols-2">
-                <SubscriptionCard
-                  subscription={subscription}
-                  isLoading={isSubscriptionLoading}
-                  onManageSubscription={handleManageSubscription}
-                  isPortalLoading={isPortalLoading}
-                  onCancelSubscription={handleCancelSubscription}
-                />
-                <PaymentMethodCard
-                  onManagePayment={handleManagePayment}
-                  isLoading={isSubscriptionLoading}
-                  isPortalLoading={isPortalLoading}
-                />
-              </div>
-              <div className="mt-8">
-                <BillingHistoryTable
-                  invoices={invoices}
-                  isLoading={isInvoicesLoading}
-                  error={invoicesError}
-                  onRetry={refetchInvoices}
-                />
-              </div>
+              <SubscriptionCard
+                subscription={subscription}
+                isLoading={isSubscriptionLoading}
+                onManageSubscription={handleManageSubscription}
+                isPortalLoading={isPortalLoading}
+                onCancelSubscription={handleCancelSubscription}
+              />
+              {subscription?.stripeSubscriptionId ? (
+                <>
+                  <div className="mt-6">
+                    <PaymentMethodCard
+                      onManagePayment={handleManagePayment}
+                      isLoading={isSubscriptionLoading}
+                      isPortalLoading={isPortalLoading}
+                    />
+                  </div>
+                  <div className="mt-6">
+                    <BillingHistoryTable
+                      invoices={invoices}
+                      isLoading={isInvoicesLoading}
+                      error={invoicesError}
+                      onRetry={refetchInvoices}
+                    />
+                  </div>
+                </>
+              ) : null}
             </>
           )}
         </div>

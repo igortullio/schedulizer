@@ -23,7 +23,15 @@ export async function checkMemberLimit(organizationId: string): Promise<MemberLi
     .from(schema.subscriptions)
     .where(eq(schema.subscriptions.organizationId, organizationId))
     .limit(1)
+  const [memberCount] = await db
+    .select({ value: count() })
+    .from(schema.members)
+    .where(eq(schema.members.organizationId, organizationId))
+  const currentCount = memberCount?.value ?? 0
   if (subscription.length === 0) {
+    if (currentCount === 0) {
+      return { allowed: true }
+    }
     console.log('Plan limit enforcement triggered', {
       organizationId,
       resource: 'members',
@@ -48,11 +56,6 @@ export async function checkMemberLimit(organizationId: string): Promise<MemberLi
       stripePriceId: subscription[0].stripePriceId ?? '',
     }
   }
-  const [memberCount] = await db
-    .select({ value: count() })
-    .from(schema.members)
-    .where(eq(schema.members.organizationId, organizationId))
-  const currentCount = memberCount?.value ?? 0
   if (currentCount >= resolvedPlan.limits.maxMembers) {
     console.log('Plan limit enforcement triggered', {
       organizationId,

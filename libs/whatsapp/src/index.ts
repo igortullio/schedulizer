@@ -13,10 +13,12 @@ export type {
 export {
   buildCancellationComponents,
   buildConfirmationComponents,
+  buildLoginVerificationComponents,
   buildReminderComponents,
   buildRescheduleComponents,
   CANCELLATION_TEMPLATE_NAME,
   CONFIRMATION_TEMPLATE_NAME,
+  LOGIN_VERIFICATION_TEMPLATE_NAME,
   REMINDER_TEMPLATE_NAME,
   RESCHEDULE_TEMPLATE_NAME,
 } from './templates'

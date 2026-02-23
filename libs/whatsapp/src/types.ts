@@ -21,15 +21,31 @@ export interface SendMessageResult {
   success: boolean
 }
 
-export interface TemplateComponent {
-  type: 'header' | 'body' | 'button'
+export interface TemplateBodyComponent {
+  type: 'header' | 'body'
+  parameters: TemplateTextParameter[]
+}
+
+export interface TemplateButtonComponent {
+  type: 'button'
+  sub_type: 'url' | 'copy_code'
+  index: number
   parameters: TemplateParameter[]
 }
 
-export interface TemplateParameter {
+export type TemplateComponent = TemplateBodyComponent | TemplateButtonComponent
+
+export interface TemplateTextParameter {
   type: 'text'
   text: string
 }
+
+export interface TemplateCouponParameter {
+  type: 'coupon_code'
+  coupon_code: string
+}
+
+export type TemplateParameter = TemplateTextParameter | TemplateCouponParameter
 
 export interface WhatsAppApiResponse {
   messaging_product: string

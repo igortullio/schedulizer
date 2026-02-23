@@ -40,21 +40,21 @@ export async function checkMemberLimit(organizationId: string): Promise<MemberLi
     })
     return { allowed: false, reason: 'no_subscription' }
   }
-  let resolvedPlan = resolvePlanFromSubscription({
+  const resolvedPlanOrNull = resolvePlanFromSubscription({
     stripePriceId: subscription[0].stripePriceId,
     status: subscription[0].status,
   })
-  if (!resolvedPlan) {
+  if (!resolvedPlanOrNull) {
     console.error('Failed to resolve plan type from stripePriceId', {
       organizationId,
       stripePriceId: subscription[0].stripePriceId,
       fallback: 'essential',
     })
-    resolvedPlan = {
-      type: 'essential',
-      limits: getPlanLimits('essential'),
-      stripePriceId: subscription[0].stripePriceId ?? '',
-    }
+  }
+  const resolvedPlan = resolvedPlanOrNull ?? {
+    type: 'essential' as const,
+    limits: getPlanLimits('essential'),
+    stripePriceId: subscription[0].stripePriceId ?? '',
   }
   if (currentCount >= resolvedPlan.limits.maxMembers) {
     console.log('Plan limit enforcement triggered', {
@@ -73,5 +73,10 @@ export async function checkMemberLimit(organizationId: string): Promise<MemberLi
       planType: resolvedPlan.type,
     }
   }
-  return { allowed: true, current: currentCount, limit: resolvedPlan.limits.maxMembers, planType: resolvedPlan.type }
+  return {
+    allowed: true,
+    current: currentCount,
+    limit: resolvedPlan.limits.maxMembers,
+    planType: resolvedPlan.type,
+  }
 }

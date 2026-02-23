@@ -53,14 +53,6 @@ function setupSubscriptionAndMemberCount(subscription: MockSubscription | null, 
       }),
     }),
   })
-  if (subscription === null) {
-    mockDbSelect.mockReturnValueOnce({
-      from: vi.fn().mockReturnValue({
-        where: vi.fn().mockReturnValue(Promise.resolve([{ value: memberCount }])),
-      }),
-    })
-    return
-  }
   mockDbSelect.mockReturnValueOnce({
     from: vi.fn().mockReturnValue({
       where: vi.fn().mockReturnValue(Promise.resolve([{ value: memberCount }])),
@@ -143,10 +135,8 @@ describe('checkMemberLimit', () => {
   describe('Fail-safe Behavior', () => {
     it('should allow when no subscription found but org has no members yet (owner creation)', async () => {
       setupSubscriptionAndMemberCount(null, 0)
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
       const result = await checkMemberLimit('org-123')
       expect(result.allowed).toBe(true)
-      consoleSpy.mockRestore()
     })
 
     it('should block when no subscription found and org already has members', async () => {

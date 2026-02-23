@@ -57,6 +57,20 @@
       "when": 1771531628609,
       "tag": "0007_foamy_junta",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1771869592500,
+      "tag": "0008_cute_tarot",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1771880902264,
+      "tag": "0009_zippy_havok",
+      "breakpoints": true
     }
   ]
 }

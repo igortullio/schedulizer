@@ -19,11 +19,12 @@ export function Component() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const redirect = searchParams.get('redirect')
+  const isCreateMode = searchParams.get('create') === 'true'
   const { data: organizations, isPending, error: fetchError } = authClient.useListOrganizations()
   const [selectionState, setSelectionState] = useState<SelectionState>('idle')
   const [selectionError, setSelectionError] = useState<SelectionError | null>(null)
   const [selectedOrgId, setSelectedOrgId] = useState<string | null>(null)
-  const [showCreateForm, setShowCreateForm] = useState(false)
+  const [showCreateForm, setShowCreateForm] = useState(isCreateMode)
   const autoSelectTriggered = useRef(false)
 
   const handleSelectOrganization = useCallback(
@@ -64,13 +65,14 @@ export function Component() {
   )
 
   useEffect(() => {
+    if (isCreateMode) return
     if (isPending) return
     if (!organizations || organizations.length === 0) return
     if (organizations.length !== 1) return
     if (autoSelectTriggered.current) return
     autoSelectTriggered.current = true
     handleSelectOrganization(organizations[0].id)
-  }, [organizations, isPending, handleSelectOrganization])
+  }, [organizations, isPending, handleSelectOrganization, isCreateMode])
 
   const hasNoOrganizations = !isPending && !fetchError && (!organizations || organizations.length === 0)
   const shouldRedirectToInvite = hasNoOrganizations && redirect?.startsWith('/invite/')
@@ -87,6 +89,7 @@ export function Component() {
   async function handleSignOut() {
     try {
       await signOut()
+      navigate('/auth/login', { replace: true })
     } catch (error) {
       console.error('Sign out failed', {
         error: error instanceof Error ? error.message : 'Unknown error',

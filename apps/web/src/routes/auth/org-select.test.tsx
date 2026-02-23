@@ -598,6 +598,7 @@ describe('OrgSelectPage', () => {
       expect(signOutBtn).toBeInTheDocument()
       await user.click(signOutBtn)
       expect(mockSignOut).toHaveBeenCalled()
+      expect(mockNavigate).toHaveBeenCalledWith('/auth/login', { replace: true })
     })
   })
 

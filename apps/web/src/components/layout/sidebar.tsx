@@ -92,7 +92,7 @@ export function Sidebar({ organizationName, onCollapsedChange }: SidebarProps) {
   function handleCreateNewOrg() {
     setIsOrgPopoverOpen(false)
     closeSidebar()
-    navigate('/auth/org-select')
+    navigate('/auth/org-select?create=true')
   }
   const orgPopoverContent = (
     <PopoverContent className="w-56 p-1" side={isCollapsed ? 'right' : 'bottom'} align="start">

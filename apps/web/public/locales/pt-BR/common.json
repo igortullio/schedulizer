@@ -14,6 +14,11 @@
     "edit": "Editar",
     "back": "Voltar"
   },
+  "phone": {
+    "selectCountry": "Selecionar país",
+    "br": "Brasil",
+    "us": "EUA"
+  },
   "subscription": {
     "banner": {
       "message": "Você não possui uma assinatura ativa. Assine um plano para desbloquear todos os recursos.",

@@ -12,11 +12,11 @@ import {
 import { ChevronLeft, Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { PhoneInput } from '@/components/phone-input'
 import type { BookingService } from '../hooks/use-booking-page'
 import type { TimeSlot } from '../hooks/use-slots'
 
-const MIN_PHONE_LENGTH = 8
-const MAX_PHONE_LENGTH = 50
+const E164_PATTERN = /^\+[1-9]\d{7,14}$/
 
 interface BookingFormProps {
   service: BookingService
@@ -44,11 +44,7 @@ export function BookingForm({ service, slot, isSubmitting, error, onSubmit, onBa
       setFormError(t('form.errors.emailInvalid'))
       return
     }
-    if (
-      !customerPhone.trim() ||
-      customerPhone.trim().length < MIN_PHONE_LENGTH ||
-      customerPhone.trim().length > MAX_PHONE_LENGTH
-    ) {
+    if (!customerPhone.trim() || !E164_PATTERN.test(customerPhone.trim())) {
       setFormError(t('form.errors.phoneInvalid'))
       return
     }
@@ -121,13 +117,10 @@ export function BookingForm({ service, slot, isSubmitting, error, onSubmit, onBa
             </div>
             <div className="space-y-2">
               <Label htmlFor="customerPhone">{t('form.phone')}</Label>
-              <Input
+              <PhoneInput
                 id="customerPhone"
-                type="tel"
                 value={customerPhone}
-                onChange={e => setCustomerPhone(e.target.value)}
-                placeholder={t('form.phonePlaceholder')}
-                required
+                onChange={setCustomerPhone}
                 data-testid="customer-phone-input"
               />
             </div>

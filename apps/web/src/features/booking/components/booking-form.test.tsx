@@ -105,7 +105,7 @@ describe('BookingForm', () => {
     expect(onSubmit).toHaveBeenCalledWith({
       customerName: 'John Doe',
       customerEmail: 'john@example.com',
-      customerPhone: '11999999999',
+      customerPhone: '+5511999999999',
     })
   })
 

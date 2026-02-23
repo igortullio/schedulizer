@@ -85,7 +85,13 @@ export function Component() {
     handleSelectOrganization(selectionError.organizationId)
   }
   async function handleSignOut() {
-    await signOut()
+    try {
+      await signOut()
+    } catch (error) {
+      console.error('Sign out failed', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+      })
+    }
   }
   const signOutButton = (
     <div className="mt-4 text-center">

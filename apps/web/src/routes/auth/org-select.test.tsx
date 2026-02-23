@@ -30,12 +30,14 @@ vi.mock('@/lib/auth-client', () => ({
       setActive: vi.fn(),
     },
   },
+  signOut: vi.fn(),
 }))
 
-import { authClient } from '@/lib/auth-client'
+import { authClient, signOut } from '@/lib/auth-client'
 
 const mockUseListOrganizations = vi.mocked(authClient.useListOrganizations)
 const mockSetActive = vi.mocked(authClient.organization.setActive)
+const mockSignOut = vi.mocked(signOut)
 
 function mockOrgList(value: { data?: unknown; isPending?: boolean; error?: unknown }) {
   mockUseListOrganizations.mockReturnValue({
@@ -579,6 +581,23 @@ describe('OrgSelectPage', () => {
       renderWithRouter()
       await user.click(screen.getByTestId('org-item-org-1'))
       expect(screen.getByTestId('org-item-org-1')).toHaveAttribute('aria-busy', 'true')
+    })
+  })
+
+  describe('sign out', () => {
+    it('renders sign-out button and calls signOut on click', async () => {
+      const user = userEvent.setup()
+      mockSignOut.mockResolvedValueOnce(undefined)
+      mockOrgList({
+        data: mockOrganizations,
+        isPending: false,
+        error: null,
+      })
+      renderWithRouter()
+      const signOutBtn = screen.getByTestId('sign-out-button')
+      expect(signOutBtn).toBeInTheDocument()
+      await user.click(signOutBtn)
+      expect(mockSignOut).toHaveBeenCalled()
     })
   })
 

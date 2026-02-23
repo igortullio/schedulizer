@@ -149,6 +149,10 @@ export const router = createBrowserRouter([
         lazy: () => import('@/routes/auth/verify'),
       },
       {
+        path: 'verify-phone',
+        lazy: () => import('@/routes/auth/verify-phone'),
+      },
+      {
         path: 'org-select',
         lazy: () => import('@/routes/auth/org-select'),
       },

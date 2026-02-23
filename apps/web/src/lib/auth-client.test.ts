@@ -16,6 +16,7 @@ vi.mock('better-auth/react', () => ({
 vi.mock('better-auth/client/plugins', () => ({
   magicLinkClient: vi.fn(() => ({ id: 'magic-link-client' })),
   organizationClient: vi.fn(() => ({ id: 'organization-client' })),
+  phoneNumberClient: vi.fn(() => ({ id: 'phone-number-client' })),
 }))
 
 vi.mock('@schedulizer/env/client', () => ({

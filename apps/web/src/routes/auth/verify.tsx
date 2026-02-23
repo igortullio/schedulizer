@@ -21,6 +21,7 @@ export function Component() {
   const [error, setError] = useState<VerifyError | null>(null)
   const token = searchParams.get('token')
   const redirect = searchParams.get('redirect')
+  const name = searchParams.get('name')
 
   useEffect(() => {
     async function verifyMagicLink() {
@@ -46,6 +47,9 @@ export function Component() {
           return
         }
         setVerifyState('success')
+        if (name) {
+          await authClient.updateUser({ name: decodeURIComponent(name) })
+        }
         const orgSelectUrl = redirect ? `/auth/org-select?redirect=${encodeURIComponent(redirect)}` : '/auth/org-select'
         navigate(orgSelectUrl, { replace: true })
       } catch (err) {
@@ -57,7 +61,7 @@ export function Component() {
       }
     }
     verifyMagicLink()
-  }, [token, redirect, navigate, t])
+  }, [token, redirect, name, navigate, t])
 
   if (verifyState === 'verifying') {
     return (

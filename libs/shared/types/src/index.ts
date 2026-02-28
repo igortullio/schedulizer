@@ -187,8 +187,20 @@ export const RescheduleAppointmentSchema = z.object({
   startTime: z.string().datetime(),
 })
 
+export const OwnerCreateAppointmentSchema = z.object({
+  serviceId: z.string().uuid(),
+  startDatetime: z.string().datetime(),
+  endDatetime: z.string().datetime(),
+  customerName: z.string().min(1).max(255),
+  customerEmail: z.string().email().optional(),
+  customerPhone: z.string().optional(),
+  status: z.enum(['pending', 'confirmed', 'cancelled']).default('confirmed'),
+  notes: z.string().optional(),
+})
+
 export type CreateAppointmentInput = z.infer<typeof CreateAppointmentSchema>
 export type RescheduleAppointmentInput = z.infer<typeof RescheduleAppointmentSchema>
+export type OwnerCreateAppointmentInput = z.infer<typeof OwnerCreateAppointmentSchema>
 
 export interface TimeSlot {
   startTime: string

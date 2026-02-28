@@ -21,6 +21,7 @@ import {
   CreateServiceSchema,
   CreateTimeBlockSchema,
   getPlanLimits,
+  OwnerCreateAppointmentSchema,
   PLAN_CONFIGS,
   RescheduleAppointmentSchema,
   SchedulePeriodSchema,
@@ -381,6 +382,86 @@ describe('Zod Schemas', () => {
         startTime: '2025-01-16T10:00:00Z',
       })
       expect(result.success).toBe(true)
+    })
+  })
+
+  describe('OwnerCreateAppointmentSchema', () => {
+    const validInput = {
+      serviceId: '550e8400-e29b-41d4-a716-446655440000',
+      startDatetime: '2025-06-15T09:00:00Z',
+      endDatetime: '2025-06-15T09:30:00Z',
+      customerName: 'John Doe',
+    }
+
+    it('should validate with only required fields', () => {
+      const result = OwnerCreateAppointmentSchema.safeParse(validInput)
+      expect(result.success).toBe(true)
+    })
+
+    it('should validate with all optional fields', () => {
+      const result = OwnerCreateAppointmentSchema.safeParse({
+        ...validInput,
+        customerEmail: 'john@example.com',
+        customerPhone: '+5511999999999',
+        status: 'pending',
+        notes: 'VIP client',
+      })
+      expect(result.success).toBe(true)
+    })
+
+    it('should default status to confirmed', () => {
+      const result = OwnerCreateAppointmentSchema.safeParse(validInput)
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data.status).toBe('confirmed')
+      }
+    })
+
+    it('should reject invalid serviceId format', () => {
+      const result = OwnerCreateAppointmentSchema.safeParse({
+        ...validInput,
+        serviceId: 'not-a-uuid',
+      })
+      expect(result.success).toBe(false)
+    })
+
+    it('should reject missing customerName', () => {
+      const { customerName: _, ...withoutName } = validInput
+      const result = OwnerCreateAppointmentSchema.safeParse(withoutName)
+      expect(result.success).toBe(false)
+    })
+
+    it('should reject invalid datetime format', () => {
+      const result = OwnerCreateAppointmentSchema.safeParse({
+        ...validInput,
+        startDatetime: 'not-a-date',
+      })
+      expect(result.success).toBe(false)
+    })
+
+    it('should reject invalid email format', () => {
+      const result = OwnerCreateAppointmentSchema.safeParse({
+        ...validInput,
+        customerEmail: 'not-an-email',
+      })
+      expect(result.success).toBe(false)
+    })
+
+    it('should reject invalid status value', () => {
+      const result = OwnerCreateAppointmentSchema.safeParse({
+        ...validInput,
+        status: 'invalid_status',
+      })
+      expect(result.success).toBe(false)
+    })
+
+    it('should allow customerEmail and customerPhone as optional', () => {
+      const result = OwnerCreateAppointmentSchema.safeParse(validInput)
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data.customerEmail).toBeUndefined()
+        expect(result.data.customerPhone).toBeUndefined()
+      }
     })
   })
 

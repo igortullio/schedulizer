@@ -1,8 +1,9 @@
 import { createDb, schema } from '@schedulizer/db'
 import { serverEnv } from '@schedulizer/env/server'
 import type { AppointmentStatus } from '@schedulizer/shared-types'
+import { OwnerCreateAppointmentSchema } from '@schedulizer/shared-types'
 import { fromNodeHeaders } from 'better-auth/node'
-import { and, eq, gte, lte } from 'drizzle-orm'
+import { and, eq, gt, gte, lt, lte, ne } from 'drizzle-orm'
 import { Router } from 'express'
 import { auth } from '../lib/auth'
 import { requireSubscription } from '../middlewares/require-subscription.middleware'
@@ -84,6 +85,107 @@ async function transitionStatus(
 }
 
 router.use(requireSubscription)
+
+router.post('/', async (req, res) => {
+  try {
+    const sessionData = await getSessionAndOrg(req)
+    if (!sessionData) {
+      return res.status(401).json({
+        error: { message: 'Unauthorized', code: 'UNAUTHORIZED' },
+      })
+    }
+    const { organizationId } = sessionData
+    const validation = OwnerCreateAppointmentSchema.safeParse(req.body)
+    if (!validation.success) {
+      return res.status(400).json({
+        error: {
+          message: validation.error.issues.map(e => `${e.path.join('.')}: ${e.message}`).join(', '),
+          code: 'INVALID_REQUEST',
+        },
+      })
+    }
+    const {
+      serviceId,
+      startDatetime: startStr,
+      endDatetime: endStr,
+      customerName,
+      customerEmail,
+      customerPhone,
+      status,
+      notes,
+    } = validation.data
+    const [service] = await db
+      .select({ id: schema.services.id })
+      .from(schema.services)
+      .where(and(eq(schema.services.id, serviceId), eq(schema.services.organizationId, organizationId)))
+      .limit(1)
+    if (!service) {
+      return res.status(404).json({
+        error: { message: 'Service not found', code: 'NOT_FOUND' },
+      })
+    }
+    const startDatetime = new Date(startStr)
+    const endDatetime = new Date(endStr)
+    const txResult = await db.transaction(async tx => {
+      const conflicting = await tx
+        .select({
+          id: schema.appointments.id,
+          customerName: schema.appointments.customerName,
+          startDatetime: schema.appointments.startDatetime,
+          endDatetime: schema.appointments.endDatetime,
+        })
+        .from(schema.appointments)
+        .where(
+          and(
+            eq(schema.appointments.organizationId, organizationId),
+            ne(schema.appointments.status, 'cancelled'),
+            lt(schema.appointments.startDatetime, endDatetime),
+            gt(schema.appointments.endDatetime, startDatetime),
+          ),
+        )
+      if (conflicting.length > 0) return { conflict: true as const, conflictingAppointments: conflicting }
+      const [created] = await tx
+        .insert(schema.appointments)
+        .values({
+          organizationId,
+          serviceId,
+          startDatetime,
+          endDatetime,
+          status,
+          customerName,
+          customerEmail: customerEmail ?? '',
+          customerPhone: customerPhone ?? '',
+          notes,
+          language: 'en',
+        })
+        .returning()
+      return { conflict: false as const, appointment: created }
+    })
+    if (txResult.conflict) {
+      console.log('Appointment time conflict detected', { organizationId, serviceId })
+      return res.status(409).json({
+        error: { message: 'Time conflict', code: 'TIME_CONFLICT' },
+        data: { conflictingAppointments: txResult.conflictingAppointments },
+      })
+    }
+    const appointment = txResult.appointment
+    console.log('Appointment created by owner', {
+      appointmentId: appointment.id,
+      organizationId,
+      serviceId,
+    })
+    const { managementToken: _excluded, ...appointmentData } = appointment
+    return res.status(201).json({ data: appointmentData })
+  } catch (error) {
+    console.error('Create appointment error', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    })
+    return res.status(500).json({
+      error: { message: 'Internal server error', code: 'INTERNAL_ERROR' },
+    })
+  }
+})
 
 router.get('/', async (req, res) => {
   try {

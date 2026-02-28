@@ -1,5 +1,11 @@
 # @schedulizer/web
 
+## 0.6.0
+
+### Minor Changes
+
+- [#62](https://github.com/igortullio/schedulizer/pull/62) [`d8639eb`](https://github.com/igortullio/schedulizer/commit/d8639eb25e9a0beeb43d9a82748a6e63315a4a8d) Thanks [@igortullio](https://github.com/igortullio)! - add Cloudflare Turnstile captcha to login
+
 ## 0.5.0
 
 ### Minor Changes

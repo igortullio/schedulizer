@@ -10,9 +10,6 @@
   "exclude": ["node_modules", "dist"],
   "references": [
     {
-      "path": "../../libs/whatsapp"
-    },
-    {
       "path": "../../libs/notifications"
     },
     {
@@ -20,6 +17,9 @@
     },
     {
       "path": "../../libs/billing"
+    },
+    {
+      "path": "../../libs/whatsapp"
     },
     {
       "path": "../../libs/email"

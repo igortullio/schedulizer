@@ -9,6 +9,7 @@ const validBaseEnv = {
   BETTER_AUTH_URL: 'http://localhost:3000',
   FRONTEND_URL: 'http://localhost:4200',
   RESEND_API_KEY: 're_test_key',
+  TURNSTILE_SECRET_KEY: '0x4AAAAAAA_test_secret_key',
   STRIPE_SECRET_KEY: 'sk_test_key',
   STRIPE_WEBHOOK_SECRET: 'whsec_test_secret',
   CRON_API_KEY: 'cron-api-key-at-least-16',
@@ -28,6 +29,7 @@ vi.stubEnv('BETTER_AUTH_SECRET', validBaseEnv.BETTER_AUTH_SECRET)
 vi.stubEnv('BETTER_AUTH_URL', validBaseEnv.BETTER_AUTH_URL)
 vi.stubEnv('FRONTEND_URL', validBaseEnv.FRONTEND_URL)
 vi.stubEnv('RESEND_API_KEY', validBaseEnv.RESEND_API_KEY)
+vi.stubEnv('TURNSTILE_SECRET_KEY', validBaseEnv.TURNSTILE_SECRET_KEY)
 vi.stubEnv('STRIPE_SECRET_KEY', validBaseEnv.STRIPE_SECRET_KEY)
 vi.stubEnv('STRIPE_WEBHOOK_SECRET', validBaseEnv.STRIPE_WEBHOOK_SECRET)
 vi.stubEnv('CRON_API_KEY', validBaseEnv.CRON_API_KEY)

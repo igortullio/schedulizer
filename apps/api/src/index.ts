@@ -5,6 +5,7 @@ import { toNodeHandler } from 'better-auth/node'
 import cors from 'cors'
 import express from 'express'
 import { auth } from './lib/auth'
+import { turnstileMiddleware } from './middleware/turnstile.middleware'
 import { appointmentsRoutes } from './routes/appointments.routes'
 import { authCheckRoutes } from './routes/auth-check.routes'
 import { billingRoutes, webhookRouter } from './routes/billing.routes'
@@ -36,7 +37,15 @@ app.use(
 )
 
 // Better Auth handler
-app.all('/api/auth/{*any}', toNodeHandler(auth))
+const authHandler = toNodeHandler(auth)
+const captchaRoutes = ['/api/auth/phone-number/send-otp', '/api/auth/magic-link/send-magic-link']
+app.all('/api/auth/{*any}', (req, res) => {
+  if (req.method === 'POST' && captchaRoutes.includes(req.path)) {
+    turnstileMiddleware(req, res, () => authHandler(req, res))
+    return
+  }
+  authHandler(req, res)
+})
 
 // Webhook routes (must be before express.json() for raw body access)
 app.use('/api/billing', webhookRouter)

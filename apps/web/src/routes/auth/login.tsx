@@ -11,8 +11,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@igortullio-ui/react'
+import type { TurnstileInstance } from '@marsidev/react-turnstile'
+import { Turnstile } from '@marsidev/react-turnstile'
+import { clientEnv } from '@schedulizer/env/client'
 import { CheckCircle2, Info, Loader2, Mail, Phone } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Navigate, useSearchParams } from 'react-router-dom'
@@ -130,6 +133,8 @@ interface PhoneLoginFormProps {
 
 function PhoneLoginForm({ formState, errorMessage, onStateChange, onErrorChange }: PhoneLoginFormProps) {
   const { t } = useTranslation()
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
+  const turnstileRef = useRef<TurnstileInstance | null>(null)
   const phoneSchema = useMemo(() => createPhoneLoginSchema(t), [t])
   const nameSchema = useMemo(() => createNameSchema(t), [t])
   const {
@@ -190,10 +195,17 @@ function PhoneLoginForm({ formState, errorMessage, onStateChange, onErrorChange 
   async function sendOtp(phone: string) {
     onStateChange('submitting')
     try {
-      const response = await authClient.phoneNumber.sendOtp({ phoneNumber: phone })
+      const response = await authClient.phoneNumber.sendOtp({
+        phoneNumber: phone,
+        fetchOptions: {
+          headers: { 'x-turnstile-token': turnstileToken ?? '' },
+        },
+      })
       if (response.error) {
         onErrorChange(response.error.message || t('login.errors.failedToSend'))
         onStateChange('error')
+        turnstileRef.current?.reset()
+        setTurnstileToken(null)
         return
       }
       onStateChange('success')
@@ -203,6 +215,8 @@ function PhoneLoginForm({ formState, errorMessage, onStateChange, onErrorChange 
       })
       onErrorChange(t('login.errors.unexpectedError'))
       onStateChange('error')
+      turnstileRef.current?.reset()
+      setTurnstileToken(null)
     }
   }
   const isLoading = formState === 'checking' || formState === 'submitting'
@@ -254,7 +268,15 @@ function PhoneLoginForm({ formState, errorMessage, onStateChange, onErrorChange 
             <AlertDescription>{errorMessage}</AlertDescription>
           </Alert>
         ) : null}
-        <Button type="submit" className="w-full" disabled={isLoading} data-testid="submit-button">
+        <Turnstile
+          ref={turnstileRef}
+          siteKey={clientEnv.turnstileSiteKey}
+          options={{ size: 'flexible' }}
+          onSuccess={setTurnstileToken}
+          onError={() => setTurnstileToken(null)}
+          onExpire={() => setTurnstileToken(null)}
+        />
+        <Button type="submit" className="w-full" disabled={isLoading || !turnstileToken} data-testid="submit-button">
           {isLoading ? (
             <>
               <Loader2 className="animate-spin" aria-hidden="true" />
@@ -279,6 +301,8 @@ interface EmailLoginFormProps {
 
 function EmailLoginForm({ formState, errorMessage, redirect, onStateChange, onErrorChange }: EmailLoginFormProps) {
   const { t } = useTranslation()
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
+  const turnstileRef = useRef<TurnstileInstance | null>(null)
   const emailSchema = useMemo(() => createEmailLoginSchema(t), [t])
   const nameSchema = useMemo(() => createNameSchema(t), [t])
   const {
@@ -334,10 +358,18 @@ function EmailLoginForm({ formState, errorMessage, redirect, onStateChange, onEr
         const separator = callbackURL.includes('?') ? '&' : '?'
         callbackURL = `${callbackURL}${separator}name=${encodeURIComponent(name)}`
       }
-      const response = await signIn.magicLink({ email, callbackURL })
+      const response = await signIn.magicLink({
+        email,
+        callbackURL,
+        fetchOptions: {
+          headers: { 'x-turnstile-token': turnstileToken ?? '' },
+        },
+      })
       if (response.error) {
         onErrorChange(response.error.message || t('login.errors.failedToSend'))
         onStateChange('error')
+        turnstileRef.current?.reset()
+        setTurnstileToken(null)
         return
       }
       onStateChange('success')
@@ -347,6 +379,8 @@ function EmailLoginForm({ formState, errorMessage, redirect, onStateChange, onEr
       })
       onErrorChange(t('login.errors.unexpectedError'))
       onStateChange('error')
+      turnstileRef.current?.reset()
+      setTurnstileToken(null)
     }
   }
   const isLoading = formState === 'checking' || formState === 'submitting'
@@ -409,7 +443,15 @@ function EmailLoginForm({ formState, errorMessage, redirect, onStateChange, onEr
             <AlertDescription>{errorMessage}</AlertDescription>
           </Alert>
         ) : null}
-        <Button type="submit" className="w-full" disabled={isLoading} data-testid="submit-button">
+        <Turnstile
+          ref={turnstileRef}
+          siteKey={clientEnv.turnstileSiteKey}
+          options={{ size: 'flexible' }}
+          onSuccess={setTurnstileToken}
+          onError={() => setTurnstileToken(null)}
+          onExpire={() => setTurnstileToken(null)}
+        />
+        <Button type="submit" className="w-full" disabled={isLoading || !turnstileToken} data-testid="submit-button">
           {isLoading ? (
             <>
               <Loader2 className="animate-spin" aria-hidden="true" />

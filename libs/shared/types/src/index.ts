@@ -202,6 +202,14 @@ export type CreateAppointmentInput = z.infer<typeof CreateAppointmentSchema>
 export type RescheduleAppointmentInput = z.infer<typeof RescheduleAppointmentSchema>
 export type OwnerCreateAppointmentInput = z.infer<typeof OwnerCreateAppointmentSchema>
 
+export const MoveAppointmentSchema = z.object({
+  startDatetime: z.string().datetime(),
+  endDatetime: z.string().datetime(),
+  force: z.boolean().optional().default(false),
+})
+
+export type MoveAppointmentInput = z.infer<typeof MoveAppointmentSchema>
+
 export interface TimeSlot {
   startTime: string
   endTime: string

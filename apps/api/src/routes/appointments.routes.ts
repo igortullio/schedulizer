@@ -1,7 +1,7 @@
 import { createDb, schema } from '@schedulizer/db'
 import { serverEnv } from '@schedulizer/env/server'
 import type { AppointmentStatus } from '@schedulizer/shared-types'
-import { OwnerCreateAppointmentSchema } from '@schedulizer/shared-types'
+import { MoveAppointmentSchema, OwnerCreateAppointmentSchema } from '@schedulizer/shared-types'
 import { fromNodeHeaders } from 'better-auth/node'
 import { and, eq, gt, gte, lt, lte, ne } from 'drizzle-orm'
 import { Router } from 'express'
@@ -283,6 +283,85 @@ router.get('/:appointmentId', async (req, res) => {
     return res.status(200).json({ data: appointment })
   } catch (error) {
     console.error('Get appointment error', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    })
+    return res.status(500).json({
+      error: { message: 'Internal server error', code: 'INTERNAL_ERROR' },
+    })
+  }
+})
+
+router.patch('/:appointmentId', async (req, res) => {
+  try {
+    const sessionData = await getSessionAndOrg(req)
+    if (!sessionData) {
+      return res.status(401).json({
+        error: { message: 'Unauthorized', code: 'UNAUTHORIZED' },
+      })
+    }
+    const { organizationId } = sessionData
+    const { appointmentId } = req.params
+    const validation = MoveAppointmentSchema.safeParse(req.body)
+    if (!validation.success) {
+      return res.status(400).json({
+        error: {
+          message: validation.error.issues.map(e => `${e.path.join('.')}: ${e.message}`).join(', '),
+          code: 'INVALID_REQUEST',
+        },
+      })
+    }
+    const { startDatetime: startStr, endDatetime: endStr, force } = validation.data
+    const [appointment] = await db
+      .select()
+      .from(schema.appointments)
+      .where(and(eq(schema.appointments.id, appointmentId), eq(schema.appointments.organizationId, organizationId)))
+      .limit(1)
+    if (!appointment) {
+      return res.status(404).json({
+        error: { message: 'Appointment not found', code: 'NOT_FOUND' },
+      })
+    }
+    const startDatetime = new Date(startStr)
+    const endDatetime = new Date(endStr)
+    if (!force) {
+      const conflicting = await db
+        .select({
+          id: schema.appointments.id,
+          customerName: schema.appointments.customerName,
+          startDatetime: schema.appointments.startDatetime,
+          endDatetime: schema.appointments.endDatetime,
+        })
+        .from(schema.appointments)
+        .where(
+          and(
+            eq(schema.appointments.organizationId, organizationId),
+            ne(schema.appointments.status, 'cancelled'),
+            ne(schema.appointments.id, appointmentId),
+            lt(schema.appointments.startDatetime, endDatetime),
+            gt(schema.appointments.endDatetime, startDatetime),
+          ),
+        )
+      if (conflicting.length > 0) {
+        console.log('Appointment move conflict detected', { appointmentId, conflictCount: conflicting.length })
+        return res.status(409).json({
+          error: { message: 'Time conflict', code: 'TIME_CONFLICT' },
+          data: { conflictingAppointments: conflicting },
+        })
+      }
+    } else {
+      console.log('Appointment move forced', { appointmentId, organizationId })
+    }
+    const [updated] = await db
+      .update(schema.appointments)
+      .set({ startDatetime, endDatetime, updatedAt: new Date() })
+      .where(eq(schema.appointments.id, appointmentId))
+      .returning()
+    console.log('Appointment moved', { appointmentId, organizationId })
+    const { managementToken: _excluded, ...appointmentData } = updated
+    return res.status(200).json({ data: appointmentData })
+  } catch (error) {
+    console.error('Move appointment error', {
       error: error instanceof Error ? error.message : 'Unknown error',
       stack: error instanceof Error ? error.stack : undefined,
     })

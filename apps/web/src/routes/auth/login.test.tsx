@@ -4,6 +4,28 @@ import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Component as LoginPage } from './login'
 
+vi.mock('@marsidev/react-turnstile', () => {
+  const { forwardRef, useEffect, useImperativeHandle } = require('react')
+  return {
+    Turnstile: forwardRef(
+      (
+        { onSuccess, siteKey }: { onSuccess: (token: string) => void; siteKey: string },
+        ref: React.Ref<{ reset: () => void }>,
+      ) => {
+        useImperativeHandle(ref, () => ({ reset: vi.fn() }))
+        useEffect(() => {
+          onSuccess('test-turnstile-token')
+        }, [onSuccess])
+        return <div data-testid="turnstile-widget" data-sitekey={siteKey} />
+      },
+    ),
+  }
+})
+
+vi.mock('@schedulizer/env/client', () => ({
+  clientEnv: { turnstileSiteKey: 'test-site-key' },
+}))
+
 vi.mock('react-i18next', () => {
   const t = (key: string) => key
   const i18n = {
@@ -143,7 +165,10 @@ describe('LoginPage', () => {
       await user.type(phoneInput, '+5511999999999')
       await user.click(screen.getByTestId('submit-button'))
       await waitFor(() => {
-        expect(mockSendOtp).toHaveBeenCalledWith({ phoneNumber: '+5511999999999' })
+        expect(mockSendOtp).toHaveBeenCalledWith({
+          phoneNumber: '+5511999999999',
+          fetchOptions: { headers: { 'x-turnstile-token': 'test-turnstile-token' } },
+        })
       })
     })
 
@@ -221,7 +246,10 @@ describe('LoginPage', () => {
       await user.type(screen.getByTestId('name-input'), 'João Silva')
       await user.click(screen.getByTestId('submit-button'))
       await waitFor(() => {
-        expect(mockSendOtp).toHaveBeenCalledWith({ phoneNumber: '+5511999999999' })
+        expect(mockSendOtp).toHaveBeenCalledWith({
+          phoneNumber: '+5511999999999',
+          fetchOptions: { headers: { 'x-turnstile-token': 'test-turnstile-token' } },
+        })
       })
       expect(localStorage.getItem('pendingName_+5511999999999')).toBe('João Silva')
       expect(mockFetch).toHaveBeenCalledWith('/api/auth-check/pending-name', {
@@ -293,6 +321,7 @@ describe('LoginPage', () => {
         expect(mockMagicLink).toHaveBeenCalledWith({
           email: 'test@example.com',
           callbackURL: '/auth/verify',
+          fetchOptions: { headers: { 'x-turnstile-token': 'test-turnstile-token' } },
         })
       })
     })
@@ -322,6 +351,7 @@ describe('LoginPage', () => {
         expect(mockMagicLink).toHaveBeenCalledWith({
           email: 'new@example.com',
           callbackURL: '/auth/verify?name=Ana%20Lima',
+          fetchOptions: { headers: { 'x-turnstile-token': 'test-turnstile-token' } },
         })
       })
     })

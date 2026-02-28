@@ -3,7 +3,7 @@ import { z } from 'zod'
 const clientEnvSchema = z.object({
   VITE_API_URL: z.url(),
   VITE_WEB_URL: z.url(),
-  VITE_TURNSTILE_SITE_KEY: z.string().optional(),
+  VITE_TURNSTILE_SITE_KEY: z.string().min(1),
   VITE_STRIPE_PUBLISHABLE_KEY: z.string().min(1),
   VITE_STRIPE_PRICE_ESSENTIAL_MONTHLY: z.string().startsWith('price_'),
   VITE_STRIPE_PRICE_ESSENTIAL_YEARLY: z.string().startsWith('price_'),
@@ -19,7 +19,7 @@ export type ClientEnv = z.infer<typeof clientEnvSchema>
 interface ParsedClientEnv {
   apiUrl: string
   webUrl: string
-  turnstileSiteKey: string | undefined
+  turnstileSiteKey: string
   stripePublishableKey: string
   stripePriceEssentialMonthly: string
   stripePriceEssentialYearly: string
@@ -73,7 +73,7 @@ export const clientEnv: ParsedClientEnv = clientEnvResult.success
   : {
       apiUrl: '',
       webUrl: '',
-      turnstileSiteKey: undefined,
+      turnstileSiteKey: '',
       stripePublishableKey: '',
       stripePriceEssentialMonthly: '',
       stripePriceEssentialYearly: '',

@@ -3,6 +3,7 @@ import {
   date,
   index,
   integer,
+  jsonb,
   pgEnum,
   pgTable,
   text,
@@ -16,10 +17,12 @@ import {
 // Better-auth managed tables
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
-  name: text('name').notNull(),
-  email: text('email').notNull().unique(),
+  name: text('name'),
+  email: text('email').unique(),
   emailVerified: boolean('email_verified').notNull().default(false),
   image: text('image'),
+  phoneNumber: text('phone_number').unique(),
+  phoneNumberVerified: boolean('phone_number_verified').notNull().default(false),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 })
@@ -242,3 +245,23 @@ export const subscriptions = pgTable('subscriptions', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 })
+
+// WhatsApp chatbot session state
+export const whatsappSessions = pgTable(
+  'whatsapp_sessions',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    phoneNumber: varchar('phone_number', { length: 20 }).notNull(),
+    organizationId: uuid('organization_id')
+      .notNull()
+      .references(() => organizations.id),
+    currentStep: varchar('current_step', { length: 30 }).notNull().default('welcome'),
+    context: jsonb('context').notNull().default({}),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  table => [
+    index('idx_whatsapp_sessions_phone').on(table.phoneNumber),
+    index('idx_whatsapp_sessions_updated').on(table.updatedAt),
+  ],
+)

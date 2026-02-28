@@ -46,20 +46,10 @@ interface MockSubscription {
 }
 
 function setupSubscriptionAndMemberCount(subscription: MockSubscription | null, memberCount: number) {
-  if (subscription === null) {
-    mockDbSelect.mockReturnValueOnce({
-      from: vi.fn().mockReturnValue({
-        where: vi.fn().mockReturnValue({
-          limit: vi.fn().mockReturnValue(Promise.resolve([])),
-        }),
-      }),
-    })
-    return
-  }
   mockDbSelect.mockReturnValueOnce({
     from: vi.fn().mockReturnValue({
       where: vi.fn().mockReturnValue({
-        limit: vi.fn().mockReturnValue(Promise.resolve([subscription])),
+        limit: vi.fn().mockReturnValue(Promise.resolve(subscription === null ? [] : [subscription])),
       }),
     }),
   })
@@ -143,8 +133,14 @@ describe('checkMemberLimit', () => {
   })
 
   describe('Fail-safe Behavior', () => {
-    it('should block when no subscription found', async () => {
+    it('should allow when no subscription found but org has no members yet (owner creation)', async () => {
       setupSubscriptionAndMemberCount(null, 0)
+      const result = await checkMemberLimit('org-123')
+      expect(result.allowed).toBe(true)
+    })
+
+    it('should block when no subscription found and org already has members', async () => {
+      setupSubscriptionAndMemberCount(null, 1)
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
       const result = await checkMemberLimit('org-123')
       expect(result.allowed).toBe(false)

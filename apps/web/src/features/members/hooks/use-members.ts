@@ -1,3 +1,4 @@
+import { clientEnv } from '@schedulizer/env/client'
 import { useCallback, useEffect, useState } from 'react'
 import { authClient } from '@/lib/auth-client'
 
@@ -9,8 +10,9 @@ export interface Member {
   createdAt: Date
   user: {
     id: string
-    name: string
-    email: string
+    name: string | null
+    email: string | null
+    phoneNumber?: string | null
     image?: string | undefined
   }
 }
@@ -49,11 +51,15 @@ export function useMembers(): UseMembersReturn {
     setMembersState('loading')
     setMembersError(null)
     try {
-      const response = await authClient.organization.listMembers()
-      if (response.error) {
-        throw new Error(response.error.message ?? 'Failed to fetch members')
+      const response = await fetch(`${clientEnv.apiUrl}/api/members`, {
+        method: 'GET',
+        credentials: 'include',
+      })
+      if (!response.ok) {
+        throw new Error('Failed to fetch members')
       }
-      setMembers((response.data?.members as Member[]) ?? [])
+      const json = (await response.json()) as { data: Member[] }
+      setMembers(json.data)
       setMembersState('success')
     } catch (err) {
       console.error('Failed to fetch members', {

@@ -1,10 +1,10 @@
 import { clientEnv } from '@schedulizer/env/client'
-import { magicLinkClient, organizationClient } from 'better-auth/client/plugins'
+import { magicLinkClient, organizationClient, phoneNumberClient } from 'better-auth/client/plugins'
 import { createAuthClient } from 'better-auth/react'
 
 export const authClient = createAuthClient({
   baseURL: clientEnv.apiUrl,
-  plugins: [magicLinkClient(), organizationClient()],
+  plugins: [magicLinkClient(), organizationClient(), phoneNumberClient()],
 })
 
 export const { signIn, signOut, useSession } = authClient

@@ -26,6 +26,12 @@
     },
     {
       "path": "./libs/observability"
+    },
+    {
+      "path": "./libs/whatsapp"
+    },
+    {
+      "path": "./libs/notifications"
     }
   ]
 }

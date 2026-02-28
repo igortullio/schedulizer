@@ -6,6 +6,7 @@ import cors from 'cors'
 import express from 'express'
 import { auth } from './lib/auth'
 import { appointmentsRoutes } from './routes/appointments.routes'
+import { authCheckRoutes } from './routes/auth-check.routes'
 import { billingRoutes, webhookRouter } from './routes/billing.routes'
 import { bookingRoutes } from './routes/booking.routes'
 import { healthRoutes } from './routes/health.routes'
@@ -16,6 +17,7 @@ import { organizationsRoutes } from './routes/organizations.routes'
 import { schedulesRoutes } from './routes/schedules.routes'
 import { servicesRoutes } from './routes/services.routes'
 import { timeBlocksRoutes } from './routes/time-blocks.routes'
+import { whatsappWebhookRouter } from './routes/whatsapp-webhook.routes'
 
 const app = express()
 
@@ -38,11 +40,13 @@ app.all('/api/auth/{*any}', toNodeHandler(auth))
 
 // Webhook routes (must be before express.json() for raw body access)
 app.use('/api/billing', webhookRouter)
+app.use('/api/v0/webhooks/whatsapp', whatsappWebhookRouter)
 
 app.use(express.json())
 app.use(sentryContextMiddleware)
 
 // Routes
+app.use('/api/auth-check', authCheckRoutes)
 app.use('/api/billing', billingRoutes)
 app.use('/api/leads', leadsRoutes)
 app.use('/api/organizations', organizationsRoutes)

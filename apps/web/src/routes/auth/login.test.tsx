@@ -21,193 +21,317 @@ vi.mock('react-i18next', () => {
 })
 
 vi.mock('@/lib/auth-client', () => ({
+  authClient: {
+    phoneNumber: {
+      sendOtp: vi.fn(),
+    },
+  },
   signIn: {
     magicLink: vi.fn(),
   },
   useSession: () => ({ data: null, isPending: false }),
 }))
 
-import { signIn } from '@/lib/auth-client'
+vi.mock('@/components/phone-input', () => ({
+  PhoneInput: ({
+    value,
+    onChange,
+    'data-testid': testId,
+  }: {
+    value: string
+    onChange: (v: string) => void
+    id?: string
+    error?: boolean
+    disabled?: boolean
+    'data-testid'?: string
+  }) => (
+    <input data-testid={testId} value={value} onChange={e => onChange(e.target.value)} placeholder="phone" type="tel" />
+  ),
+}))
 
+vi.mock('@/hooks/use-check-identifier', () => ({
+  checkPhoneExists: vi.fn(),
+  checkEmailExists: vi.fn(),
+}))
+
+import { checkEmailExists, checkPhoneExists } from '@/hooks/use-check-identifier'
+import { authClient, signIn } from '@/lib/auth-client'
+
+const mockCheckPhone = vi.mocked(checkPhoneExists)
+const mockCheckEmail = vi.mocked(checkEmailExists)
 const mockMagicLink = vi.mocked(signIn.magicLink)
+const mockSendOtp = vi.mocked(authClient.phoneNumber.sendOtp)
 
 describe('LoginPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    localStorage.clear()
   })
 
-  describe('rendering', () => {
-    it('renders email input field correctly', () => {
+  describe('phone mode (default)', () => {
+    it('renders phone input by default', () => {
       render(
         <MemoryRouter>
           <LoginPage />
         </MemoryRouter>,
       )
-      const emailInput = screen.getByTestId('email-input')
-      expect(emailInput).toBeInTheDocument()
-      expect(emailInput).toHaveAttribute('type', 'email')
-      expect(emailInput).toHaveAttribute('placeholder', 'login.emailPlaceholder')
+      expect(screen.getByTestId('phone-input')).toBeInTheDocument()
+      expect(screen.queryByTestId('email-input')).not.toBeInTheDocument()
     })
 
-    it('renders submit button correctly', () => {
+    it('renders WhatsApp submit button', () => {
       render(
         <MemoryRouter>
           <LoginPage />
         </MemoryRouter>,
       )
-      const submitButton = screen.getByTestId('submit-button')
-      expect(submitButton).toBeInTheDocument()
-      expect(submitButton).toHaveTextContent('login.continueWithEmail')
+      expect(screen.getByTestId('submit-button')).toHaveTextContent('login.continueWithWhatsApp')
     })
 
-    it('renders email label correctly', () => {
+    it('shows switch to email link', () => {
       render(
         <MemoryRouter>
           <LoginPage />
         </MemoryRouter>,
       )
-      const label = screen.getByText('login.email')
-      expect(label).toBeInTheDocument()
+      expect(screen.getByTestId('switch-mode')).toHaveTextContent('login.switchToEmail')
     })
 
-    it('renders welcome heading', () => {
-      render(
-        <MemoryRouter>
-          <LoginPage />
-        </MemoryRouter>,
-      )
-      expect(screen.getByRole('heading', { name: 'login.welcomeBack' })).toBeInTheDocument()
-    })
-  })
-
-  describe('form validation', () => {
-    it('shows error for empty email submission', async () => {
+    it('shows phone validation error for empty submission', async () => {
       const user = userEvent.setup()
       render(
         <MemoryRouter>
           <LoginPage />
         </MemoryRouter>,
       )
-      const submitButton = screen.getByTestId('submit-button')
-      await user.click(submitButton)
+      await user.click(screen.getByTestId('submit-button'))
+      await waitFor(() => {
+        expect(screen.getByTestId('phone-error')).toHaveTextContent('validation.phoneRequired')
+      })
+    })
+
+    it('shows WhatsApp success message', async () => {
+      const user = userEvent.setup()
+      mockCheckPhone.mockResolvedValueOnce(true)
+      mockSendOtp.mockResolvedValueOnce({ data: { success: true }, error: null })
+      render(
+        <MemoryRouter>
+          <LoginPage />
+        </MemoryRouter>,
+      )
+      const phoneInput = screen.getByTestId('phone-input')
+      await user.clear(phoneInput)
+      await user.type(phoneInput, '+5511999999999')
+      await user.click(screen.getByTestId('submit-button'))
+      await waitFor(() => {
+        expect(screen.getByTestId('login-success')).toBeInTheDocument()
+      })
+      expect(screen.getByText('login.checkYourWhatsApp')).toBeInTheDocument()
+    })
+
+    it('calls phoneNumber.sendOtp with correct params', async () => {
+      const user = userEvent.setup()
+      mockCheckPhone.mockResolvedValueOnce(true)
+      mockSendOtp.mockResolvedValueOnce({ data: { success: true }, error: null })
+      render(
+        <MemoryRouter>
+          <LoginPage />
+        </MemoryRouter>,
+      )
+      const phoneInput = screen.getByTestId('phone-input')
+      await user.clear(phoneInput)
+      await user.type(phoneInput, '+5511999999999')
+      await user.click(screen.getByTestId('submit-button'))
+      await waitFor(() => {
+        expect(mockSendOtp).toHaveBeenCalledWith({ phoneNumber: '+5511999999999' })
+      })
+    })
+
+    it('shows name field when phone is new (registration)', async () => {
+      const user = userEvent.setup()
+      mockCheckPhone.mockResolvedValueOnce(false)
+      render(
+        <MemoryRouter>
+          <LoginPage />
+        </MemoryRouter>,
+      )
+      const phoneInput = screen.getByTestId('phone-input')
+      await user.clear(phoneInput)
+      await user.type(phoneInput, '+5511999999999')
+      await user.click(screen.getByTestId('submit-button'))
+      await waitFor(() => {
+        expect(screen.getByTestId('name-input')).toBeInTheDocument()
+      })
+    })
+
+    it('does NOT show name field when phone already exists (login)', async () => {
+      const user = userEvent.setup()
+      mockCheckPhone.mockResolvedValueOnce(true)
+      mockSendOtp.mockResolvedValueOnce({ data: { success: true }, error: null })
+      render(
+        <MemoryRouter>
+          <LoginPage />
+        </MemoryRouter>,
+      )
+      const phoneInput = screen.getByTestId('phone-input')
+      await user.clear(phoneInput)
+      await user.type(phoneInput, '+5511999999999')
+      await user.click(screen.getByTestId('submit-button'))
+      await waitFor(() => {
+        expect(screen.getByTestId('login-success')).toBeInTheDocument()
+      })
+      expect(screen.queryByTestId('name-input')).not.toBeInTheDocument()
+    })
+
+    it('requires name to be filled before sending OTP for new user', async () => {
+      const user = userEvent.setup()
+      mockCheckPhone.mockResolvedValueOnce(false)
+      render(
+        <MemoryRouter>
+          <LoginPage />
+        </MemoryRouter>,
+      )
+      const phoneInput = screen.getByTestId('phone-input')
+      await user.clear(phoneInput)
+      await user.type(phoneInput, '+5511999999999')
+      await user.click(screen.getByTestId('submit-button'))
+      await waitFor(() => expect(screen.getByTestId('name-input')).toBeInTheDocument())
+      await user.click(screen.getByTestId('submit-button'))
+      await waitFor(() => {
+        expect(screen.getByTestId('name-error')).toBeInTheDocument()
+      })
+      expect(mockSendOtp).not.toHaveBeenCalled()
+    })
+
+    it('stores name in localStorage, sends pending name to server, and sends OTP for new user', async () => {
+      const mockFetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(null, { status: 204 }))
+      const user = userEvent.setup()
+      mockCheckPhone.mockResolvedValueOnce(false)
+      mockSendOtp.mockResolvedValueOnce({ data: { success: true }, error: null })
+      render(
+        <MemoryRouter>
+          <LoginPage />
+        </MemoryRouter>,
+      )
+      const phoneInput = screen.getByTestId('phone-input')
+      await user.clear(phoneInput)
+      await user.type(phoneInput, '+5511999999999')
+      await user.click(screen.getByTestId('submit-button'))
+      await waitFor(() => expect(screen.getByTestId('name-input')).toBeInTheDocument())
+      await user.type(screen.getByTestId('name-input'), 'João Silva')
+      await user.click(screen.getByTestId('submit-button'))
+      await waitFor(() => {
+        expect(mockSendOtp).toHaveBeenCalledWith({ phoneNumber: '+5511999999999' })
+      })
+      expect(localStorage.getItem('pendingName_+5511999999999')).toBe('João Silva')
+      expect(mockFetch).toHaveBeenCalledWith('/api/auth-check/pending-name', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: '+5511999999999', name: 'João Silva' }),
+      })
+      mockFetch.mockRestore()
+    })
+  })
+
+  describe('email mode', () => {
+    async function switchToEmailMode() {
+      const user = userEvent.setup()
+      render(
+        <MemoryRouter>
+          <LoginPage />
+        </MemoryRouter>,
+      )
+      await user.click(screen.getByTestId('switch-mode'))
+      return user
+    }
+
+    it('switches to email input when link is clicked', async () => {
+      await switchToEmailMode()
+      expect(screen.getByTestId('email-input')).toBeInTheDocument()
+      expect(screen.queryByTestId('phone-input')).not.toBeInTheDocument()
+    })
+
+    it('shows email submit button', async () => {
+      await switchToEmailMode()
+      expect(screen.getByTestId('submit-button')).toHaveTextContent('login.continueWithEmail')
+    })
+
+    it('shows switch to WhatsApp link', async () => {
+      await switchToEmailMode()
+      expect(screen.getByTestId('switch-mode')).toHaveTextContent('login.switchToWhatsApp')
+    })
+
+    it('shows email validation error for empty submission', async () => {
+      const user = await switchToEmailMode()
+      await user.click(screen.getByTestId('submit-button'))
       await waitFor(() => {
         expect(screen.getByTestId('email-error')).toHaveTextContent('validation.emailRequired')
       })
     })
 
-    it('shows error for invalid email format', async () => {
-      const user = userEvent.setup()
-      render(
-        <MemoryRouter>
-          <LoginPage />
-        </MemoryRouter>,
-      )
-      const emailInput = screen.getByTestId('email-input')
-      await user.type(emailInput, 'invalid-email')
-      const submitButton = screen.getByTestId('submit-button')
-      await user.click(submitButton)
-      await waitFor(() => {
-        expect(screen.getByTestId('email-error')).toHaveTextContent('validation.invalidEmail')
-      })
-    })
-
-    it('does not show validation error for valid email', async () => {
-      const user = userEvent.setup()
+    it('shows email success message', async () => {
+      const user = await switchToEmailMode()
+      mockCheckEmail.mockResolvedValueOnce(true)
       mockMagicLink.mockResolvedValueOnce({ data: null, error: null })
-      render(
-        <MemoryRouter>
-          <LoginPage />
-        </MemoryRouter>,
-      )
       const emailInput = screen.getByTestId('email-input')
       await user.type(emailInput, 'test@example.com')
-      const submitButton = screen.getByTestId('submit-button')
-      await user.click(submitButton)
-      await waitFor(() => {
-        expect(screen.queryByTestId('email-error')).not.toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('loading state', () => {
-    it('disables submit button during loading', async () => {
-      const user = userEvent.setup()
-      mockMagicLink.mockImplementation(
-        () => new Promise(resolve => setTimeout(() => resolve({ data: null, error: null }), 100)),
-      )
-      render(
-        <MemoryRouter>
-          <LoginPage />
-        </MemoryRouter>,
-      )
-      const emailInput = screen.getByTestId('email-input')
-      await user.type(emailInput, 'test@example.com')
-      const submitButton = screen.getByTestId('submit-button')
-      await user.click(submitButton)
-      expect(submitButton).toBeDisabled()
-    })
-
-    it('shows loading indicator during submission', async () => {
-      const user = userEvent.setup()
-      mockMagicLink.mockImplementation(
-        () => new Promise(resolve => setTimeout(() => resolve({ data: null, error: null }), 100)),
-      )
-      render(
-        <MemoryRouter>
-          <LoginPage />
-        </MemoryRouter>,
-      )
-      const emailInput = screen.getByTestId('email-input')
-      await user.type(emailInput, 'test@example.com')
-      const submitButton = screen.getByTestId('submit-button')
-      await user.click(submitButton)
-      expect(screen.getByText('login.sendingMagicLink')).toBeInTheDocument()
-    })
-  })
-
-  describe('success state', () => {
-    it('shows success message after magic link is sent', async () => {
-      const user = userEvent.setup()
-      mockMagicLink.mockResolvedValueOnce({ data: null, error: null })
-      render(
-        <MemoryRouter>
-          <LoginPage />
-        </MemoryRouter>,
-      )
-      const emailInput = screen.getByTestId('email-input')
-      await user.type(emailInput, 'test@example.com')
-      const submitButton = screen.getByTestId('submit-button')
-      await user.click(submitButton)
+      await user.click(screen.getByTestId('submit-button'))
       await waitFor(() => {
         expect(screen.getByTestId('login-success')).toBeInTheDocument()
       })
       expect(screen.getByText('login.checkYourEmail')).toBeInTheDocument()
-      expect(screen.getByText('test@example.com')).toBeInTheDocument()
     })
 
-    it('hides form after successful submission', async () => {
-      const user = userEvent.setup()
+    it('calls signIn.magicLink with correct parameters', async () => {
+      const user = await switchToEmailMode()
+      mockCheckEmail.mockResolvedValueOnce(true)
       mockMagicLink.mockResolvedValueOnce({ data: null, error: null })
-      render(
-        <MemoryRouter>
-          <LoginPage />
-        </MemoryRouter>,
-      )
       const emailInput = screen.getByTestId('email-input')
       await user.type(emailInput, 'test@example.com')
-      const submitButton = screen.getByTestId('submit-button')
-      await user.click(submitButton)
+      await user.click(screen.getByTestId('submit-button'))
       await waitFor(() => {
-        expect(screen.getByTestId('login-success')).toBeInTheDocument()
+        expect(mockMagicLink).toHaveBeenCalledWith({
+          email: 'test@example.com',
+          callbackURL: '/auth/verify',
+        })
       })
-      expect(screen.queryByTestId('email-input')).not.toBeInTheDocument()
+    })
+
+    it('shows name field when email is new (registration)', async () => {
+      const user = await switchToEmailMode()
+      mockCheckEmail.mockResolvedValueOnce(false)
+      const emailInput = screen.getByTestId('email-input')
+      await user.type(emailInput, 'new@example.com')
+      await user.click(screen.getByTestId('submit-button'))
+      await waitFor(() => {
+        expect(screen.getByTestId('name-input')).toBeInTheDocument()
+      })
+    })
+
+    it('encodes name in callbackURL for new email user', async () => {
+      const user = await switchToEmailMode()
+      mockCheckEmail.mockResolvedValueOnce(false)
+      mockMagicLink.mockResolvedValueOnce({ data: null, error: null })
+      const emailInput = screen.getByTestId('email-input')
+      await user.type(emailInput, 'new@example.com')
+      await user.click(screen.getByTestId('submit-button'))
+      await waitFor(() => expect(screen.getByTestId('name-input')).toBeInTheDocument())
+      await user.type(screen.getByTestId('name-input'), 'Ana Lima')
+      await user.click(screen.getByTestId('submit-button'))
+      await waitFor(() => {
+        expect(mockMagicLink).toHaveBeenCalledWith({
+          email: 'new@example.com',
+          callbackURL: '/auth/verify?name=Ana%20Lima',
+        })
+      })
     })
   })
 
   describe('error handling', () => {
-    it('shows error message when magic link request fails', async () => {
+    it('shows error message when phone OTP request fails', async () => {
       const user = userEvent.setup()
-      mockMagicLink.mockResolvedValueOnce({
+      mockCheckPhone.mockResolvedValueOnce(true)
+      mockSendOtp.mockResolvedValueOnce({
         data: null,
         error: { message: 'Rate limit exceeded', status: 429, statusText: 'Too Many Requests' },
       })
@@ -216,54 +340,41 @@ describe('LoginPage', () => {
           <LoginPage />
         </MemoryRouter>,
       )
-      const emailInput = screen.getByTestId('email-input')
-      await user.type(emailInput, 'test@example.com')
-      const submitButton = screen.getByTestId('submit-button')
-      await user.click(submitButton)
+      const phoneInput = screen.getByTestId('phone-input')
+      await user.clear(phoneInput)
+      await user.type(phoneInput, '+5511999999999')
+      await user.click(screen.getByTestId('submit-button'))
       await waitFor(() => {
         expect(screen.getByTestId('form-error')).toHaveTextContent('Rate limit exceeded')
       })
     })
 
-    it('shows generic error message on unexpected failure', async () => {
+    it('shows generic error on unexpected failure', async () => {
       const user = userEvent.setup()
-      mockMagicLink.mockRejectedValueOnce(new Error('Network error'))
+      mockCheckPhone.mockRejectedValueOnce(new Error('Network error'))
       render(
         <MemoryRouter>
           <LoginPage />
         </MemoryRouter>,
       )
-      const emailInput = screen.getByTestId('email-input')
-      await user.type(emailInput, 'test@example.com')
-      const submitButton = screen.getByTestId('submit-button')
-      await user.click(submitButton)
+      const phoneInput = screen.getByTestId('phone-input')
+      await user.clear(phoneInput)
+      await user.type(phoneInput, '+5511999999999')
+      await user.click(screen.getByTestId('submit-button'))
       await waitFor(() => {
         expect(screen.getByTestId('form-error')).toHaveTextContent('login.errors.unexpectedError')
       })
     })
+  })
 
-    it('clears error message when user starts typing again', async () => {
-      const user = userEvent.setup()
-      mockMagicLink.mockResolvedValueOnce({
-        data: null,
-        error: { message: 'Failed', status: 500, statusText: 'Server Error' },
-      })
+  describe('separate accounts warning', () => {
+    it('renders separate accounts warning in the login form', () => {
       render(
         <MemoryRouter>
           <LoginPage />
         </MemoryRouter>,
       )
-      const emailInput = screen.getByTestId('email-input')
-      await user.type(emailInput, 'test@example.com')
-      const submitButton = screen.getByTestId('submit-button')
-      await user.click(submitButton)
-      await waitFor(() => {
-        expect(screen.getByTestId('form-error')).toBeInTheDocument()
-      })
-      await user.type(emailInput, 'a')
-      await waitFor(() => {
-        expect(screen.queryByTestId('form-error')).not.toBeInTheDocument()
-      })
+      expect(screen.getByTestId('separate-accounts-warning')).toBeInTheDocument()
     })
   })
 
@@ -277,113 +388,13 @@ describe('LoginPage', () => {
       expect(screen.getByRole('form', { name: /login form/i })).toBeInTheDocument()
     })
 
-    it('has email input with autocomplete attribute', () => {
+    it('renders welcome heading', () => {
       render(
         <MemoryRouter>
           <LoginPage />
         </MemoryRouter>,
       )
-      const emailInput = screen.getByTestId('email-input')
-      expect(emailInput).toHaveAttribute('autocomplete', 'email')
-    })
-
-    it('associates error message with input via aria-describedby', async () => {
-      const user = userEvent.setup()
-      render(
-        <MemoryRouter>
-          <LoginPage />
-        </MemoryRouter>,
-      )
-      const submitButton = screen.getByTestId('submit-button')
-      await user.click(submitButton)
-      await waitFor(() => {
-        const emailInput = screen.getByTestId('email-input')
-        expect(emailInput).toHaveAttribute('aria-describedby', 'email-error')
-        expect(emailInput).toHaveAttribute('aria-invalid', 'true')
-      })
-    })
-
-    it('has error message with role alert', async () => {
-      const user = userEvent.setup()
-      render(
-        <MemoryRouter>
-          <LoginPage />
-        </MemoryRouter>,
-      )
-      const submitButton = screen.getByTestId('submit-button')
-      await user.click(submitButton)
-      await waitFor(() => {
-        const errorMessage = screen.getByTestId('email-error')
-        expect(errorMessage).toHaveAttribute('role', 'alert')
-      })
-    })
-
-    it('success state uses semantic output element', async () => {
-      const user = userEvent.setup()
-      mockMagicLink.mockResolvedValueOnce({ data: null, error: null })
-      render(
-        <MemoryRouter>
-          <LoginPage />
-        </MemoryRouter>,
-      )
-      const emailInput = screen.getByTestId('email-input')
-      await user.type(emailInput, 'test@example.com')
-      const submitButton = screen.getByTestId('submit-button')
-      await user.click(submitButton)
-      await waitFor(() => {
-        const successElement = screen.getByTestId('login-success')
-        expect(successElement.tagName).toBe('DIV')
-      })
-    })
-  })
-
-  describe('integration', () => {
-    it('calls signIn.magicLink with correct parameters', async () => {
-      const user = userEvent.setup()
-      mockMagicLink.mockResolvedValueOnce({ data: null, error: null })
-      render(
-        <MemoryRouter>
-          <LoginPage />
-        </MemoryRouter>,
-      )
-      const emailInput = screen.getByTestId('email-input')
-      await user.type(emailInput, 'test@example.com')
-      const submitButton = screen.getByTestId('submit-button')
-      await user.click(submitButton)
-      await waitFor(() => {
-        expect(mockMagicLink).toHaveBeenCalledWith({
-          email: 'test@example.com',
-          callbackURL: '/auth/verify',
-        })
-      })
-    })
-
-    it('allows retry after failed request', async () => {
-      const user = userEvent.setup()
-      mockMagicLink
-        .mockResolvedValueOnce({
-          data: null,
-          error: { message: 'Failed', status: 500, statusText: 'Server Error' },
-        })
-        .mockResolvedValueOnce({ data: null, error: null })
-      render(
-        <MemoryRouter>
-          <LoginPage />
-        </MemoryRouter>,
-      )
-      const emailInput = screen.getByTestId('email-input')
-      await user.type(emailInput, 'test@example.com')
-      const submitButton = screen.getByTestId('submit-button')
-      await user.click(submitButton)
-      await waitFor(() => {
-        expect(screen.getByTestId('form-error')).toBeInTheDocument()
-      })
-      await user.clear(emailInput)
-      await user.type(emailInput, 'test@example.com')
-      await user.click(submitButton)
-      await waitFor(() => {
-        expect(screen.getByTestId('login-success')).toBeInTheDocument()
-      })
+      expect(screen.getByRole('heading', { name: 'login.welcomeBack' })).toBeInTheDocument()
     })
   })
 })

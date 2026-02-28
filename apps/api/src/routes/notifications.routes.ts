@@ -1,7 +1,10 @@
+import { resolvePlanFromSubscription } from '@schedulizer/billing'
 import { createDb, schema } from '@schedulizer/db'
-import { EmailService, type Locale } from '@schedulizer/email'
+import { EmailService } from '@schedulizer/email'
 import { serverEnv } from '@schedulizer/env/server'
+import { ChannelResolver, NotificationService } from '@schedulizer/notifications'
 import { withMonitoring } from '@schedulizer/observability/node'
+import { WhatsAppService } from '@schedulizer/whatsapp'
 import { formatInTimeZone } from 'date-fns-tz'
 import { and, eq, gt, inArray, isNull, lt } from 'drizzle-orm'
 import { Router } from 'express'
@@ -9,7 +12,14 @@ import { requireApiKey } from '../middlewares/require-api-key.middleware'
 
 const router = Router()
 const db = createDb(serverEnv.databaseUrl)
+const channelResolver = new ChannelResolver()
+const whatsAppService = new WhatsAppService({
+  phoneNumberId: serverEnv.whatsappPhoneNumberId,
+  accessToken: serverEnv.whatsappAccessToken,
+  apiVersion: 'v21.0',
+})
 const emailService = new EmailService({ apiKey: serverEnv.resendApiKey })
+const notificationService = new NotificationService({ channelResolver, whatsAppService, emailService })
 
 const REMINDER_WINDOW_START_HOURS = 23
 const REMINDER_WINDOW_END_HOURS = 25
@@ -58,16 +68,40 @@ async function processReminders() {
       const appointmentDate = formatInTimeZone(appointment.startDatetime, organization.timezone, DATE_FORMAT)
       const appointmentTime = formatInTimeZone(appointment.startDatetime, organization.timezone, TIME_FORMAT)
       const managementUrl = `${serverEnv.frontendUrl}/booking/${organization.slug}/manage/${appointment.managementToken}`
-      await emailService.sendAppointmentReminder({
-        to: appointment.customerEmail,
-        locale: (appointment.language ?? 'pt-BR') as Locale,
-        customerName: appointment.customerName,
-        serviceName: service.name,
-        appointmentDate,
-        appointmentTime,
-        organizationName: organization.name,
-        cancelUrl: `${managementUrl}?action=cancel`,
-        rescheduleUrl: `${managementUrl}?action=reschedule`,
+      const managementUrlSuffix = `/${organization.slug}/manage/${appointment.managementToken}`
+      const [subscription] = await db
+        .select({
+          stripePriceId: schema.subscriptions.stripePriceId,
+          status: schema.subscriptions.status,
+        })
+        .from(schema.subscriptions)
+        .where(eq(schema.subscriptions.organizationId, appointment.organizationId))
+        .limit(1)
+      const resolvedPlan = subscription
+        ? resolvePlanFromSubscription({
+            stripePriceId: subscription.stripePriceId,
+            status: subscription.status,
+          })
+        : null
+      const locale = (appointment.language ?? 'pt-BR') as 'pt-BR' | 'en'
+      notificationService.send({
+        event: 'appointment.reminder',
+        organizationId: organization.id,
+        recipientPhone: appointment.customerPhone,
+        recipientEmail: appointment.customerEmail,
+        locale,
+        data: {
+          customerName: appointment.customerName,
+          serviceName: service.name,
+          appointmentDate,
+          appointmentTime,
+          organizationName: organization.name,
+          cancelUrl: `${managementUrl}?action=cancel`,
+          rescheduleUrl: `${managementUrl}?action=reschedule`,
+          cancelUrlSuffix: `${managementUrlSuffix}?action=cancel`,
+          rescheduleUrlSuffix: `${managementUrlSuffix}?action=reschedule`,
+        },
+        planType: resolvedPlan?.type ?? 'essential',
       })
       await db
         .update(schema.appointments)
@@ -75,7 +109,7 @@ async function processReminders() {
         .where(eq(schema.appointments.id, appointment.id))
       sent++
     } catch (error) {
-      console.error('Reminder email failed', {
+      console.error('Reminder notification failed', {
         appointmentId: appointment.id,
         error: error instanceof Error ? error.message : 'Unknown error',
       })

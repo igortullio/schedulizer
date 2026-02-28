@@ -14,6 +14,64 @@ const invitationIdSchema = z.object({
   id: z.string().uuid('Invalid invitation ID'),
 })
 
+membersRouter.get('/', async (req, res) => {
+  try {
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(req.headers),
+    })
+    if (!session) {
+      return res.status(401).json({
+        error: { message: 'Unauthorized', code: 'UNAUTHORIZED' },
+      })
+    }
+    const organizationId = session.session.activeOrganizationId
+    if (!organizationId) {
+      return res.status(400).json({
+        error: { message: 'No active organization', code: 'NO_ACTIVE_ORG' },
+      })
+    }
+    const members = await db
+      .select({
+        id: schema.members.id,
+        userId: schema.members.userId,
+        organizationId: schema.members.organizationId,
+        role: schema.members.role,
+        createdAt: schema.members.createdAt,
+        userName: schema.users.name,
+        userEmail: schema.users.email,
+        userImage: schema.users.image,
+        userPhoneNumber: schema.users.phoneNumber,
+      })
+      .from(schema.members)
+      .innerJoin(schema.users, eq(schema.members.userId, schema.users.id))
+      .where(eq(schema.members.organizationId, organizationId))
+    return res.status(200).json({
+      data: members.map(m => ({
+        id: m.id,
+        userId: m.userId,
+        organizationId: m.organizationId,
+        role: m.role,
+        createdAt: m.createdAt,
+        user: {
+          id: m.userId,
+          name: m.userName,
+          email: m.userEmail,
+          image: m.userImage,
+          phoneNumber: m.userPhoneNumber,
+        },
+      })),
+    })
+  } catch (error) {
+    console.error('Failed to list members', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    })
+    return res.status(500).json({
+      error: { message: 'Internal server error', code: 'INTERNAL_ERROR' },
+    })
+  }
+})
+
 membersRouter.post('/leave', async (req, res) => {
   try {
     const session = await auth.api.getSession({

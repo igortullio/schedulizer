@@ -14,6 +14,11 @@
     "edit": "Edit",
     "back": "Back"
   },
+  "phone": {
+    "selectCountry": "Select country",
+    "br": "Brazil",
+    "us": "USA"
+  },
   "subscription": {
     "banner": {
       "message": "You don't have an active subscription. Subscribe to a plan to unlock all features.",

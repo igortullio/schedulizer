@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { CreateOrganizationForm } from '@/components/auth/create-organization-form'
-import { authClient } from '@/lib/auth-client'
+import { authClient, signOut } from '@/lib/auth-client'
 import { getSelectionErrorMessage } from './org-select.utils'
 
 type SelectionState = 'idle' | 'selecting' | 'error'
@@ -19,11 +19,12 @@ export function Component() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const redirect = searchParams.get('redirect')
+  const isCreateMode = searchParams.get('create') === 'true'
   const { data: organizations, isPending, error: fetchError } = authClient.useListOrganizations()
   const [selectionState, setSelectionState] = useState<SelectionState>('idle')
   const [selectionError, setSelectionError] = useState<SelectionError | null>(null)
   const [selectedOrgId, setSelectedOrgId] = useState<string | null>(null)
-  const [showCreateForm, setShowCreateForm] = useState(false)
+  const [showCreateForm, setShowCreateForm] = useState(isCreateMode)
   const autoSelectTriggered = useRef(false)
 
   const handleSelectOrganization = useCallback(
@@ -64,13 +65,14 @@ export function Component() {
   )
 
   useEffect(() => {
+    if (isCreateMode) return
     if (isPending) return
     if (!organizations || organizations.length === 0) return
     if (organizations.length !== 1) return
     if (autoSelectTriggered.current) return
     autoSelectTriggered.current = true
     handleSelectOrganization(organizations[0].id)
-  }, [organizations, isPending, handleSelectOrganization])
+  }, [organizations, isPending, handleSelectOrganization, isCreateMode])
 
   const hasNoOrganizations = !isPending && !fetchError && (!organizations || organizations.length === 0)
   const shouldRedirectToInvite = hasNoOrganizations && redirect?.startsWith('/invite/')
@@ -84,31 +86,59 @@ export function Component() {
     if (!selectionError?.organizationId) return
     handleSelectOrganization(selectionError.organizationId)
   }
+  async function handleSignOut() {
+    try {
+      await signOut()
+      navigate('/auth/login', { replace: true })
+    } catch (error) {
+      console.error('Sign out failed', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+      })
+    }
+  }
+  const signOutButton = (
+    <div className="mt-4 text-center">
+      <button
+        type="button"
+        onClick={handleSignOut}
+        className="text-sm text-muted-foreground underline hover:text-foreground"
+        data-testid="sign-out-button"
+      >
+        {t('orgSelect.signOut')}
+      </button>
+    </div>
+  )
 
   if (isPending) {
     return (
-      <Card className="flex flex-col items-center p-8 text-center" data-testid="org-select-loading">
-        <Loader2 className="mb-4 h-8 w-8 animate-spin text-primary" aria-hidden="true" />
-        <h1 className="mb-2 text-xl font-semibold text-foreground">{t('orgSelect.loadingOrganizations')}</h1>
-        <p className="text-muted-foreground">{t('orgSelect.pleaseWaitLoading')}</p>
-      </Card>
+      <>
+        <Card className="flex flex-col items-center p-8 text-center" data-testid="org-select-loading">
+          <Loader2 className="mb-4 h-8 w-8 animate-spin text-primary" aria-hidden="true" />
+          <h1 className="mb-2 text-xl font-semibold text-foreground">{t('orgSelect.loadingOrganizations')}</h1>
+          <p className="text-muted-foreground">{t('orgSelect.pleaseWaitLoading')}</p>
+        </Card>
+        {signOutButton}
+      </>
     )
   }
 
   if (fetchError) {
     return (
-      <Card className="flex flex-col items-center p-8 text-center" data-testid="org-select-fetch-error" role="alert">
-        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
-          <AlertCircle className="h-6 w-6 text-destructive" aria-hidden="true" />
-        </div>
-        <h1 className="mb-2 text-xl font-semibold text-foreground">{t('orgSelect.failedToLoad')}</h1>
-        <p className="mb-6 text-muted-foreground" data-testid="org-select-fetch-error-message">
-          {fetchError.message || t('orgSelect.errorLoadingOrganizations')}
-        </p>
-        <Button onClick={() => window.location.reload()} variant="outline">
-          {t('orgSelect.tryAgain')}
-        </Button>
-      </Card>
+      <>
+        <Card className="flex flex-col items-center p-8 text-center" data-testid="org-select-fetch-error" role="alert">
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
+            <AlertCircle className="h-6 w-6 text-destructive" aria-hidden="true" />
+          </div>
+          <h1 className="mb-2 text-xl font-semibold text-foreground">{t('orgSelect.failedToLoad')}</h1>
+          <p className="mb-6 text-muted-foreground" data-testid="org-select-fetch-error-message">
+            {fetchError.message || t('orgSelect.errorLoadingOrganizations')}
+          </p>
+          <Button onClick={() => window.location.reload()} variant="outline">
+            {t('orgSelect.tryAgain')}
+          </Button>
+        </Card>
+        {signOutButton}
+      </>
     )
   }
 
@@ -117,91 +147,104 @@ export function Component() {
   }
 
   if (!organizations || organizations.length === 0) {
-    return <CreateOrganizationForm redirect={redirect} />
+    return (
+      <>
+        <CreateOrganizationForm redirect={redirect} />
+        {signOutButton}
+      </>
+    )
   }
 
   return (
-    <Card className="p-8" data-testid="org-select-list">
-      <div className="mb-6 text-center">
-        <h1 className="text-xl font-semibold text-foreground">{t('orgSelect.selectAnOrganization')}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{t('orgSelect.chooseOrganization')}</p>
-      </div>
-      {selectionState === 'error' && selectionError ? (
-        <Alert
-          variant="destructive"
-          className="mb-4 border-0 bg-destructive/10"
-          data-testid="org-select-selection-error"
-        >
-          <AlertDescription className="flex items-center justify-between">
-            <span>{selectionError.message}</span>
-            <Button variant="ghost" size="sm" onClick={handleRetry} className="text-destructive hover:text-destructive">
-              {t('orgSelect.retry')}
-            </Button>
-          </AlertDescription>
-        </Alert>
-      ) : null}
-      <ul className="space-y-2" aria-label="Organizations">
-        {organizations.map((org: { id: string; name: string; logo?: string | null }) => {
-          const isSelecting = selectionState === 'selecting' && selectedOrgId === org.id
-          return (
-            <li key={org.id}>
+    <>
+      <Card className="p-8" data-testid="org-select-list">
+        <div className="mb-6 text-center">
+          <h1 className="text-xl font-semibold text-foreground">{t('orgSelect.selectAnOrganization')}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{t('orgSelect.chooseOrganization')}</p>
+        </div>
+        {selectionState === 'error' && selectionError ? (
+          <Alert
+            variant="destructive"
+            className="mb-4 border-0 bg-destructive/10"
+            data-testid="org-select-selection-error"
+          >
+            <AlertDescription className="flex items-center justify-between">
+              <span>{selectionError.message}</span>
               <Button
                 variant="ghost"
-                onClick={() => handleSelectOrganization(org.id)}
-                disabled={selectionState === 'selecting'}
-                className="flex h-auto w-full items-center gap-4 rounded-lg border border-border p-4 text-left"
-                data-testid={`org-item-${org.id}`}
-                aria-busy={isSelecting}
+                size="sm"
+                onClick={handleRetry}
+                className="text-destructive hover:text-destructive"
               >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                  {org.logo ? (
-                    <img
-                      src={org.logo}
-                      alt=""
-                      width={40}
-                      height={40}
-                      className="h-10 w-10 rounded-lg object-cover"
-                      aria-hidden="true"
-                    />
-                  ) : (
-                    <Building2 className="h-5 w-5 text-primary" aria-hidden="true" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-foreground truncate">{org.name}</p>
-                  <p className="flex items-center gap-1 text-sm text-muted-foreground">
-                    <Users className="h-3 w-3" aria-hidden="true" />
-                    <span data-testid={`org-member-count-${org.id}`}>{t('orgSelect.organization')}</span>
-                  </p>
-                </div>
-                <div className="shrink-0">
-                  {isSelecting ? (
-                    <Loader2 className="h-5 w-5 animate-spin text-primary" aria-hidden="true" />
-                  ) : (
-                    <ChevronRight className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
-                  )}
-                </div>
+                {t('orgSelect.retry')}
               </Button>
-            </li>
-          )
-        })}
-      </ul>
-      {showCreateForm ? (
-        <div className="mt-4">
-          <CreateOrganizationForm redirect={redirect} />
-        </div>
-      ) : (
-        <Button
-          variant="outline"
-          onClick={() => setShowCreateForm(true)}
-          className="mt-4 w-full gap-2"
-          data-testid="create-new-org-button"
-        >
-          <Plus className="h-4 w-4" aria-hidden="true" />
-          {t('orgSelect.createNewOrg')}
-        </Button>
-      )}
-    </Card>
+            </AlertDescription>
+          </Alert>
+        ) : null}
+        <ul className="space-y-2" aria-label="Organizations">
+          {organizations.map((org: { id: string; name: string; logo?: string | null }) => {
+            const isSelecting = selectionState === 'selecting' && selectedOrgId === org.id
+            return (
+              <li key={org.id}>
+                <Button
+                  variant="ghost"
+                  onClick={() => handleSelectOrganization(org.id)}
+                  disabled={selectionState === 'selecting'}
+                  className="flex h-auto w-full items-center gap-4 rounded-lg border border-border p-4 text-left"
+                  data-testid={`org-item-${org.id}`}
+                  aria-busy={isSelecting}
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                    {org.logo ? (
+                      <img
+                        src={org.logo}
+                        alt=""
+                        width={40}
+                        height={40}
+                        className="h-10 w-10 rounded-lg object-cover"
+                        aria-hidden="true"
+                      />
+                    ) : (
+                      <Building2 className="h-5 w-5 text-primary" aria-hidden="true" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-foreground truncate">{org.name}</p>
+                    <p className="flex items-center gap-1 text-sm text-muted-foreground">
+                      <Users className="h-3 w-3" aria-hidden="true" />
+                      <span data-testid={`org-member-count-${org.id}`}>{t('orgSelect.organization')}</span>
+                    </p>
+                  </div>
+                  <div className="shrink-0">
+                    {isSelecting ? (
+                      <Loader2 className="h-5 w-5 animate-spin text-primary" aria-hidden="true" />
+                    ) : (
+                      <ChevronRight className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+                    )}
+                  </div>
+                </Button>
+              </li>
+            )
+          })}
+        </ul>
+        {showCreateForm ? (
+          <div className="mt-4">
+            <CreateOrganizationForm redirect={redirect} />
+          </div>
+        ) : (
+          <Button
+            variant="outline"
+            onClick={() => setShowCreateForm(true)}
+            className="mt-4 w-full gap-2"
+            data-testid="create-new-org-button"
+          >
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            {t('orgSelect.createNewOrg')}
+          </Button>
+        )}
+      </Card>
+      {signOutButton}
+    </>
   )
 }
 

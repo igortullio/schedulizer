@@ -13,6 +13,7 @@ import {
   subscriptionStatusEnum,
   subscriptions,
   timeBlocks,
+  whatsappSessions,
 } from './schema'
 
 describe('Leads Schema', () => {
@@ -370,5 +371,60 @@ describe('Language Migration (0005)', () => {
   it('should have NOT NULL constraint', () => {
     const migrationContent = readFileSync(migrationPath, 'utf-8')
     expect(migrationContent).toContain('NOT NULL')
+  })
+})
+
+describe('WhatsApp Sessions Schema', () => {
+  it('should compile schema without TypeScript errors', () => {
+    expect(whatsappSessions).toBeDefined()
+  })
+
+  it('should have correct table structure with all required columns', () => {
+    expect(whatsappSessions).toHaveProperty('id')
+    expect(whatsappSessions).toHaveProperty('phoneNumber')
+    expect(whatsappSessions).toHaveProperty('organizationId')
+    expect(whatsappSessions).toHaveProperty('currentStep')
+    expect(whatsappSessions).toHaveProperty('context')
+    expect(whatsappSessions).toHaveProperty('createdAt')
+    expect(whatsappSessions).toHaveProperty('updatedAt')
+  })
+
+  it('should have generated migration file', () => {
+    const migrationPath = resolve(__dirname, '../drizzle/0007_foamy_junta.sql')
+    expect(existsSync(migrationPath)).toBe(true)
+  })
+
+  it('should have migration SQL with CREATE TABLE statement', () => {
+    const migrationPath = resolve(__dirname, '../drizzle/0007_foamy_junta.sql')
+    const migrationContent = readFileSync(migrationPath, 'utf-8')
+    expect(migrationContent).toContain('CREATE TABLE "whatsapp_sessions"')
+  })
+
+  it('should have correct column definitions in migration', () => {
+    const migrationPath = resolve(__dirname, '../drizzle/0007_foamy_junta.sql')
+    const migrationContent = readFileSync(migrationPath, 'utf-8')
+    expect(migrationContent).toContain('"phone_number" varchar(20) NOT NULL')
+    expect(migrationContent).toContain('"organization_id" uuid NOT NULL')
+    expect(migrationContent).toContain('"current_step" varchar(30)')
+    expect(migrationContent).toContain("DEFAULT 'welcome'")
+    expect(migrationContent).toContain('"context" jsonb')
+    expect(migrationContent).toContain("DEFAULT '{}'::jsonb")
+    expect(migrationContent).toContain('"created_at" timestamp with time zone DEFAULT now() NOT NULL')
+    expect(migrationContent).toContain('"updated_at" timestamp with time zone DEFAULT now() NOT NULL')
+  })
+
+  it('should have foreign key reference to organizations', () => {
+    const migrationPath = resolve(__dirname, '../drizzle/0007_foamy_junta.sql')
+    const migrationContent = readFileSync(migrationPath, 'utf-8')
+    expect(migrationContent).toContain('REFERENCES "public"."organizations"("id")')
+  })
+
+  it('should have indexes for phone_number and updated_at', () => {
+    const migrationPath = resolve(__dirname, '../drizzle/0007_foamy_junta.sql')
+    const migrationContent = readFileSync(migrationPath, 'utf-8')
+    expect(migrationContent).toContain('CREATE INDEX "idx_whatsapp_sessions_phone"')
+    expect(migrationContent).toContain('"phone_number"')
+    expect(migrationContent).toContain('CREATE INDEX "idx_whatsapp_sessions_updated"')
+    expect(migrationContent).toContain('"updated_at"')
   })
 })

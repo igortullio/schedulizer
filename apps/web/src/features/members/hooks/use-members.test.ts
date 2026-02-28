@@ -1,8 +1,8 @@
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const mockListMembers = vi.fn()
 const mockListInvitations = vi.fn()
+const mockFetch = vi.fn()
 
 vi.mock('@schedulizer/env/client', () => ({
   clientEnv: { apiUrl: 'http://localhost:3000' },
@@ -11,11 +11,12 @@ vi.mock('@schedulizer/env/client', () => ({
 vi.mock('@/lib/auth-client', () => ({
   authClient: {
     organization: {
-      listMembers: (...args: unknown[]) => mockListMembers(...args),
       listInvitations: (...args: unknown[]) => mockListInvitations(...args),
     },
   },
 }))
+
+vi.stubGlobal('fetch', mockFetch)
 
 import { useMembers } from './use-members'
 
@@ -26,7 +27,7 @@ const mockMembers = [
     organizationId: 'org1',
     role: 'owner',
     createdAt: new Date('2025-01-01'),
-    user: { id: 'u1', name: 'Alice', email: 'alice@test.com', image: null },
+    user: { id: 'u1', name: 'Alice', email: 'alice@test.com', phoneNumber: null, image: null },
   },
   {
     id: 'm2',
@@ -34,7 +35,7 @@ const mockMembers = [
     organizationId: 'org1',
     role: 'member',
     createdAt: new Date('2025-01-02'),
-    user: { id: 'u2', name: 'Bob', email: 'bob@test.com', image: null },
+    user: { id: 'u2', name: 'Bob', email: null, phoneNumber: '+5511999999999', image: null },
   },
 ]
 
@@ -50,13 +51,27 @@ const mockInvitations = [
   },
 ]
 
+function mockFetchSuccess(data: unknown) {
+  mockFetch.mockResolvedValueOnce({
+    ok: true,
+    json: async () => ({ data }),
+  })
+}
+
+function mockFetchError(status = 500) {
+  mockFetch.mockResolvedValueOnce({
+    ok: false,
+    status,
+  })
+}
+
 describe('useMembers', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
   it('starts in loading state', () => {
-    mockListMembers.mockImplementation(() => new Promise(() => {}))
+    mockFetch.mockImplementation(() => new Promise(() => {}))
     mockListInvitations.mockImplementation(() => new Promise(() => {}))
     const { result } = renderHook(() => useMembers())
     expect(result.current.membersState).toBe('loading')
@@ -66,17 +81,21 @@ describe('useMembers', () => {
   })
 
   it('fetches and returns members list', async () => {
-    mockListMembers.mockResolvedValueOnce({ data: { members: mockMembers, total: 2 }, error: null })
+    mockFetchSuccess(mockMembers)
     mockListInvitations.mockResolvedValueOnce({ data: mockInvitations, error: null })
     const { result } = renderHook(() => useMembers())
     await waitFor(() => {
       expect(result.current.membersState).toBe('success')
     })
     expect(result.current.members).toEqual(mockMembers)
+    expect(mockFetch).toHaveBeenCalledWith('http://localhost:3000/api/members', {
+      method: 'GET',
+      credentials: 'include',
+    })
   })
 
   it('fetches and returns invitations list', async () => {
-    mockListMembers.mockResolvedValueOnce({ data: { members: mockMembers, total: 2 }, error: null })
+    mockFetchSuccess(mockMembers)
     mockListInvitations.mockResolvedValueOnce({ data: mockInvitations, error: null })
     const { result } = renderHook(() => useMembers())
     await waitFor(() => {
@@ -86,7 +105,7 @@ describe('useMembers', () => {
   })
 
   it('handles error state when members fetch fails', async () => {
-    mockListMembers.mockRejectedValueOnce(new Error('Network error'))
+    mockFetch.mockRejectedValueOnce(new Error('Network error'))
     mockListInvitations.mockResolvedValueOnce({ data: mockInvitations, error: null })
     const { result } = renderHook(() => useMembers())
     await waitFor(() => {
@@ -96,7 +115,7 @@ describe('useMembers', () => {
   })
 
   it('handles error state when invitations fetch fails', async () => {
-    mockListMembers.mockResolvedValueOnce({ data: { members: mockMembers, total: 2 }, error: null })
+    mockFetchSuccess(mockMembers)
     mockListInvitations.mockRejectedValueOnce(new Error('Network error'))
     const { result } = renderHook(() => useMembers())
     await waitFor(() => {
@@ -106,27 +125,28 @@ describe('useMembers', () => {
   })
 
   it('handles API error response for members', async () => {
-    mockListMembers.mockResolvedValueOnce({ data: null, error: { message: 'Forbidden' } })
+    mockFetchError(403)
     mockListInvitations.mockResolvedValueOnce({ data: mockInvitations, error: null })
     const { result } = renderHook(() => useMembers())
     await waitFor(() => {
       expect(result.current.membersState).toBe('error')
     })
-    expect(result.current.membersError).toBe('Forbidden')
+    expect(result.current.membersError).toBe('Failed to fetch members')
   })
 
   it('refetch functions trigger new data fetch', async () => {
-    mockListMembers.mockResolvedValue({ data: { members: mockMembers, total: 2 }, error: null })
+    mockFetchSuccess(mockMembers)
     mockListInvitations.mockResolvedValue({ data: mockInvitations, error: null })
     const { result } = renderHook(() => useMembers())
     await waitFor(() => {
       expect(result.current.membersState).toBe('success')
     })
-    expect(mockListMembers).toHaveBeenCalledTimes(1)
+    expect(mockFetch).toHaveBeenCalledTimes(1)
+    mockFetchSuccess(mockMembers)
     await act(async () => {
       await result.current.refetchMembers()
     })
-    expect(mockListMembers).toHaveBeenCalledTimes(2)
+    expect(mockFetch).toHaveBeenCalledTimes(2)
     await act(async () => {
       await result.current.refetchInvitations()
     })

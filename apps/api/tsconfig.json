@@ -10,10 +10,16 @@
   "exclude": ["node_modules", "dist"],
   "references": [
     {
-      "path": "../../libs/billing"
+      "path": "../../libs/whatsapp"
+    },
+    {
+      "path": "../../libs/notifications"
     },
     {
       "path": "../../libs/shared/types"
+    },
+    {
+      "path": "../../libs/billing"
     },
     {
       "path": "../../libs/email"
@@ -22,10 +28,10 @@
       "path": "../../libs/db"
     },
     {
-      "path": "../../libs/shared/env"
+      "path": "../../libs/observability"
     },
     {
-      "path": "../../libs/observability"
+      "path": "../../libs/shared/env"
     }
   ]
 }

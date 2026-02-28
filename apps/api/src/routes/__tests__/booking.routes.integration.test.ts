@@ -11,20 +11,41 @@ vi.mock('@schedulizer/env/server', () => ({
     frontendUrl: 'http://localhost:4200',
     resendApiKey: 'test-key',
     cronApiKey: 'test-cron-api-key-1234',
+    whatsappPhoneNumberId: 'test-phone-id',
+    whatsappAccessToken: 'test-access-token',
   },
+}))
+
+const { mockNotificationSend } = vi.hoisted(() => ({
+  mockNotificationSend: vi.fn(),
+}))
+
+vi.mock('@schedulizer/notifications', () => ({
+  ChannelResolver: class MockChannelResolver {},
+  NotificationService: class MockNotificationService {
+    send = mockNotificationSend
+  },
+}))
+
+vi.mock('@schedulizer/email', () => ({
+  EmailService: class MockEmailService {},
+  extractLocale: vi.fn((_header: string | null) => 'pt-BR'),
+}))
+
+vi.mock('@schedulizer/whatsapp', () => ({
+  WhatsAppService: class MockWhatsAppService {},
+}))
+
+vi.mock('@schedulizer/billing', () => ({
+  resolvePlanFromSubscription: vi.fn(({ stripePriceId, status }: { stripePriceId: string; status: string }) => {
+    if (status === 'trialing') return { type: 'professional', limits: {}, stripePriceId: '' }
+    if (stripePriceId === 'price_ess') return { type: 'essential', limits: {}, stripePriceId }
+    return { type: 'professional', limits: {}, stripePriceId }
+  }),
 }))
 
 vi.mock('date-fns-tz', () => ({
   formatInTimeZone: vi.fn(() => '15/03/2025 09:00'),
-}))
-
-vi.mock('../../lib/email', () => ({
-  sendBookingConfirmation: vi.fn(() => Promise.resolve()),
-  sendBookingCancellation: vi.fn(() => Promise.resolve()),
-  sendBookingReschedule: vi.fn(() => Promise.resolve()),
-  sendOwnerNewBookingNotification: vi.fn(() => Promise.resolve()),
-  sendOwnerCancellationNotification: vi.fn(() => Promise.resolve()),
-  sendOwnerRescheduleNotification: vi.fn(() => Promise.resolve()),
 }))
 
 vi.mock('../../lib/slot-calculator', () => ({
@@ -73,6 +94,7 @@ vi.mock('@schedulizer/db', () => ({
     },
     members: { organizationId: 'organization_id', userId: 'user_id', role: 'role' },
     users: { id: 'id', email: 'email' },
+    subscriptions: { organizationId: 'organization_id', stripePriceId: 'stripe_price_id', status: 'status' },
   },
 }))
 
@@ -233,6 +255,7 @@ describe('Booking Routes Integration', () => {
         .mockReturnValueOnce(selectWithLimit([mockOrganization]))
         .mockReturnValueOnce(selectWithLimit([mockService]))
         .mockReturnValueOnce(selectWithLimit([]))
+        .mockReturnValueOnce(selectWithLimit([{ stripePriceId: 'price_pro', status: 'active' }]))
         .mockReturnValueOnce(selectWithLimit([{ userId: 'user-1' }]))
         .mockReturnValueOnce(selectWithLimit([{ email: 'owner@example.com' }]))
       mockDbInsert.mockReturnValue({
@@ -311,6 +334,7 @@ describe('Booking Routes Integration', () => {
         .mockReturnValueOnce(selectWithLimit([mockOrganization]))
         .mockReturnValueOnce(selectWithLimit([mockAppointment]))
         .mockReturnValueOnce(selectWithLimit([{ name: 'Haircut' }]))
+        .mockReturnValueOnce(selectWithLimit([{ stripePriceId: 'price_pro', status: 'active' }]))
         .mockReturnValueOnce(selectWithLimit([{ userId: 'user-1' }]))
         .mockReturnValueOnce(selectWithLimit([{ email: 'owner@example.com' }]))
       mockDbUpdate.mockReturnValue({
@@ -360,6 +384,7 @@ describe('Booking Routes Integration', () => {
         .mockReturnValueOnce(selectWithLimit([mockAppointment]))
         .mockReturnValueOnce(selectWithLimit([mockService]))
         .mockReturnValueOnce(selectWithLimit([]))
+        .mockReturnValueOnce(selectWithLimit([{ stripePriceId: 'price_pro', status: 'active' }]))
         .mockReturnValueOnce(selectWithLimit([{ userId: 'user-1' }]))
         .mockReturnValueOnce(selectWithLimit([{ email: 'owner@example.com' }]))
       mockDbUpdate.mockReturnValue({
@@ -416,6 +441,263 @@ describe('Booking Routes Integration', () => {
         .send({ startTime: new Date(Date.now() + 172800000).toISOString() })
       expect(res.status).toBe(422)
       expect(res.body.error.code).toBe('NOT_RESCHEDULABLE')
+    })
+  })
+
+  describe('Notification Migration', () => {
+    it('should call notificationService.send with appointment.confirmed on create', async () => {
+      mockDbSelect
+        .mockReturnValueOnce(selectWithLimit([mockOrganization]))
+        .mockReturnValueOnce(selectWithLimit([mockService]))
+        .mockReturnValueOnce(selectWithLimit([]))
+        .mockReturnValueOnce(selectWithLimit([{ stripePriceId: 'price_pro', status: 'active' }]))
+        .mockReturnValueOnce(selectWithLimit([{ userId: 'user-1' }]))
+        .mockReturnValueOnce(selectWithLimit([{ email: 'owner@example.com' }]))
+      mockDbInsert.mockReturnValue({
+        values: vi.fn().mockReturnValue({
+          returning: vi.fn().mockReturnValue(Promise.resolve([mockAppointment])),
+        }),
+      })
+      await request(app).post('/booking/test-business/appointments').send({
+        serviceId: SERVICE_ID,
+        startTime: '2025-03-15T12:00:00Z',
+        customerName: 'John Doe',
+        customerEmail: 'john@example.com',
+        customerPhone: '11999999999',
+      })
+      expect(mockNotificationSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event: 'appointment.confirmed',
+          organizationId: ORG_ID,
+          recipientPhone: '11999999999',
+          recipientEmail: 'john@example.com',
+          locale: 'pt-BR',
+          data: expect.objectContaining({
+            customerName: 'John Doe',
+            serviceName: 'Haircut',
+            organizationName: 'Test Business',
+          }),
+
+          planType: 'professional',
+        }),
+      )
+    })
+
+    it('should call notificationService.send for owner on create when owner email exists', async () => {
+      mockDbSelect
+        .mockReturnValueOnce(selectWithLimit([mockOrganization]))
+        .mockReturnValueOnce(selectWithLimit([mockService]))
+        .mockReturnValueOnce(selectWithLimit([]))
+        .mockReturnValueOnce(selectWithLimit([{ stripePriceId: 'price_pro', status: 'active' }]))
+        .mockReturnValueOnce(selectWithLimit([{ userId: 'user-1' }]))
+        .mockReturnValueOnce(selectWithLimit([{ email: 'owner@example.com' }]))
+      mockDbInsert.mockReturnValue({
+        values: vi.fn().mockReturnValue({
+          returning: vi.fn().mockReturnValue(Promise.resolve([mockAppointment])),
+        }),
+      })
+      await request(app).post('/booking/test-business/appointments').send({
+        serviceId: SERVICE_ID,
+        startTime: '2025-03-15T12:00:00Z',
+        customerName: 'John Doe',
+        customerEmail: 'john@example.com',
+        customerPhone: '11999999999',
+      })
+      expect(mockNotificationSend).toHaveBeenCalledTimes(2)
+      expect(mockNotificationSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          recipientEmail: 'owner@example.com',
+        }),
+      )
+    })
+
+    it('should not call owner notification when no owner email found', async () => {
+      mockDbSelect
+        .mockReturnValueOnce(selectWithLimit([mockOrganization]))
+        .mockReturnValueOnce(selectWithLimit([mockService]))
+        .mockReturnValueOnce(selectWithLimit([]))
+        .mockReturnValueOnce(selectWithLimit([{ stripePriceId: 'price_pro', status: 'active' }]))
+        .mockReturnValueOnce(selectWithLimit([]))
+      mockDbInsert.mockReturnValue({
+        values: vi.fn().mockReturnValue({
+          returning: vi.fn().mockReturnValue(Promise.resolve([mockAppointment])),
+        }),
+      })
+      await request(app).post('/booking/test-business/appointments').send({
+        serviceId: SERVICE_ID,
+        startTime: '2025-03-15T12:00:00Z',
+        customerName: 'John Doe',
+        customerEmail: 'john@example.com',
+        customerPhone: '11999999999',
+      })
+      expect(mockNotificationSend).toHaveBeenCalledTimes(1)
+    })
+
+    it('should call notificationService.send with appointment.cancelled on cancel', async () => {
+      mockDbSelect
+        .mockReturnValueOnce(selectWithLimit([mockOrganization]))
+        .mockReturnValueOnce(selectWithLimit([mockAppointment]))
+        .mockReturnValueOnce(selectWithLimit([{ name: 'Haircut' }]))
+        .mockReturnValueOnce(selectWithLimit([{ stripePriceId: 'price_ess', status: 'active' }]))
+        .mockReturnValueOnce(selectWithLimit([{ userId: 'user-1' }]))
+        .mockReturnValueOnce(selectWithLimit([{ email: 'owner@example.com' }]))
+      mockDbUpdate.mockReturnValue({
+        set: vi.fn().mockReturnValue({
+          where: vi.fn().mockReturnValue({
+            returning: vi.fn().mockReturnValue(Promise.resolve([{ ...mockAppointment, status: 'cancelled' }])),
+          }),
+        }),
+      })
+      await request(app).post('/booking/test-business/manage/token-abc-123/cancel')
+      expect(mockNotificationSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event: 'appointment.cancelled',
+          organizationId: ORG_ID,
+          recipientPhone: '11999999999',
+          recipientEmail: 'john@example.com',
+          data: expect.objectContaining({
+            customerName: 'John Doe',
+            serviceName: 'Haircut',
+            organizationName: 'Test Business',
+          }),
+
+          planType: 'essential',
+        }),
+      )
+    })
+
+    it('should call notificationService.send for owner on cancel', async () => {
+      mockDbSelect
+        .mockReturnValueOnce(selectWithLimit([mockOrganization]))
+        .mockReturnValueOnce(selectWithLimit([mockAppointment]))
+        .mockReturnValueOnce(selectWithLimit([{ name: 'Haircut' }]))
+        .mockReturnValueOnce(selectWithLimit([{ stripePriceId: 'price_pro', status: 'active' }]))
+        .mockReturnValueOnce(selectWithLimit([{ userId: 'user-1' }]))
+        .mockReturnValueOnce(selectWithLimit([{ email: 'owner@example.com' }]))
+      mockDbUpdate.mockReturnValue({
+        set: vi.fn().mockReturnValue({
+          where: vi.fn().mockReturnValue({
+            returning: vi.fn().mockReturnValue(Promise.resolve([{ ...mockAppointment, status: 'cancelled' }])),
+          }),
+        }),
+      })
+      await request(app).post('/booking/test-business/manage/token-abc-123/cancel')
+      expect(mockNotificationSend).toHaveBeenCalledTimes(2)
+      expect(mockNotificationSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event: 'appointment.cancelled',
+          recipientEmail: 'owner@example.com',
+        }),
+      )
+    })
+
+    it('should call notificationService.send with appointment.rescheduled on reschedule', async () => {
+      const newStart = new Date(Date.now() + 172800000)
+      mockDbSelect
+        .mockReturnValueOnce(selectWithLimit([mockOrganization]))
+        .mockReturnValueOnce(selectWithLimit([mockAppointment]))
+        .mockReturnValueOnce(selectWithLimit([mockService]))
+        .mockReturnValueOnce(selectWithLimit([]))
+        .mockReturnValueOnce(selectWithLimit([{ stripePriceId: 'price_pro', status: 'active' }]))
+        .mockReturnValueOnce(selectWithLimit([{ userId: 'user-1' }]))
+        .mockReturnValueOnce(selectWithLimit([{ email: 'owner@example.com' }]))
+      mockDbUpdate.mockReturnValue({
+        set: vi.fn().mockReturnValue({
+          where: vi.fn().mockReturnValue({
+            returning: vi.fn().mockReturnValue(
+              Promise.resolve([
+                {
+                  ...mockAppointment,
+                  startDatetime: newStart,
+                  endDatetime: new Date(newStart.getTime() + 1800000),
+                },
+              ]),
+            ),
+          }),
+        }),
+      })
+      await request(app)
+        .post('/booking/test-business/manage/token-abc-123/reschedule')
+        .send({ startTime: newStart.toISOString() })
+      expect(mockNotificationSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event: 'appointment.rescheduled',
+          organizationId: ORG_ID,
+          recipientPhone: '11999999999',
+          recipientEmail: 'john@example.com',
+          data: expect.objectContaining({
+            customerName: 'John Doe',
+            serviceName: 'Haircut',
+            organizationName: 'Test Business',
+          }),
+
+          planType: 'professional',
+        }),
+      )
+    })
+
+    it('should call notificationService.send for owner on reschedule', async () => {
+      const newStart = new Date(Date.now() + 172800000)
+      mockDbSelect
+        .mockReturnValueOnce(selectWithLimit([mockOrganization]))
+        .mockReturnValueOnce(selectWithLimit([mockAppointment]))
+        .mockReturnValueOnce(selectWithLimit([mockService]))
+        .mockReturnValueOnce(selectWithLimit([]))
+        .mockReturnValueOnce(selectWithLimit([{ stripePriceId: 'price_pro', status: 'active' }]))
+        .mockReturnValueOnce(selectWithLimit([{ userId: 'user-1' }]))
+        .mockReturnValueOnce(selectWithLimit([{ email: 'owner@example.com' }]))
+      mockDbUpdate.mockReturnValue({
+        set: vi.fn().mockReturnValue({
+          where: vi.fn().mockReturnValue({
+            returning: vi.fn().mockReturnValue(
+              Promise.resolve([
+                {
+                  ...mockAppointment,
+                  startDatetime: newStart,
+                  endDatetime: new Date(newStart.getTime() + 1800000),
+                },
+              ]),
+            ),
+          }),
+        }),
+      })
+      await request(app)
+        .post('/booking/test-business/manage/token-abc-123/reschedule')
+        .send({ startTime: newStart.toISOString() })
+      expect(mockNotificationSend).toHaveBeenCalledTimes(2)
+      expect(mockNotificationSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event: 'appointment.rescheduled',
+          recipientEmail: 'owner@example.com',
+        }),
+      )
+    })
+
+    it('should include recipientPhone from customerPhone in all notifications', async () => {
+      mockDbSelect
+        .mockReturnValueOnce(selectWithLimit([mockOrganization]))
+        .mockReturnValueOnce(selectWithLimit([mockService]))
+        .mockReturnValueOnce(selectWithLimit([]))
+        .mockReturnValueOnce(selectWithLimit([{ stripePriceId: 'price_pro', status: 'active' }]))
+        .mockReturnValueOnce(selectWithLimit([]))
+      mockDbInsert.mockReturnValue({
+        values: vi.fn().mockReturnValue({
+          returning: vi.fn().mockReturnValue(Promise.resolve([mockAppointment])),
+        }),
+      })
+      await request(app).post('/booking/test-business/appointments').send({
+        serviceId: SERVICE_ID,
+        startTime: '2025-03-15T12:00:00Z',
+        customerName: 'John Doe',
+        customerEmail: 'john@example.com',
+        customerPhone: '11999999999',
+      })
+      expect(mockNotificationSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          recipientPhone: '11999999999',
+          recipientEmail: 'john@example.com',
+        }),
+      )
     })
   })
 })

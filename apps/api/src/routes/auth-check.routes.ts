@@ -3,6 +3,7 @@ import { serverEnv } from '@schedulizer/env/server'
 import { eq } from 'drizzle-orm'
 import { Router } from 'express'
 import { z } from 'zod'
+import { setPendingName } from '../lib/auth'
 
 const router = Router()
 const db = createDb(serverEnv.databaseUrl)
@@ -41,6 +42,21 @@ router.get('/check-email', async (req, res) => {
     .where(eq(schema.users.email, parsed.data.email))
     .limit(1)
   return res.status(200).json({ exists: Boolean(user) })
+})
+
+const pendingNameSchema = z.object({
+  phone: z.string().regex(E164_PATTERN, 'Invalid phone number'),
+  name: z.string().min(1).max(100),
+})
+
+router.post('/pending-name', (req, res) => {
+  const parsed = pendingNameSchema.safeParse(req.body)
+  if (!parsed.success) {
+    res.status(400).json({ error: 'Invalid request' })
+    return
+  }
+  setPendingName(parsed.data.phone, parsed.data.name)
+  res.status(204).end()
 })
 
 export const authCheckRoutes = router

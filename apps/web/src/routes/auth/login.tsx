@@ -179,7 +179,12 @@ function PhoneLoginForm({ formState, errorMessage, onStateChange, onErrorChange 
   }
   async function handleNameAndSend(nameData: NameFormData) {
     const phone = getPhoneValues('phone')
-    sessionStorage.setItem(`pendingName_${phone}`, nameData.name)
+    localStorage.setItem(`pendingName_${phone}`, nameData.name)
+    fetch('/api/auth-check/pending-name', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, name: nameData.name }),
+    }).catch(() => {})
     await sendOtp(phone)
   }
   async function sendOtp(phone: string) {

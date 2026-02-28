@@ -65,7 +65,7 @@ const mockSendOtp = vi.mocked(authClient.phoneNumber.sendOtp)
 describe('LoginPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    sessionStorage.clear()
+    localStorage.clear()
   })
 
   describe('phone mode (default)', () => {
@@ -203,7 +203,8 @@ describe('LoginPage', () => {
       expect(mockSendOtp).not.toHaveBeenCalled()
     })
 
-    it('stores name in sessionStorage and sends OTP for new user with name', async () => {
+    it('stores name in localStorage, sends pending name to server, and sends OTP for new user', async () => {
+      const mockFetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(null, { status: 204 }))
       const user = userEvent.setup()
       mockCheckPhone.mockResolvedValueOnce(false)
       mockSendOtp.mockResolvedValueOnce({ data: { success: true }, error: null })
@@ -222,7 +223,13 @@ describe('LoginPage', () => {
       await waitFor(() => {
         expect(mockSendOtp).toHaveBeenCalledWith({ phoneNumber: '+5511999999999' })
       })
-      expect(sessionStorage.getItem('pendingName_+5511999999999')).toBe('João Silva')
+      expect(localStorage.getItem('pendingName_+5511999999999')).toBe('João Silva')
+      expect(mockFetch).toHaveBeenCalledWith('/api/auth-check/pending-name', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: '+5511999999999', name: 'João Silva' }),
+      })
+      mockFetch.mockRestore()
     })
   })
 

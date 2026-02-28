@@ -13,6 +13,7 @@ export function Component() {
   const navigate = useNavigate()
   const code = searchParams.get('code')
   const phone = searchParams.get('phone')
+  const nameFromUrl = searchParams.get('name')
   const [state, setState] = useState<VerifyState>(() => (code && phone ? 'verifying' : 'error'))
   const [errorMessage, setErrorMessage] = useState('')
   const verifiedRef = useRef(false)
@@ -27,9 +28,9 @@ export function Component() {
           setState('error')
           return
         }
-        const pendingName = sessionStorage.getItem(`pendingName_${phone}`)
+        const pendingName = nameFromUrl || localStorage.getItem(`pendingName_${phone}`)
         if (pendingName) {
-          sessionStorage.removeItem(`pendingName_${phone}`)
+          localStorage.removeItem(`pendingName_${phone}`)
           await authClient.updateUser({ name: pendingName })
         }
         setState('success')
@@ -42,7 +43,7 @@ export function Component() {
         setErrorMessage(t('verify.phoneVerificationFailed'))
         setState('error')
       })
-  }, [code, phone, navigate, t])
+  }, [code, phone, nameFromUrl, navigate, t])
   if (state === 'verifying') {
     return (
       <Card className="p-8 text-center" data-testid="verify-phone-loading">

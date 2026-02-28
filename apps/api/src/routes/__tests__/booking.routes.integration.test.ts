@@ -36,6 +36,14 @@ vi.mock('@schedulizer/whatsapp', () => ({
   WhatsAppService: class MockWhatsAppService {},
 }))
 
+vi.mock('@schedulizer/billing', () => ({
+  resolvePlanFromSubscription: vi.fn(({ stripePriceId, status }: { stripePriceId: string; status: string }) => {
+    if (status === 'trialing') return { type: 'professional', limits: {}, stripePriceId: '' }
+    if (stripePriceId === 'price_ess') return { type: 'essential', limits: {}, stripePriceId }
+    return { type: 'professional', limits: {}, stripePriceId }
+  }),
+}))
+
 vi.mock('date-fns-tz', () => ({
   formatInTimeZone: vi.fn(() => '15/03/2025 09:00'),
 }))
@@ -86,7 +94,7 @@ vi.mock('@schedulizer/db', () => ({
     },
     members: { organizationId: 'organization_id', userId: 'user_id', role: 'role' },
     users: { id: 'id', email: 'email' },
-    subscriptions: { organizationId: 'organization_id', plan: 'plan' },
+    subscriptions: { organizationId: 'organization_id', stripePriceId: 'stripe_price_id', status: 'status' },
   },
 }))
 
@@ -247,7 +255,7 @@ describe('Booking Routes Integration', () => {
         .mockReturnValueOnce(selectWithLimit([mockOrganization]))
         .mockReturnValueOnce(selectWithLimit([mockService]))
         .mockReturnValueOnce(selectWithLimit([]))
-        .mockReturnValueOnce(selectWithLimit([{ plan: 'professional' }]))
+        .mockReturnValueOnce(selectWithLimit([{ stripePriceId: 'price_pro', status: 'active' }]))
         .mockReturnValueOnce(selectWithLimit([{ userId: 'user-1' }]))
         .mockReturnValueOnce(selectWithLimit([{ email: 'owner@example.com' }]))
       mockDbInsert.mockReturnValue({
@@ -326,7 +334,7 @@ describe('Booking Routes Integration', () => {
         .mockReturnValueOnce(selectWithLimit([mockOrganization]))
         .mockReturnValueOnce(selectWithLimit([mockAppointment]))
         .mockReturnValueOnce(selectWithLimit([{ name: 'Haircut' }]))
-        .mockReturnValueOnce(selectWithLimit([{ plan: 'professional' }]))
+        .mockReturnValueOnce(selectWithLimit([{ stripePriceId: 'price_pro', status: 'active' }]))
         .mockReturnValueOnce(selectWithLimit([{ userId: 'user-1' }]))
         .mockReturnValueOnce(selectWithLimit([{ email: 'owner@example.com' }]))
       mockDbUpdate.mockReturnValue({
@@ -376,7 +384,7 @@ describe('Booking Routes Integration', () => {
         .mockReturnValueOnce(selectWithLimit([mockAppointment]))
         .mockReturnValueOnce(selectWithLimit([mockService]))
         .mockReturnValueOnce(selectWithLimit([]))
-        .mockReturnValueOnce(selectWithLimit([{ plan: 'professional' }]))
+        .mockReturnValueOnce(selectWithLimit([{ stripePriceId: 'price_pro', status: 'active' }]))
         .mockReturnValueOnce(selectWithLimit([{ userId: 'user-1' }]))
         .mockReturnValueOnce(selectWithLimit([{ email: 'owner@example.com' }]))
       mockDbUpdate.mockReturnValue({
@@ -442,7 +450,7 @@ describe('Booking Routes Integration', () => {
         .mockReturnValueOnce(selectWithLimit([mockOrganization]))
         .mockReturnValueOnce(selectWithLimit([mockService]))
         .mockReturnValueOnce(selectWithLimit([]))
-        .mockReturnValueOnce(selectWithLimit([{ plan: 'professional' }]))
+        .mockReturnValueOnce(selectWithLimit([{ stripePriceId: 'price_pro', status: 'active' }]))
         .mockReturnValueOnce(selectWithLimit([{ userId: 'user-1' }]))
         .mockReturnValueOnce(selectWithLimit([{ email: 'owner@example.com' }]))
       mockDbInsert.mockReturnValue({
@@ -469,7 +477,7 @@ describe('Booking Routes Integration', () => {
             serviceName: 'Haircut',
             organizationName: 'Test Business',
           }),
-          organizationWhatsAppEnabled: false,
+
           planType: 'professional',
         }),
       )
@@ -480,7 +488,7 @@ describe('Booking Routes Integration', () => {
         .mockReturnValueOnce(selectWithLimit([mockOrganization]))
         .mockReturnValueOnce(selectWithLimit([mockService]))
         .mockReturnValueOnce(selectWithLimit([]))
-        .mockReturnValueOnce(selectWithLimit([{ plan: 'professional' }]))
+        .mockReturnValueOnce(selectWithLimit([{ stripePriceId: 'price_pro', status: 'active' }]))
         .mockReturnValueOnce(selectWithLimit([{ userId: 'user-1' }]))
         .mockReturnValueOnce(selectWithLimit([{ email: 'owner@example.com' }]))
       mockDbInsert.mockReturnValue({
@@ -508,7 +516,7 @@ describe('Booking Routes Integration', () => {
         .mockReturnValueOnce(selectWithLimit([mockOrganization]))
         .mockReturnValueOnce(selectWithLimit([mockService]))
         .mockReturnValueOnce(selectWithLimit([]))
-        .mockReturnValueOnce(selectWithLimit([{ plan: 'professional' }]))
+        .mockReturnValueOnce(selectWithLimit([{ stripePriceId: 'price_pro', status: 'active' }]))
         .mockReturnValueOnce(selectWithLimit([]))
       mockDbInsert.mockReturnValue({
         values: vi.fn().mockReturnValue({
@@ -530,7 +538,7 @@ describe('Booking Routes Integration', () => {
         .mockReturnValueOnce(selectWithLimit([mockOrganization]))
         .mockReturnValueOnce(selectWithLimit([mockAppointment]))
         .mockReturnValueOnce(selectWithLimit([{ name: 'Haircut' }]))
-        .mockReturnValueOnce(selectWithLimit([{ plan: 'essential' }]))
+        .mockReturnValueOnce(selectWithLimit([{ stripePriceId: 'price_ess', status: 'active' }]))
         .mockReturnValueOnce(selectWithLimit([{ userId: 'user-1' }]))
         .mockReturnValueOnce(selectWithLimit([{ email: 'owner@example.com' }]))
       mockDbUpdate.mockReturnValue({
@@ -552,7 +560,7 @@ describe('Booking Routes Integration', () => {
             serviceName: 'Haircut',
             organizationName: 'Test Business',
           }),
-          organizationWhatsAppEnabled: false,
+
           planType: 'essential',
         }),
       )
@@ -563,7 +571,7 @@ describe('Booking Routes Integration', () => {
         .mockReturnValueOnce(selectWithLimit([mockOrganization]))
         .mockReturnValueOnce(selectWithLimit([mockAppointment]))
         .mockReturnValueOnce(selectWithLimit([{ name: 'Haircut' }]))
-        .mockReturnValueOnce(selectWithLimit([{ plan: 'professional' }]))
+        .mockReturnValueOnce(selectWithLimit([{ stripePriceId: 'price_pro', status: 'active' }]))
         .mockReturnValueOnce(selectWithLimit([{ userId: 'user-1' }]))
         .mockReturnValueOnce(selectWithLimit([{ email: 'owner@example.com' }]))
       mockDbUpdate.mockReturnValue({
@@ -590,7 +598,7 @@ describe('Booking Routes Integration', () => {
         .mockReturnValueOnce(selectWithLimit([mockAppointment]))
         .mockReturnValueOnce(selectWithLimit([mockService]))
         .mockReturnValueOnce(selectWithLimit([]))
-        .mockReturnValueOnce(selectWithLimit([{ plan: 'professional' }]))
+        .mockReturnValueOnce(selectWithLimit([{ stripePriceId: 'price_pro', status: 'active' }]))
         .mockReturnValueOnce(selectWithLimit([{ userId: 'user-1' }]))
         .mockReturnValueOnce(selectWithLimit([{ email: 'owner@example.com' }]))
       mockDbUpdate.mockReturnValue({
@@ -622,7 +630,7 @@ describe('Booking Routes Integration', () => {
             serviceName: 'Haircut',
             organizationName: 'Test Business',
           }),
-          organizationWhatsAppEnabled: false,
+
           planType: 'professional',
         }),
       )
@@ -635,7 +643,7 @@ describe('Booking Routes Integration', () => {
         .mockReturnValueOnce(selectWithLimit([mockAppointment]))
         .mockReturnValueOnce(selectWithLimit([mockService]))
         .mockReturnValueOnce(selectWithLimit([]))
-        .mockReturnValueOnce(selectWithLimit([{ plan: 'professional' }]))
+        .mockReturnValueOnce(selectWithLimit([{ stripePriceId: 'price_pro', status: 'active' }]))
         .mockReturnValueOnce(selectWithLimit([{ userId: 'user-1' }]))
         .mockReturnValueOnce(selectWithLimit([{ email: 'owner@example.com' }]))
       mockDbUpdate.mockReturnValue({
@@ -670,7 +678,7 @@ describe('Booking Routes Integration', () => {
         .mockReturnValueOnce(selectWithLimit([mockOrganization]))
         .mockReturnValueOnce(selectWithLimit([mockService]))
         .mockReturnValueOnce(selectWithLimit([]))
-        .mockReturnValueOnce(selectWithLimit([{ plan: 'professional' }]))
+        .mockReturnValueOnce(selectWithLimit([{ stripePriceId: 'price_pro', status: 'active' }]))
         .mockReturnValueOnce(selectWithLimit([]))
       mockDbInsert.mockReturnValue({
         values: vi.fn().mockReturnValue({

@@ -1,3 +1,4 @@
+import { resolvePlanFromSubscription } from '@schedulizer/billing'
 import { createDb, schema } from '@schedulizer/db'
 import { EmailService, extractLocale, type Locale } from '@schedulizer/email'
 import { serverEnv } from '@schedulizer/env/server'
@@ -52,6 +53,10 @@ function buildManagementUrl(slug: string, token: string): string {
   return `${serverEnv.frontendUrl}/booking/${slug}/manage/${token}`
 }
 
+function buildManagementUrlSuffix(slug: string, token: string): string {
+  return `/${slug}/manage/${token}`
+}
+
 async function getOrganizationBySlug(slug: string) {
   const [organization] = await db
     .select()
@@ -78,11 +83,19 @@ async function getOrganizationOwnerEmail(organizationId: string): Promise<string
 
 async function getOrganizationPlanType(organizationId: string): Promise<string> {
   const [subscription] = await db
-    .select({ plan: schema.subscriptions.plan })
+    .select({
+      stripePriceId: schema.subscriptions.stripePriceId,
+      status: schema.subscriptions.status,
+    })
     .from(schema.subscriptions)
     .where(eq(schema.subscriptions.organizationId, organizationId))
     .limit(1)
-  return subscription?.plan ?? 'essential'
+  if (!subscription) return 'essential'
+  const resolved = resolvePlanFromSubscription({
+    stripePriceId: subscription.stripePriceId,
+    status: subscription.status,
+  })
+  return resolved?.type ?? 'essential'
 }
 
 router.get('/:slug', async (req, res) => {
@@ -266,6 +279,7 @@ router.post('/:slug/appointments', async (req, res) => {
       startDatetime: startDatetime.toISOString(),
     })
     const managementUrl = buildManagementUrl(slug, appointment.managementToken)
+    const managementUrlSuffix = buildManagementUrlSuffix(slug, appointment.managementToken)
     const appointmentDate = formatDateInTimezone(startDatetime, organization.timezone)
     const appointmentTime = formatTimeInTimezone(startDatetime, organization.timezone)
     const planType = await getOrganizationPlanType(organization.id)
@@ -283,8 +297,9 @@ router.post('/:slug/appointments', async (req, res) => {
         organizationName: organization.name,
         cancelUrl: `${managementUrl}?action=cancel`,
         rescheduleUrl: `${managementUrl}?action=reschedule`,
+        cancelUrlSuffix: `${managementUrlSuffix}?action=cancel`,
+        rescheduleUrlSuffix: `${managementUrlSuffix}?action=reschedule`,
       },
-      organizationWhatsAppEnabled: false,
       planType,
     })
     const ownerEmail = await getOrganizationOwnerEmail(organization.id)
@@ -302,7 +317,6 @@ router.post('/:slug/appointments', async (req, res) => {
           appointmentTime,
           organizationName: organization.name,
         },
-        organizationWhatsAppEnabled: false,
         planType,
       })
     }
@@ -436,7 +450,7 @@ router.post('/:slug/manage/:token/cancel', async (req, res) => {
         appointmentTime: cancelTime,
         organizationName: organization.name,
       },
-      organizationWhatsAppEnabled: false,
+
       planType: cancelPlanType,
     })
     const ownerEmail = await getOrganizationOwnerEmail(organization.id)
@@ -453,7 +467,6 @@ router.post('/:slug/manage/:token/cancel', async (req, res) => {
           appointmentDate: cancelDate,
           appointmentTime: cancelTime,
         },
-        organizationWhatsAppEnabled: false,
         planType: cancelPlanType,
       })
     }
@@ -571,6 +584,7 @@ router.post('/:slug/manage/:token/reschedule', async (req, res) => {
     const newDate = formatDateInTimezone(newStartDatetime, organization.timezone)
     const newTime = formatTimeInTimezone(newStartDatetime, organization.timezone)
     const managementUrl = buildManagementUrl(slug, appointment.managementToken)
+    const managementUrlSuffix = buildManagementUrlSuffix(slug, appointment.managementToken)
     const rescheduleLocale = (appointment.language ?? 'pt-BR') as Locale
     const reschedulePlanType = await getOrganizationPlanType(organization.id)
     notificationService.send({
@@ -589,8 +603,9 @@ router.post('/:slug/manage/:token/reschedule', async (req, res) => {
         organizationName: organization.name,
         cancelUrl: `${managementUrl}?action=cancel`,
         rescheduleUrl: `${managementUrl}?action=reschedule`,
+        cancelUrlSuffix: `${managementUrlSuffix}?action=cancel`,
+        rescheduleUrlSuffix: `${managementUrlSuffix}?action=reschedule`,
       },
-      organizationWhatsAppEnabled: false,
       planType: reschedulePlanType,
     })
     const ownerEmail = await getOrganizationOwnerEmail(organization.id)
@@ -609,7 +624,6 @@ router.post('/:slug/manage/:token/reschedule', async (req, res) => {
           newDate,
           newTime,
         },
-        organizationWhatsAppEnabled: false,
         planType: reschedulePlanType,
       })
     }

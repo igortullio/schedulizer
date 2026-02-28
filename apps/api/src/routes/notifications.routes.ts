@@ -1,3 +1,4 @@
+import { resolvePlanFromSubscription } from '@schedulizer/billing'
 import { createDb, schema } from '@schedulizer/db'
 import { EmailService } from '@schedulizer/email'
 import { serverEnv } from '@schedulizer/env/server'
@@ -67,11 +68,21 @@ async function processReminders() {
       const appointmentDate = formatInTimeZone(appointment.startDatetime, organization.timezone, DATE_FORMAT)
       const appointmentTime = formatInTimeZone(appointment.startDatetime, organization.timezone, TIME_FORMAT)
       const managementUrl = `${serverEnv.frontendUrl}/booking/${organization.slug}/manage/${appointment.managementToken}`
+      const managementUrlSuffix = `/${organization.slug}/manage/${appointment.managementToken}`
       const [subscription] = await db
-        .select({ plan: schema.subscriptions.plan })
+        .select({
+          stripePriceId: schema.subscriptions.stripePriceId,
+          status: schema.subscriptions.status,
+        })
         .from(schema.subscriptions)
         .where(eq(schema.subscriptions.organizationId, appointment.organizationId))
         .limit(1)
+      const resolvedPlan = subscription
+        ? resolvePlanFromSubscription({
+            stripePriceId: subscription.stripePriceId,
+            status: subscription.status,
+          })
+        : null
       const locale = (appointment.language ?? 'pt-BR') as 'pt-BR' | 'en'
       notificationService.send({
         event: 'appointment.reminder',
@@ -87,9 +98,10 @@ async function processReminders() {
           organizationName: organization.name,
           cancelUrl: `${managementUrl}?action=cancel`,
           rescheduleUrl: `${managementUrl}?action=reschedule`,
+          cancelUrlSuffix: `${managementUrlSuffix}?action=cancel`,
+          rescheduleUrlSuffix: `${managementUrlSuffix}?action=reschedule`,
         },
-        organizationWhatsAppEnabled: false,
-        planType: subscription?.plan ?? 'essential',
+        planType: resolvedPlan?.type ?? 'essential',
       })
       await db
         .update(schema.appointments)

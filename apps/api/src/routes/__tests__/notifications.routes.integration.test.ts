@@ -51,6 +51,13 @@ vi.mock('@schedulizer/whatsapp', () => ({
   WhatsAppService: class MockWhatsAppService {},
 }))
 
+vi.mock('@schedulizer/billing', () => ({
+  resolvePlanFromSubscription: vi.fn(({ status }: { status: string }) => {
+    if (status === 'trialing') return { type: 'professional', limits: {}, stripePriceId: '' }
+    return { type: 'professional', limits: {}, stripePriceId: 'price_pro' }
+  }),
+}))
+
 vi.mock('../../middlewares/require-api-key.middleware', () => ({
   requireApiKey: vi.fn((_req: Request, _res: Response, next: () => void) => next()),
 }))
@@ -90,7 +97,8 @@ vi.mock('@schedulizer/db', () => ({
     },
     subscriptions: {
       organizationId: 'organization_id',
-      plan: 'plan',
+      stripePriceId: 'stripe_price_id',
+      status: 'status',
     },
   },
 }))
@@ -106,7 +114,7 @@ const mockOrganization = {
 
 const mockService = { name: 'Haircut' }
 
-const mockSubscription = { plan: 'professional' }
+const mockSubscription = { stripePriceId: 'price_pro', status: 'active' }
 
 function createMockAppointment(overrides: Record<string, unknown> = {}) {
   const futureDate = new Date(Date.now() + 24 * 3600 * 1000)
@@ -229,7 +237,6 @@ describe('Notifications Routes Integration', () => {
             cancelUrl: expect.stringContaining('http://localhost:4200/booking/test-business/manage/token-123'),
             rescheduleUrl: expect.stringContaining('http://localhost:4200/booking/test-business/manage/token-123'),
           }),
-          organizationWhatsAppEnabled: false,
           planType: 'professional',
         }),
       )

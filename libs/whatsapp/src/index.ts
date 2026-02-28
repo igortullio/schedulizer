@@ -7,6 +7,9 @@ export { verifyWebhookSignature } from './signature'
 export type {
   CancellationTemplateParams,
   ConfirmationTemplateParams,
+  OwnerCancellationTemplateParams,
+  OwnerNewBookingTemplateParams,
+  OwnerRescheduleTemplateParams,
   ReminderTemplateParams,
   RescheduleTemplateParams,
 } from './templates'
@@ -14,11 +17,17 @@ export {
   buildCancellationComponents,
   buildConfirmationComponents,
   buildLoginVerificationComponents,
+  buildOwnerCancellationComponents,
+  buildOwnerNewBookingComponents,
+  buildOwnerRescheduleComponents,
   buildReminderComponents,
   buildRescheduleComponents,
   CANCELLATION_TEMPLATE_NAME,
   CONFIRMATION_TEMPLATE_NAME,
   LOGIN_VERIFICATION_TEMPLATE_NAME,
+  OWNER_CANCELLATION_TEMPLATE_NAME,
+  OWNER_NEW_BOOKING_TEMPLATE_NAME,
+  OWNER_RESCHEDULE_TEMPLATE_NAME,
   REMINDER_TEMPLATE_NAME,
   RESCHEDULE_TEMPLATE_NAME,
 } from './templates'

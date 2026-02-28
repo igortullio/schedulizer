@@ -1,5 +1,11 @@
 # @schedulizer/db
 
+## 0.5.0
+
+### Minor Changes
+
+- [#59](https://github.com/igortullio/schedulizer/pull/59) [`5f31757`](https://github.com/igortullio/schedulizer/commit/5f317572cc05d86b359b1db06ba25bc83419bf62) Thanks [@igortullio](https://github.com/igortullio)! - add WhatsApp integration with notifications and chatbot
+
 ## 0.4.1
 
 ### Patch Changes

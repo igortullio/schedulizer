@@ -24,6 +24,31 @@
     "noShow": "No show",
     "cancel": "Cancel"
   },
+  "createForm": {
+    "title": "New Appointment",
+    "service": "Service",
+    "servicePlaceholder": "Select a service",
+    "date": "Date",
+    "startTime": "Start time",
+    "endTime": "End time",
+    "customerName": "Customer name",
+    "customerNamePlaceholder": "Enter customer name",
+    "customerEmail": "Email",
+    "customerEmailPlaceholder": "customer@example.com",
+    "customerPhone": "Phone",
+    "customerPhonePlaceholder": "Enter phone number",
+    "status": "Status",
+    "notes": "Notes",
+    "notesPlaceholder": "Additional notes (optional)",
+    "create": "Create Appointment",
+    "creating": "Creating...",
+    "errors": {
+      "serviceRequired": "Please select a service.",
+      "customerNameRequired": "Customer name is required.",
+      "timeInvalid": "End time must be after start time.",
+      "createFailed": "Failed to create appointment."
+    }
+  },
   "calendar": {
     "today": "Today",
     "previous": "Previous",

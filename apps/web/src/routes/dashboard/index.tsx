@@ -16,7 +16,8 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { useSubscriptionContext } from '@/contexts/subscription-context'
-import { CalendarView, useAppointments } from '@/features/appointments'
+import { CalendarView, CreateAppointmentModal, useAppointments, useCreateAppointment } from '@/features/appointments'
+import { useServices } from '@/features/services'
 import { TimeBlockFormDialog, useTimeBlocks } from '@/features/time-blocks'
 import { getLocale } from '@/lib/format'
 
@@ -51,7 +52,7 @@ function formatShortDate(dateString: string, locale: string): string {
 export function Component() {
   const { t, i18n } = useTranslation('dashboard')
   const { hasActiveSubscription, isLoading: isSubscriptionLoading } = useSubscriptionContext()
-  const { appointments, state: appointmentsState } = useAppointments()
+  const { appointments, state: appointmentsState, refetch: refetchAppointments } = useAppointments()
   const todayRange = useMemo(getTodayRange, [])
   const timeBlockRange = useMemo(getTimeBlockRange, [])
   const { timeBlocks, state: timeBlocksState, createTimeBlock } = useTimeBlocks(timeBlockRange.from, timeBlockRange.to)
@@ -59,11 +60,21 @@ export function Component() {
   const todayAppointments = appointments.filter(a => a.startDatetime.startsWith(todayRange.from))
   const pendingAppointments = appointments.filter(a => a.status === 'pending')
   const locale = getLocale(i18n.language)
+  const { services } = useServices()
+  const { createAppointment } = useCreateAppointment()
   const [isTimeBlockDialogOpen, setIsTimeBlockDialogOpen] = useState(false)
+  const [isCreateAppointmentOpen, setIsCreateAppointmentOpen] = useState(false)
   const isBlocked = !isSubscriptionLoading && !hasActiveSubscription
   async function handleCreateTimeBlock(data: { date: string; startTime: string; endTime: string; reason?: string }) {
     await createTimeBlock(data)
     setIsTimeBlockDialogOpen(false)
+  }
+  async function handleCreateAppointment(data: Parameters<typeof createAppointment>[0]) {
+    const result = await createAppointment(data)
+    if (result) {
+      setIsCreateAppointmentOpen(false)
+      await refetchAppointments()
+    }
   }
   if (isLoading) {
     return (
@@ -81,10 +92,27 @@ export function Component() {
               {t('overview.todayAppointments')}
               <Badge variant="secondary">{todayAppointments.length}</Badge>
             </CardTitle>
-            <CardAction>
+            <CardAction className="flex items-center gap-1">
               <Button variant="link" size="sm" className="h-auto p-0 text-xs" asChild>
                 <Link to="/dashboard/appointments">{t('sections.viewAll')}</Link>
               </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6"
+                      onClick={() => setIsCreateAppointmentOpen(true)}
+                      disabled={isBlocked}
+                      data-testid="dashboard-create-appointment"
+                    >
+                      <Plus className="h-4 w-4" aria-hidden="true" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>{t('sections.newAppointment')}</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </CardAction>
           </CardHeader>
           <CardContent className="px-3">
@@ -184,6 +212,12 @@ export function Component() {
         isOpen={isTimeBlockDialogOpen}
         onClose={() => setIsTimeBlockDialogOpen(false)}
         onSubmit={handleCreateTimeBlock}
+      />
+      <CreateAppointmentModal
+        isOpen={isCreateAppointmentOpen}
+        onClose={() => setIsCreateAppointmentOpen(false)}
+        onSubmit={handleCreateAppointment}
+        services={services.map(s => ({ id: s.id, name: s.name, durationMinutes: s.durationMinutes }))}
       />
     </div>
   )

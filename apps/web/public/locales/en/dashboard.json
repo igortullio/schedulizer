@@ -21,6 +21,7 @@
     "noTodayAppointments": "No appointments for today.",
     "noPending": "No pending appointments.",
     "noTimeBlocks": "No time blocks registered.",
-    "newTimeBlock": "New time block"
+    "newTimeBlock": "New time block",
+    "newAppointment": "New appointment"
   }
 }

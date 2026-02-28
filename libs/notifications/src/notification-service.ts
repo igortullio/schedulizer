@@ -42,10 +42,9 @@ export class NotificationService {
     this.emailService = deps.emailService
   }
 
-  send(params: SendNotificationParams & { organizationWhatsAppEnabled: boolean; planType: string }): void {
+  send(params: SendNotificationParams & { planType: string }): void {
     const channel = this.channelResolver.resolve({
       recipientPhone: params.recipientPhone,
-      organizationWhatsAppEnabled: params.organizationWhatsAppEnabled,
       planType: params.planType,
     })
     if (channel === 'whatsapp') {
@@ -83,9 +82,7 @@ export class NotificationService {
       })
   }
 
-  private async sendViaWhatsApp(
-    params: SendNotificationParams & { organizationWhatsAppEnabled: boolean; planType: string },
-  ): Promise<void> {
+  private async sendViaWhatsApp(params: SendNotificationParams & { planType: string }): Promise<void> {
     const templateName = EVENT_TO_TEMPLATE[params.event]
     const languageCode = LOCALE_TO_LANGUAGE_CODE[params.locale] ?? 'pt_BR'
     const components = this.buildWhatsAppComponents(params.event, params.data)
@@ -167,13 +164,17 @@ export class NotificationService {
       case 'appointment.confirmed':
         return buildConfirmationComponents({
           customerName: data.customerName ?? '',
+          organizationName: data.organizationName ?? '',
           serviceName: data.serviceName ?? '',
           appointmentDate: data.appointmentDate ?? '',
           appointmentTime: data.appointmentTime ?? '',
+          rescheduleUrlSuffix: data.rescheduleUrlSuffix ?? '',
+          cancelUrlSuffix: data.cancelUrlSuffix ?? '',
         })
       case 'appointment.cancelled':
         return buildCancellationComponents({
           customerName: data.customerName ?? '',
+          organizationName: data.organizationName ?? '',
           serviceName: data.serviceName ?? '',
           appointmentDate: data.appointmentDate ?? '',
           appointmentTime: data.appointmentTime ?? '',
@@ -181,18 +182,24 @@ export class NotificationService {
       case 'appointment.rescheduled':
         return buildRescheduleComponents({
           customerName: data.customerName ?? '',
+          organizationName: data.organizationName ?? '',
           serviceName: data.serviceName ?? '',
           oldDate: data.oldDate ?? '',
           oldTime: data.oldTime ?? '',
           newDate: data.newDate ?? '',
           newTime: data.newTime ?? '',
+          rescheduleUrlSuffix: data.rescheduleUrlSuffix ?? '',
+          cancelUrlSuffix: data.cancelUrlSuffix ?? '',
         })
       case 'appointment.reminder':
         return buildReminderComponents({
           customerName: data.customerName ?? '',
+          organizationName: data.organizationName ?? '',
           serviceName: data.serviceName ?? '',
           appointmentDate: data.appointmentDate ?? '',
           appointmentTime: data.appointmentTime ?? '',
+          rescheduleUrlSuffix: data.rescheduleUrlSuffix ?? '',
+          cancelUrlSuffix: data.cancelUrlSuffix ?? '',
         })
     }
   }

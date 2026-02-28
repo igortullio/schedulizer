@@ -49,7 +49,7 @@ describe('NotificationService', () => {
       recipientEmail: 'test@example.com',
       locale: 'pt-BR',
       data: baseData,
-      organizationWhatsAppEnabled: true,
+
       planType: 'professional',
     })
     expect(mockWhatsAppService.sendTemplate).toHaveBeenCalledWith({
@@ -61,9 +61,22 @@ describe('NotificationService', () => {
           type: 'body',
           parameters: [
             { type: 'text', text: 'João' },
+            { type: 'text', text: 'Barbearia Legal' },
             { type: 'text', text: 'Corte de Cabelo' },
             { type: 'text', text: '20/02/2026 14:00' },
           ],
+        },
+        {
+          type: 'button',
+          sub_type: 'url',
+          index: 0,
+          parameters: [{ type: 'text', text: '' }],
+        },
+        {
+          type: 'button',
+          sub_type: 'url',
+          index: 1,
+          parameters: [{ type: 'text', text: '' }],
         },
       ],
     })
@@ -76,7 +89,7 @@ describe('NotificationService', () => {
       recipientEmail: 'test@example.com',
       locale: 'pt-BR',
       data: baseData,
-      organizationWhatsAppEnabled: false,
+
       planType: 'essential',
     })
     expect(mockEmailService.sendBookingConfirmation).toHaveBeenCalledWith({
@@ -99,7 +112,7 @@ describe('NotificationService', () => {
       recipientEmail: 'test@example.com',
       locale: 'pt-BR',
       data: baseData,
-      organizationWhatsAppEnabled: false,
+
       planType: 'essential',
     })
     expect(mockEmailService.sendBookingCancellation).toHaveBeenCalled()
@@ -112,7 +125,7 @@ describe('NotificationService', () => {
       recipientEmail: 'test@example.com',
       locale: 'pt-BR',
       data: { ...baseData, oldDate: '19/02/2026', oldTime: '10:00', newDate: '20/02/2026', newTime: '14:00' },
-      organizationWhatsAppEnabled: false,
+
       planType: 'essential',
     })
     expect(mockEmailService.sendBookingReschedule).toHaveBeenCalled()
@@ -125,7 +138,7 @@ describe('NotificationService', () => {
       recipientEmail: 'test@example.com',
       locale: 'pt-BR',
       data: baseData,
-      organizationWhatsAppEnabled: false,
+
       planType: 'essential',
     })
     expect(mockEmailService.sendAppointmentReminder).toHaveBeenCalled()
@@ -138,7 +151,7 @@ describe('NotificationService', () => {
       recipientPhone: '+5511999999999',
       locale: 'en',
       data: baseData,
-      organizationWhatsAppEnabled: true,
+
       planType: 'professional',
     })
     expect(mockWhatsAppService.sendTemplate).toHaveBeenCalledWith(expect.objectContaining({ languageCode: 'en_US' }))
@@ -151,7 +164,7 @@ describe('NotificationService', () => {
       organizationId: 'org-1',
       locale: 'pt-BR',
       data: baseData,
-      organizationWhatsAppEnabled: false,
+
       planType: 'essential',
     })
     expect(mockEmailService.sendBookingConfirmation).not.toHaveBeenCalled()
@@ -168,7 +181,6 @@ describe('NotificationService', () => {
         recipientPhone: '+5511999999999',
         locale: 'pt-BR',
         data: baseData,
-        organizationWhatsAppEnabled: true,
         planType: 'professional',
       })
     }).not.toThrow()
@@ -191,7 +203,6 @@ describe('NotificationService', () => {
         recipientEmail: 'test@example.com',
         locale: 'pt-BR',
         data: baseData,
-        organizationWhatsAppEnabled: false,
         planType: 'essential',
       })
     }).not.toThrow()
@@ -212,7 +223,7 @@ describe('NotificationService', () => {
       recipientPhone: '+5511999999999',
       locale: 'pt-BR',
       data: baseData,
-      organizationWhatsAppEnabled: true,
+
       planType: 'professional',
     })
     await vi.waitFor(() => {
@@ -240,7 +251,6 @@ describe('NotificationService', () => {
         recipientPhone: '+5511999999999',
         locale: 'pt-BR',
         data: { ...baseData, oldDate: '19/02/2026', oldTime: '10:00', newDate: '20/02/2026', newTime: '14:00' },
-        organizationWhatsAppEnabled: true,
         planType: 'professional',
       })
       expect(mockWhatsAppService.sendTemplate).toHaveBeenCalledWith(expect.objectContaining({ templateName: template }))

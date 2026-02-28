@@ -17,6 +17,5 @@ export interface SendNotificationParams {
 
 export interface ResolveChannelParams {
   recipientPhone?: string
-  organizationWhatsAppEnabled: boolean
   planType: string
 }

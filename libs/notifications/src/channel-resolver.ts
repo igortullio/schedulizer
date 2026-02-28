@@ -4,7 +4,6 @@ import type { NotificationChannel, ResolveChannelParams } from './notification-t
 export class ChannelResolver {
   resolve(params: ResolveChannelParams): NotificationChannel {
     if (!params.recipientPhone) return 'email'
-    if (!params.organizationWhatsAppEnabled) return 'email'
     const planLimits = PLAN_CONFIGS[params.planType as keyof typeof PLAN_CONFIGS]
     if (!planLimits?.notifications.whatsapp) return 'email'
     return 'whatsapp'

@@ -90,4 +90,59 @@ describe('MemberList', () => {
     await user.click(screen.getByTestId('remove-member-m3'))
     expect(onRemove).toHaveBeenCalledWith(regularMember)
   })
+
+  it('owner can see edit button for all members including self', () => {
+    render(
+      <MemberList
+        members={allMembers}
+        currentUserId="u1"
+        currentUserRole="owner"
+        onRemove={vi.fn()}
+        onEdit={vi.fn()}
+      />,
+    )
+    expect(screen.getByTestId('edit-member-m1')).toBeInTheDocument()
+    expect(screen.getByTestId('edit-member-m2')).toBeInTheDocument()
+    expect(screen.getByTestId('edit-member-m3')).toBeInTheDocument()
+  })
+
+  it('admin can see edit button for members and self', () => {
+    render(
+      <MemberList
+        members={allMembers}
+        currentUserId="u2"
+        currentUserRole="admin"
+        onRemove={vi.fn()}
+        onEdit={vi.fn()}
+      />,
+    )
+    expect(screen.getByTestId('edit-member-m1')).toBeInTheDocument()
+    expect(screen.getByTestId('edit-member-m2')).toBeInTheDocument()
+    expect(screen.getByTestId('edit-member-m3')).toBeInTheDocument()
+  })
+
+  it('regular member can only see edit button for self', () => {
+    render(
+      <MemberList
+        members={allMembers}
+        currentUserId="u3"
+        currentUserRole="member"
+        onRemove={vi.fn()}
+        onEdit={vi.fn()}
+      />,
+    )
+    expect(screen.queryByTestId('edit-member-m1')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('edit-member-m2')).not.toBeInTheDocument()
+    expect(screen.getByTestId('edit-member-m3')).toBeInTheDocument()
+  })
+
+  it('edit button calls onEdit with correct member data when clicked', async () => {
+    const user = userEvent.setup()
+    const onEdit = vi.fn()
+    render(
+      <MemberList members={allMembers} currentUserId="u1" currentUserRole="owner" onRemove={vi.fn()} onEdit={onEdit} />,
+    )
+    await user.click(screen.getByTestId('edit-member-m3'))
+    expect(onEdit).toHaveBeenCalledWith(regularMember)
+  })
 })

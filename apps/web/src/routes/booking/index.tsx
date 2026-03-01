@@ -55,20 +55,23 @@ export function Component() {
     setCustomerName('')
     setStep('services')
   }
-  async function handleSubmitBooking(formData: { customerName: string; customerEmail: string; customerPhone: string }) {
+  async function handleSubmitBooking(formData: {
+    customerName: string
+    customerEmail: string
+    customerPhone: string
+    notes?: string
+  }) {
     if (!selectedService || !selectedSlot) return
     setCustomerName(formData.customerName)
-    const result = await createAppointment(
-      slug,
-      {
-        serviceId: selectedService.id,
-        startTime: selectedSlot.startTime,
-        customerName: formData.customerName,
-        customerEmail: formData.customerEmail,
-        customerPhone: formData.customerPhone,
-      },
-      i18n.language,
-    )
+    const data: Parameters<typeof createAppointment>[1] = {
+      serviceId: selectedService.id,
+      startTime: selectedSlot.startTime,
+      customerName: formData.customerName,
+      customerEmail: formData.customerEmail,
+      customerPhone: formData.customerPhone,
+    }
+    if (formData.notes) data.notes = formData.notes
+    const result = await createAppointment(slug, data, i18n.language)
     if (result) {
       setStep('confirmation')
     }

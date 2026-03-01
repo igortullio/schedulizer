@@ -64,10 +64,21 @@
     "resend": "Falha ao reenviar convite.",
     "planLimit": "Você atingiu o limite de membros do seu plano."
   },
+  "editDialog": {
+    "title": "Editar membro",
+    "description": "Atualize as informações de contato do membro.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "membro@exemplo.com",
+    "phoneLabel": "Número de telefone",
+    "phonePlaceholder": "+5511999999999",
+    "submit": "Salvar alterações",
+    "saving": "Salvando..."
+  },
   "success": {
     "invite": "Convite enviado com sucesso.",
     "remove": "Membro removido com sucesso.",
     "cancel": "Convite cancelado com sucesso.",
-    "resend": "Convite reenviado com sucesso."
+    "resend": "Convite reenviado com sucesso.",
+    "edit": "Membro atualizado com sucesso."
   }
 }

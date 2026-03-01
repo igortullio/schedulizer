@@ -1,6 +1,6 @@
 import { Badge, Button, Card, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@igortullio-ui/react'
 import type { AppointmentStatus } from '@schedulizer/shared-types'
-import { Calendar, Check, Clock, Mail, Phone, User, X, XCircle } from 'lucide-react'
+import { Calendar, Check, Clock, FileText, Mail, Phone, User, X, XCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { getLocale } from '@/lib/format'
 
@@ -13,6 +13,7 @@ interface AppointmentCardProps {
   startDatetime: string
   endDatetime: string
   status: AppointmentStatus
+  notes?: string | null
   onConfirm: (id: string) => void
   onComplete: (id: string) => void
   onNoShow: (id: string) => void
@@ -53,6 +54,7 @@ export function AppointmentCard({
   startDatetime,
   endDatetime,
   status,
+  notes,
   onConfirm,
   onComplete,
   onNoShow,
@@ -89,15 +91,25 @@ export function AppointmentCard({
               <Clock className="h-3 w-3" aria-hidden="true" />
               {formatTime(startDatetime, locale)} - {formatTime(endDatetime, locale)}
             </span>
-            <span className="flex shrink-0 items-center gap-1">
-              <Mail className="h-3 w-3" aria-hidden="true" />
-              {customerEmail}
-            </span>
-            <span className="flex shrink-0 items-center gap-1">
-              <Phone className="h-3 w-3" aria-hidden="true" />
-              {customerPhone}
-            </span>
+            {customerEmail ? (
+              <span className="flex shrink-0 items-center gap-1">
+                <Mail className="h-3 w-3" aria-hidden="true" />
+                {customerEmail}
+              </span>
+            ) : null}
+            {customerPhone ? (
+              <span className="flex shrink-0 items-center gap-1">
+                <Phone className="h-3 w-3" aria-hidden="true" />
+                {customerPhone}
+              </span>
+            ) : null}
           </div>
+          {notes ? (
+            <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground" data-testid="appointment-notes">
+              <FileText className="h-3 w-3 shrink-0" aria-hidden="true" />
+              <span className="truncate">{notes}</span>
+            </div>
+          ) : null}
         </div>
         <TooltipProvider>
           <div className="flex shrink-0 items-center">

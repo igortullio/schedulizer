@@ -64,10 +64,21 @@
     "resend": "Failed to resend invitation.",
     "planLimit": "You have reached the member limit for your plan."
   },
+  "editDialog": {
+    "title": "Edit member",
+    "description": "Update the member's contact information.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "member@example.com",
+    "phoneLabel": "Phone number",
+    "phonePlaceholder": "+1234567890",
+    "submit": "Save changes",
+    "saving": "Saving..."
+  },
   "success": {
     "invite": "Invitation sent successfully.",
     "remove": "Member removed successfully.",
     "cancel": "Invitation cancelled successfully.",
-    "resend": "Invitation resent successfully."
+    "resend": "Invitation resent successfully.",
+    "edit": "Member updated successfully."
   }
 }

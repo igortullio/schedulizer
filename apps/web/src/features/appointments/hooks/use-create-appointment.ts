@@ -1,64 +1,71 @@
 import { clientEnv } from '@schedulizer/env/client'
+import type { AppointmentStatus } from '@schedulizer/shared-types'
 import { useCallback, useState } from 'react'
 
-const DEFAULT_LOCALE = 'pt-BR'
-
-interface CreateAppointmentData {
+export interface CreateAppointmentData {
   serviceId: string
-  startTime: string
+  startDatetime: string
+  endDatetime: string
   customerName: string
-  customerEmail: string
-  customerPhone: string
+  customerEmail?: string
+  customerPhone?: string
+  status?: AppointmentStatus
   notes?: string
 }
 
-export interface AppointmentResult {
+export interface CreateAppointmentResult {
   id: string
+  organizationId: string
+  serviceId: string
   startDatetime: string
   endDatetime: string
   status: string
-  managementToken: string
+  customerName: string
+  customerEmail: string | null
+  customerPhone: string | null
+  notes: string | null
 }
 
 type CreateState = 'idle' | 'loading' | 'success' | 'error' | 'conflict'
 
 interface UseCreateAppointmentReturn {
-  result: AppointmentResult | null
+  result: CreateAppointmentResult | null
   state: CreateState
   error: string | null
-  createAppointment: (slug: string, data: CreateAppointmentData, locale?: string) => Promise<AppointmentResult | null>
+  createAppointment: (data: CreateAppointmentData) => Promise<CreateAppointmentResult | null>
 }
 
 export function useCreateAppointment(): UseCreateAppointmentReturn {
-  const [result, setResult] = useState<AppointmentResult | null>(null)
+  const [result, setResult] = useState<CreateAppointmentResult | null>(null)
   const [state, setState] = useState<CreateState>('idle')
   const [error, setError] = useState<string | null>(null)
   const createAppointment = useCallback(
-    async (slug: string, data: CreateAppointmentData, locale?: string): Promise<AppointmentResult | null> => {
+    async (data: CreateAppointmentData): Promise<CreateAppointmentResult | null> => {
       setState('loading')
       setError(null)
       try {
-        const response = await fetch(`${clientEnv.apiUrl}/api/booking/${slug}/appointments`, {
+        const response = await fetch(`${clientEnv.apiUrl}/api/appointments`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept-Language': locale ?? DEFAULT_LOCALE },
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),
         })
         if (response.status === 409) {
+          const errorData = await response.json()
           setState('conflict')
-          setError('Slot no longer available')
+          setError(errorData.error?.message ?? 'Time conflict')
           return null
         }
         if (!response.ok) {
           const errorData = await response.json()
           throw new Error(errorData.error?.message ?? 'Failed to create appointment')
         }
-        const responseData: { data: AppointmentResult } = await response.json()
+        const responseData: { data: CreateAppointmentResult } = await response.json()
         setResult(responseData.data)
         setState('success')
         return responseData.data
       } catch (err) {
         console.error('Failed to create appointment', {
-          slug,
           error: err instanceof Error ? err.message : 'Unknown error',
         })
         setError(err instanceof Error ? err.message : 'Failed to create appointment')

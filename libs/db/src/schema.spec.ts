@@ -184,6 +184,30 @@ describe('Organizations Schema', () => {
   it('should have language column', () => {
     expect(organizations).toHaveProperty('language')
   })
+
+  it('should not have unique constraint on name column', () => {
+    const nameColumn = organizations.name as unknown as { config: { isUnique: boolean } }
+    expect(nameColumn.config.isUnique).toBe(false)
+  })
+
+  it('should have unique constraint on slug column', () => {
+    const slugColumn = organizations.slug as unknown as { config: { isUnique: boolean } }
+    expect(slugColumn.config.isUnique).toBe(true)
+  })
+
+  it('should have name column as not null without unique', () => {
+    const nameColumn = organizations.name as unknown as { config: { notNull: boolean; isUnique: boolean } }
+    expect(nameColumn.config.notNull).toBe(true)
+    expect(nameColumn.config.isUnique).toBe(false)
+  })
+
+  it('should not have unique constraint on name in initial migration', () => {
+    const migrationPath = resolve(__dirname, '../drizzle/0000_wet_morlun.sql')
+    const migrationContent = readFileSync(migrationPath, 'utf-8')
+    expect(migrationContent).toContain('CONSTRAINT "organizations_slug_unique" UNIQUE("slug")')
+    expect(migrationContent).not.toContain('UNIQUE("name")')
+    expect(migrationContent).not.toContain('organizations_name_unique')
+  })
 })
 
 describe('Schedules Schema', () => {

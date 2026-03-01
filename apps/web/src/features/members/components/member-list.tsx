@@ -9,7 +9,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@igortullio-ui/react'
-import { Trash2 } from 'lucide-react'
+import { Pencil, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { Role } from '@/lib/permissions'
 import { hasPermission } from '@/lib/permissions'
@@ -20,6 +20,8 @@ interface MemberListProps {
   currentUserId: string
   currentUserRole: Role
   onRemove: (member: Member) => void
+  onEdit?: (member: Member) => void
+  isEditDisabled?: boolean
 }
 
 const ROLE_VARIANT: Record<string, 'default' | 'secondary' | 'outline'> = {
@@ -35,7 +37,19 @@ function canRemoveMember(currentRole: Role, targetRole: string, currentUserId: s
   return hasPermission(currentRole, 'member', 'delete')
 }
 
-export function MemberList({ members, currentUserId, currentUserRole, onRemove }: MemberListProps) {
+function canEditMember(currentRole: Role, currentUserId: string, targetUserId: string): boolean {
+  if (currentUserId === targetUserId) return true
+  return currentRole === 'owner' || currentRole === 'admin'
+}
+
+export function MemberList({
+  members,
+  currentUserId,
+  currentUserRole,
+  onRemove,
+  onEdit,
+  isEditDisabled,
+}: MemberListProps) {
   const { t } = useTranslation('members')
   if (members.length === 0) {
     return (
@@ -70,6 +84,25 @@ export function MemberList({ members, currentUserId, currentUserRole, onRemove }
               <Badge variant={ROLE_VARIANT[member.role] ?? 'outline'}>
                 {t(`roles.${member.role}` as 'roles.owner')}
               </Badge>
+              {onEdit && canEditMember(currentUserRole, currentUserId, member.userId) ? (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onEdit(member)}
+                        disabled={isEditDisabled}
+                        className="h-8 w-8"
+                        data-testid={`edit-member-${member.id}`}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>{t('editDialog.title')}</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              ) : null}
               {canRemoveMember(currentUserRole, member.role, currentUserId, member.userId) ? (
                 <TooltipProvider>
                   <Tooltip>

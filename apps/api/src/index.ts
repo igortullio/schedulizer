@@ -18,6 +18,7 @@ import { organizationsRoutes } from './routes/organizations.routes'
 import { schedulesRoutes } from './routes/schedules.routes'
 import { servicesRoutes } from './routes/services.routes'
 import { timeBlocksRoutes } from './routes/time-blocks.routes'
+import { userRoutes } from './routes/user.routes'
 import { whatsappWebhookRouter } from './routes/whatsapp-webhook.routes'
 
 const app = express()
@@ -67,6 +68,7 @@ app.use('/api/booking', bookingRoutes)
 app.use('/api/invitations', invitationsRoutes)
 app.use('/api/members', membersRoutes)
 app.use('/api/notifications', notificationsRoutes)
+app.use('/api/users', userRoutes)
 
 // Health check
 app.use('/health', healthRoutes)

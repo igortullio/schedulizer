@@ -21,6 +21,7 @@
     "noTodayAppointments": "Nenhum agendamento para hoje.",
     "noPending": "Nenhum agendamento pendente.",
     "noTimeBlocks": "Nenhum bloqueio cadastrado.",
-    "newTimeBlock": "Novo bloqueio"
+    "newTimeBlock": "Novo bloqueio",
+    "newAppointment": "Novo agendamento"
   }
 }

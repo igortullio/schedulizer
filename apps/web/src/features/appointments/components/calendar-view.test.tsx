@@ -19,6 +19,19 @@ vi.mock('@/hooks/use-is-mobile', () => ({
   useIsMobile: mockIsMobile,
 }))
 
+const mockMoveAppointment = vi.fn()
+const mockResetState = vi.fn()
+
+vi.mock('../hooks/use-move-appointment', () => ({
+  useMoveAppointment: () => ({
+    state: 'idle',
+    error: null,
+    conflictingAppointments: [],
+    moveAppointment: mockMoveAppointment,
+    resetState: mockResetState,
+  }),
+}))
+
 const mockAppointments: AppointmentResponse[] = [
   {
     id: 'apt-1',
@@ -99,6 +112,34 @@ describe('CalendarView', () => {
 
   it('renders with empty appointments', () => {
     render(<CalendarView appointments={[]} />)
+    expect(screen.getByTestId('calendar-view')).toBeInTheDocument()
+  })
+
+  it('renders with drag-and-drop enabled (withDragAndDrop HOC applied)', () => {
+    render(<CalendarView appointments={mockAppointments} />)
+    expect(screen.getByTestId('calendar-view')).toBeInTheDocument()
+  })
+
+  it('accepts onRefetch callback prop', () => {
+    const onRefetch = vi.fn()
+    render(<CalendarView appointments={[]} onRefetch={onRefetch} />)
+    expect(screen.getByTestId('calendar-view')).toBeInTheDocument()
+  })
+
+  it('renders with time blocks that are not draggable', () => {
+    const timeBlocks = [
+      {
+        id: 'tb-1',
+        organizationId: 'org-1',
+        date: '2025-06-15',
+        startTime: '12:00:00',
+        endTime: '13:00:00',
+        reason: 'Lunch break',
+        createdAt: '2025-06-10T10:00:00.000Z',
+        updatedAt: '2025-06-10T10:00:00.000Z',
+      },
+    ]
+    render(<CalendarView appointments={mockAppointments} timeBlocks={timeBlocks} />)
     expect(screen.getByTestId('calendar-view')).toBeInTheDocument()
   })
 })

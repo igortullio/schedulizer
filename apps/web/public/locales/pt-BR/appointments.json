@@ -24,6 +24,37 @@
     "noShow": "Não compareceu",
     "cancel": "Cancelar"
   },
+  "createForm": {
+    "title": "Novo Agendamento",
+    "service": "Serviço",
+    "servicePlaceholder": "Selecione um serviço",
+    "date": "Data",
+    "startTime": "Horário de início",
+    "endTime": "Horário de término",
+    "customerName": "Nome do cliente",
+    "customerNamePlaceholder": "Digite o nome do cliente",
+    "customerEmail": "Email",
+    "customerEmailPlaceholder": "cliente@exemplo.com",
+    "customerPhone": "Telefone",
+    "customerPhonePlaceholder": "Digite o telefone",
+    "status": "Status",
+    "notes": "Observações",
+    "notesPlaceholder": "Observações adicionais (opcional)",
+    "create": "Criar Agendamento",
+    "creating": "Criando...",
+    "errors": {
+      "serviceRequired": "Selecione um serviço.",
+      "customerNameRequired": "O nome do cliente é obrigatório.",
+      "timeInvalid": "O horário de término deve ser após o horário de início.",
+      "createFailed": "Falha ao criar agendamento."
+    }
+  },
+  "conflict": {
+    "title": "Conflito de Horário",
+    "description": "Este movimento conflita com os seguintes agendamentos. Deseja forçar a movimentação?",
+    "cancel": "Cancelar",
+    "confirm": "Forçar Movimentação"
+  },
   "calendar": {
     "today": "Hoje",
     "previous": "Anterior",

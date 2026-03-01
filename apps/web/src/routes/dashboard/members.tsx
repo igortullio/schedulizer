@@ -17,10 +17,12 @@ import {
   CancelInvitationDialog,
   InvitationList,
   InviteMemberDialog,
+  MemberEditDialog,
   MemberList,
   RemoveMemberDialog,
   useMemberActions,
   useMembers,
+  useUpdateUser,
 } from '@/features/members'
 import { authClient } from '@/lib/auth-client'
 import type { Role } from '@/lib/permissions'
@@ -51,7 +53,9 @@ export function Component() {
     refetchMembers,
     refetchInvitations,
   } = useMembers()
+  const { error: editError, updateUser } = useUpdateUser()
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false)
+  const [memberToEdit, setMemberToEdit] = useState<Member | null>(null)
   const [memberToRemove, setMemberToRemove] = useState<Member | null>(null)
   const [invitationToCancel, setInvitationToCancel] = useState<Invitation | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
@@ -88,6 +92,15 @@ export function Component() {
   })
   const canAddMembers = usage?.members.canAdd ?? true
   const isBlocked = !isSubscriptionLoading && !hasActiveSubscription
+  async function handleEditSubmit(userId: string, data: { email?: string; phoneNumber?: string }) {
+    setSuccessMessage(null)
+    const result = await updateUser(userId, data)
+    if (result) {
+      refetchMembers()
+      setSuccessMessage(t('success.edit'))
+      setMemberToEdit(null)
+    }
+  }
   async function handleInviteSubmit(email: string, role: 'admin' | 'member') {
     setInviteError(null)
     setSuccessMessage(null)
@@ -197,6 +210,8 @@ export function Component() {
               currentUserId={currentUserId}
               currentUserRole={currentUserRole}
               onRemove={setMemberToRemove}
+              onEdit={setMemberToEdit}
+              isEditDisabled={isBlocked}
             />
           )}
         </div>
@@ -233,6 +248,13 @@ export function Component() {
           setRemoveError(null)
         }}
         onConfirm={handleRemoveConfirm}
+      />
+      <MemberEditDialog
+        isOpen={memberToEdit !== null}
+        member={memberToEdit}
+        error={editError}
+        onClose={() => setMemberToEdit(null)}
+        onSubmit={handleEditSubmit}
       />
       <CancelInvitationDialog
         isOpen={invitationToCancel !== null}

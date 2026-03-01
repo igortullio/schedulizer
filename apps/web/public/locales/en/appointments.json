@@ -49,6 +49,12 @@
       "createFailed": "Failed to create appointment."
     }
   },
+  "conflict": {
+    "title": "Time Conflict",
+    "description": "This move conflicts with the following appointments. Do you want to force the move?",
+    "cancel": "Cancel",
+    "confirm": "Force Move"
+  },
   "calendar": {
     "today": "Today",
     "previous": "Previous",

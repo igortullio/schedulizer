@@ -49,6 +49,12 @@
       "createFailed": "Falha ao criar agendamento."
     }
   },
+  "conflict": {
+    "title": "Conflito de Horário",
+    "description": "Este movimento conflita com os seguintes agendamentos. Deseja forçar a movimentação?",
+    "cancel": "Cancelar",
+    "confirm": "Forçar Movimentação"
+  },
   "calendar": {
     "today": "Hoje",
     "previous": "Anterior",

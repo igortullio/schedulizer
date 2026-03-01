@@ -1,5 +1,11 @@
 # @schedulizer/api
 
+## 0.7.0
+
+### Minor Changes
+
+- [#64](https://github.com/igortullio/schedulizer/pull/64) [`550d6e7`](https://github.com/igortullio/schedulizer/commit/550d6e793187ff256b95875d4695f4b85dda73c5) Thanks [@igortullio](https://github.com/igortullio)! - booking improvements, appointment management, and auth fix
+
 ## 0.6.0
 
 ### Minor Changes

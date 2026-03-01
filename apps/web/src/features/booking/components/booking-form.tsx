@@ -8,8 +8,9 @@ import {
   CardTitle,
   Input,
   Label,
+  Textarea,
 } from '@igortullio-ui/react'
-import { ChevronLeft, Loader2 } from 'lucide-react'
+import { Calendar, ChevronLeft, Clock, Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PhoneInput } from '@/components/phone-input'
@@ -23,7 +24,7 @@ interface BookingFormProps {
   slot: TimeSlot
   isSubmitting: boolean
   error: string | null
-  onSubmit: (data: { customerName: string; customerEmail: string; customerPhone: string }) => void
+  onSubmit: (data: { customerName: string; customerEmail: string; customerPhone: string; notes?: string }) => void
   onBack: () => void
 }
 
@@ -32,6 +33,7 @@ export function BookingForm({ service, slot, isSubmitting, error, onSubmit, onBa
   const [customerName, setCustomerName] = useState('')
   const [customerEmail, setCustomerEmail] = useState('')
   const [customerPhone, setCustomerPhone] = useState('')
+  const [notes, setNotes] = useState('')
   const [formError, setFormError] = useState<string | null>(null)
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -48,11 +50,13 @@ export function BookingForm({ service, slot, isSubmitting, error, onSubmit, onBa
       setFormError(t('form.errors.phoneInvalid'))
       return
     }
-    onSubmit({
+    const submitData: { customerName: string; customerEmail: string; customerPhone: string; notes?: string } = {
       customerName: customerName.trim(),
       customerEmail: customerEmail.trim(),
       customerPhone: customerPhone.trim(),
-    })
+    }
+    if (notes.trim()) submitData.notes = notes.trim()
+    onSubmit(submitData)
   }
   const displayError = formError ?? error
   const locale = i18n.language === 'pt-BR' ? 'pt-BR' : 'en-US'
@@ -66,18 +70,20 @@ export function BookingForm({ service, slot, isSubmitting, error, onSubmit, onBa
           {t('form.back')}
         </Button>
       </div>
-      <Card className="mb-4">
-        <CardContent className="pt-4">
-          <div className="text-sm text-muted-foreground">
-            <p className="font-medium text-foreground">{service.name}</p>
-            <p>
+      <Card className="mb-4 border-l-4 border-l-primary">
+        <CardContent>
+          <p className="mb-2 text-base font-semibold text-foreground">{service.name}</p>
+          <div className="flex flex-col gap-1 text-sm text-muted-foreground">
+            <span className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-primary" aria-hidden="true" />
               {slotDate.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-            </p>
-            <p>
+            </span>
+            <span className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-primary" aria-hidden="true" />
               {slotDate.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}
               {' - '}
               {slotEndDate.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}
-            </p>
+            </span>
           </div>
         </CardContent>
       </Card>
@@ -122,6 +128,16 @@ export function BookingForm({ service, slot, isSubmitting, error, onSubmit, onBa
                 value={customerPhone}
                 onChange={setCustomerPhone}
                 data-testid="customer-phone-input"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="notes">{t('form.notes')}</Label>
+              <Textarea
+                id="notes"
+                value={notes}
+                onChange={e => setNotes(e.target.value)}
+                placeholder={t('form.notesPlaceholder')}
+                data-testid="notes-input"
               />
             </div>
             <Button type="submit" disabled={isSubmitting} className="w-full" data-testid="submit-booking">

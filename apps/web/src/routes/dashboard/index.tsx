@@ -207,7 +207,7 @@ export function Component() {
           </CardContent>
         </Card>
       </div>
-      <CalendarView appointments={appointments} timeBlocks={timeBlocks} />
+      <CalendarView appointments={appointments} timeBlocks={timeBlocks} onRefetch={refetchAppointments} />
       <TimeBlockFormDialog
         isOpen={isTimeBlockDialogOpen}
         onClose={() => setIsTimeBlockDialogOpen(false)}

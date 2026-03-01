@@ -33,6 +33,8 @@
     "emailPlaceholder": "your@email.com",
     "phone": "Phone",
     "phonePlaceholder": "(11) 99999-9999",
+    "notes": "Notes",
+    "notesPlaceholder": "Any notes for the appointment? (optional)",
     "submit": "Confirm booking",
     "submitting": "Booking...",
     "errors": {

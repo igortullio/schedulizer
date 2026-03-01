@@ -132,6 +132,7 @@ export function Component() {
               startDatetime={appointment.startDatetime}
               endDatetime={appointment.endDatetime}
               status={appointment.status}
+              notes={appointment.notes}
               onConfirm={handleConfirm}
               onComplete={handleComplete}
               onNoShow={handleNoShow}

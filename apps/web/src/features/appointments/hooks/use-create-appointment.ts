@@ -1,4 +1,5 @@
 import { clientEnv } from '@schedulizer/env/client'
+import type { AppointmentStatus } from '@schedulizer/shared-types'
 import { useCallback, useState } from 'react'
 
 export interface CreateAppointmentData {
@@ -8,7 +9,7 @@ export interface CreateAppointmentData {
   customerName: string
   customerEmail?: string
   customerPhone?: string
-  status?: 'pending' | 'confirmed' | 'cancelled'
+  status?: AppointmentStatus
   notes?: string
 }
 
@@ -52,12 +53,12 @@ export function useCreateAppointment(): UseCreateAppointmentReturn {
         if (response.status === 409) {
           const errorData = await response.json()
           setState('conflict')
-          setError(errorData.error ?? 'Time conflict')
+          setError(errorData.error?.message ?? 'Time conflict')
           return null
         }
         if (!response.ok) {
           const errorData = await response.json()
-          throw new Error(errorData.error ?? 'Failed to create appointment')
+          throw new Error(errorData.error?.message ?? 'Failed to create appointment')
         }
         const responseData: { data: CreateAppointmentResult } = await response.json()
         setResult(responseData.data)

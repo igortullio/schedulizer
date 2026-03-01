@@ -66,7 +66,7 @@ describe('useCreateAppointment', () => {
     mockFetch.mockResolvedValueOnce({
       ok: false,
       status: 400,
-      json: () => Promise.resolve({ error: 'Validation error' }),
+      json: () => Promise.resolve({ error: { message: 'Validation error', code: 'INVALID_REQUEST' } }),
     })
     const { result } = renderHook(() => useCreateAppointment())
     let created: unknown
@@ -82,7 +82,7 @@ describe('useCreateAppointment', () => {
     mockFetch.mockResolvedValueOnce({
       ok: false,
       status: 404,
-      json: () => Promise.resolve({ error: 'Service not found' }),
+      json: () => Promise.resolve({ error: { message: 'Service not found', code: 'NOT_FOUND' } }),
     })
     const { result } = renderHook(() => useCreateAppointment())
     let created: unknown
@@ -98,7 +98,11 @@ describe('useCreateAppointment', () => {
     mockFetch.mockResolvedValueOnce({
       ok: false,
       status: 409,
-      json: () => Promise.resolve({ error: 'Time conflict', data: { conflictingAppointments: [] } }),
+      json: () =>
+        Promise.resolve({
+          error: { message: 'Time conflict', code: 'CONFLICT' },
+          data: { conflictingAppointments: [] },
+        }),
     })
     const { result } = renderHook(() => useCreateAppointment())
     let created: unknown

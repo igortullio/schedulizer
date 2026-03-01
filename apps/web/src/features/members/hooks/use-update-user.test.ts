@@ -55,7 +55,7 @@ describe('useUpdateUser', () => {
   it('handles 400 validation error and sets error message', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: false,
-      json: () => Promise.resolve({ error: 'Validation error' }),
+      json: () => Promise.resolve({ error: { message: 'Validation error', code: 'INVALID_REQUEST' } }),
     })
     const { result } = renderHook(() => useUpdateUser())
     await act(async () => {
@@ -69,7 +69,7 @@ describe('useUpdateUser', () => {
   it('handles 403 forbidden error', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: false,
-      json: () => Promise.resolve({ error: 'Forbidden' }),
+      json: () => Promise.resolve({ error: { message: 'Forbidden', code: 'FORBIDDEN' } }),
     })
     const { result } = renderHook(() => useUpdateUser())
     await act(async () => {
@@ -82,7 +82,7 @@ describe('useUpdateUser', () => {
   it('handles 404 user not found error', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: false,
-      json: () => Promise.resolve({ error: 'User not found' }),
+      json: () => Promise.resolve({ error: { message: 'User not found', code: 'NOT_FOUND' } }),
     })
     const { result } = renderHook(() => useUpdateUser())
     await act(async () => {
@@ -95,7 +95,7 @@ describe('useUpdateUser', () => {
   it('handles 409 duplicate email error', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: false,
-      json: () => Promise.resolve({ error: 'Email already in use' }),
+      json: () => Promise.resolve({ error: { message: 'Email already in use', code: 'DUPLICATE_EMAIL' } }),
     })
     const { result } = renderHook(() => useUpdateUser())
     await act(async () => {
@@ -108,7 +108,7 @@ describe('useUpdateUser', () => {
   it('handles 409 duplicate phone error', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: false,
-      json: () => Promise.resolve({ error: 'Phone number already in use' }),
+      json: () => Promise.resolve({ error: { message: 'Phone number already in use', code: 'DUPLICATE_PHONE' } }),
     })
     const { result } = renderHook(() => useUpdateUser())
     await act(async () => {

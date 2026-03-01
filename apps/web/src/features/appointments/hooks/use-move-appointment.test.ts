@@ -71,7 +71,11 @@ describe('useMoveAppointment', () => {
     mockFetch.mockResolvedValueOnce({
       ok: false,
       status: 409,
-      json: () => Promise.resolve({ error: 'Time conflict', data: { conflictingAppointments: conflicting } }),
+      json: () =>
+        Promise.resolve({
+          error: { message: 'Time conflict', code: 'CONFLICT' },
+          data: { conflictingAppointments: conflicting },
+        }),
     })
     const { result } = renderHook(() => useMoveAppointment())
     let moved: unknown
@@ -124,7 +128,7 @@ describe('useMoveAppointment', () => {
     mockFetch.mockResolvedValueOnce({
       ok: false,
       status: 404,
-      json: () => Promise.resolve({ error: 'Appointment not found' }),
+      json: () => Promise.resolve({ error: { message: 'Appointment not found', code: 'NOT_FOUND' } }),
     })
     const { result } = renderHook(() => useMoveAppointment())
     let moved: unknown
@@ -140,7 +144,7 @@ describe('useMoveAppointment', () => {
     mockFetch.mockResolvedValueOnce({
       ok: false,
       status: 401,
-      json: () => Promise.resolve({ error: 'Unauthorized' }),
+      json: () => Promise.resolve({ error: { message: 'Unauthorized', code: 'UNAUTHORIZED' } }),
     })
     const { result } = renderHook(() => useMoveAppointment())
     let moved: unknown

@@ -53,7 +53,7 @@ export function useMoveAppointment(): UseMoveAppointmentReturn {
       }
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.error ?? 'Failed to move appointment')
+        throw new Error(errorData.error?.message ?? 'Failed to move appointment')
       }
       const responseData: { data: AppointmentResponse } = await response.json()
       setState('success')

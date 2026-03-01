@@ -32,9 +32,11 @@ interface CreateAppointmentFormData {
   customerName: string
   customerEmail?: string
   customerPhone?: string
-  status: 'pending' | 'confirmed' | 'cancelled'
+  status: AppointmentStatus
   notes?: string
 }
+
+type AppointmentStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no_show'
 
 interface CreateAppointmentModalProps {
   isOpen: boolean
@@ -56,7 +58,7 @@ export function CreateAppointmentModal({ isOpen, onClose, onSubmit, services }: 
   const [customerName, setCustomerName] = useState('')
   const [customerEmail, setCustomerEmail] = useState('')
   const [customerPhone, setCustomerPhone] = useState('')
-  const [status, setStatus] = useState<'pending' | 'confirmed' | 'cancelled'>('confirmed')
+  const [status, setStatus] = useState<AppointmentStatus>('confirmed')
   const [notes, setNotes] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
@@ -103,8 +105,8 @@ export function CreateAppointmentModal({ isOpen, onClose, onSubmit, services }: 
     try {
       const formData: CreateAppointmentFormData = {
         serviceId,
-        startDatetime: `${date}T${startTime}:00`,
-        endDatetime: `${date}T${endTime}:00`,
+        startDatetime: new Date(`${date}T${startTime}:00`).toISOString(),
+        endDatetime: new Date(`${date}T${endTime}:00`).toISOString(),
         customerName: customerName.trim(),
         status,
       }
@@ -221,17 +223,16 @@ export function CreateAppointmentModal({ isOpen, onClose, onSubmit, services }: 
           </div>
           <div className="space-y-2">
             <Label htmlFor="appointment-status">{t('createForm.status')}</Label>
-            <Select
-              value={status}
-              onValueChange={(value: string) => setStatus(value as 'pending' | 'confirmed' | 'cancelled')}
-            >
+            <Select value={status} onValueChange={(value: string) => setStatus(value as AppointmentStatus)}>
               <SelectTrigger id="appointment-status" data-testid="status-select">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="confirmed">{t('status.confirmed')}</SelectItem>
                 <SelectItem value="pending">{t('status.pending')}</SelectItem>
+                <SelectItem value="completed">{t('status.completed')}</SelectItem>
                 <SelectItem value="cancelled">{t('status.cancelled')}</SelectItem>
+                <SelectItem value="no_show">{t('status.no_show')}</SelectItem>
               </SelectContent>
             </Select>
           </div>

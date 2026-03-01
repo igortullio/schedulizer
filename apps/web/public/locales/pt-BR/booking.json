@@ -33,6 +33,8 @@
     "emailPlaceholder": "seu@email.com",
     "phone": "Telefone",
     "phonePlaceholder": "(11) 99999-9999",
+    "notes": "Observações",
+    "notesPlaceholder": "Alguma observação para o agendamento? (opcional)",
     "submit": "Confirmar agendamento",
     "submitting": "Agendando...",
     "errors": {

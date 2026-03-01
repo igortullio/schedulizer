@@ -37,7 +37,7 @@ export function useUpdateUser(): UseUpdateUserReturn {
       })
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.error ?? 'Failed to update user')
+        throw new Error(errorData.error?.message ?? 'Failed to update user')
       }
       const responseData: { data: UpdateUserResult } = await response.json()
       setResult(responseData.data)

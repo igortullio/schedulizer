@@ -7,6 +7,11 @@ import { z } from 'zod'
 import { auth } from '../lib/auth'
 import { requireSubscription } from '../middlewares/require-subscription.middleware'
 
+interface UserUpdateFields {
+  email?: string
+  phoneNumber?: string
+}
+
 const router = Router()
 const db = createDb(serverEnv.databaseUrl)
 
@@ -75,7 +80,7 @@ router.patch('/:userId', async (req, res) => {
         error: { message: 'User not found', code: 'NOT_FOUND' },
       })
     }
-    const updateData: Record<string, string> = {}
+    const updateData: UserUpdateFields = {}
     if (validation.data.phoneNumber !== undefined) {
       updateData.phoneNumber = validation.data.phoneNumber
     }
@@ -83,10 +88,11 @@ router.patch('/:userId', async (req, res) => {
       updateData.email = validation.data.email
     }
     try {
-      const updated = await auth.api.adminUpdateUser({
-        body: { userId, data: updateData },
+      const [updatedUser] = await db.update(schema.users).set(updateData).where(eq(schema.users.id, userId)).returning({
+        id: schema.users.id,
+        email: schema.users.email,
+        phoneNumber: schema.users.phoneNumber,
       })
-      const updatedUser = updated as unknown as Record<string, unknown>
       console.log('User updated', {
         targetUserId: userId,
         updatedBy: session.user.id,

@@ -210,7 +210,7 @@ router.post('/:slug/appointments', async (req, res) => {
         },
       })
     }
-    const { serviceId, startTime, customerName, customerEmail, customerPhone } = validation.data
+    const { serviceId, startTime, customerName, customerEmail, customerPhone, notes } = validation.data
     const [service] = await db
       .select()
       .from(schema.services)
@@ -260,6 +260,7 @@ router.post('/:slug/appointments', async (req, res) => {
           customerName,
           customerEmail,
           customerPhone,
+          notes: notes ?? null,
           language: locale,
         })
         .returning()

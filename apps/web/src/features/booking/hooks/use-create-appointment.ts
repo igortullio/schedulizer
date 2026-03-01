@@ -9,6 +9,7 @@ interface CreateAppointmentData {
   customerName: string
   customerEmail: string
   customerPhone: string
+  notes?: string
 }
 
 export interface AppointmentResult {

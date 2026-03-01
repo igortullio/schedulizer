@@ -22,13 +22,11 @@ const mockSession = {
 }
 
 const mockGetSession = vi.fn<() => Promise<typeof mockSession | null>>(() => Promise.resolve(mockSession))
-const mockAdminUpdateUser = vi.fn()
 
 vi.mock('../../lib/auth', () => ({
   auth: {
     api: {
       getSession: () => mockGetSession(),
-      adminUpdateUser: (args: unknown) => mockAdminUpdateUser(args),
     },
   },
 }))
@@ -41,13 +39,15 @@ vi.mock('../../middlewares/require-subscription.middleware', () => ({
   requireSubscription: vi.fn((_req: express.Request, _res: express.Response, next: () => void) => next()),
 }))
 
-const { mockDbSelect } = vi.hoisted(() => ({
+const { mockDbSelect, mockDbUpdate } = vi.hoisted(() => ({
   mockDbSelect: vi.fn(),
+  mockDbUpdate: vi.fn(),
 }))
 
 vi.mock('@schedulizer/db', () => ({
   createDb: vi.fn(() => ({
     select: mockDbSelect,
+    update: mockDbUpdate,
   })),
   schema: {
     members: {
@@ -84,15 +84,33 @@ function selectWithLimit(data: unknown[]) {
   }
 }
 
+function updateWithReturning(data: unknown[]) {
+  return {
+    set: vi.fn().mockReturnValue({
+      where: vi.fn().mockReturnValue({
+        returning: vi.fn().mockReturnValue(Promise.resolve(data)),
+      }),
+    }),
+  }
+}
+
+function updateWithError(error: Error) {
+  return {
+    set: vi.fn().mockReturnValue({
+      where: vi.fn().mockReturnValue({
+        returning: vi.fn().mockRejectedValue(error),
+      }),
+    }),
+  }
+}
+
 describe('PATCH /users/:userId', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockGetSession.mockResolvedValue(mockSession)
-    mockAdminUpdateUser.mockResolvedValue({
-      id: TARGET_USER_ID,
-      phoneNumber: '+5511999999999',
-      email: 'updated@example.com',
-    })
+    mockDbUpdate.mockReturnValue(
+      updateWithReturning([{ id: TARGET_USER_ID, phoneNumber: '+5511999999999', email: 'updated@example.com' }]),
+    )
   })
 
   afterEach(() => {
@@ -187,11 +205,9 @@ describe('PATCH /users/:userId', () => {
       mockDbSelect
         .mockReturnValueOnce(selectWithLimit([{ role: 'owner' }]))
         .mockReturnValueOnce(selectWithLimit([{ userId: TARGET_USER_ID }]))
-      mockAdminUpdateUser.mockResolvedValue({
-        id: TARGET_USER_ID,
-        phoneNumber: '+5511999999999',
-        email: 'existing@example.com',
-      })
+      mockDbUpdate.mockReturnValueOnce(
+        updateWithReturning([{ id: TARGET_USER_ID, phoneNumber: '+5511999999999', email: 'existing@example.com' }]),
+      )
       const res = await request(app).patch(`/users/${TARGET_USER_ID}`).send({ phoneNumber: '+5511999999999' })
       expect(res.status).toBe(200)
       expect(res.body.data).toEqual({
@@ -205,11 +221,9 @@ describe('PATCH /users/:userId', () => {
       mockDbSelect
         .mockReturnValueOnce(selectWithLimit([{ role: 'admin' }]))
         .mockReturnValueOnce(selectWithLimit([{ userId: TARGET_USER_ID }]))
-      mockAdminUpdateUser.mockResolvedValue({
-        id: TARGET_USER_ID,
-        phoneNumber: '+5511888888888',
-        email: 'new@example.com',
-      })
+      mockDbUpdate.mockReturnValueOnce(
+        updateWithReturning([{ id: TARGET_USER_ID, phoneNumber: '+5511888888888', email: 'new@example.com' }]),
+      )
       const res = await request(app).patch(`/users/${TARGET_USER_ID}`).send({ email: 'new@example.com' })
       expect(res.status).toBe(200)
       expect(res.body.data.email).toBe('new@example.com')
@@ -219,11 +233,9 @@ describe('PATCH /users/:userId', () => {
       mockDbSelect
         .mockReturnValueOnce(selectWithLimit([{ role: 'owner' }]))
         .mockReturnValueOnce(selectWithLimit([{ userId: TARGET_USER_ID }]))
-      mockAdminUpdateUser.mockResolvedValue({
-        id: TARGET_USER_ID,
-        phoneNumber: '+5511777777777',
-        email: 'both@example.com',
-      })
+      mockDbUpdate.mockReturnValueOnce(
+        updateWithReturning([{ id: TARGET_USER_ID, phoneNumber: '+5511777777777', email: 'both@example.com' }]),
+      )
       const res = await request(app)
         .patch(`/users/${TARGET_USER_ID}`)
         .send({ phoneNumber: '+5511777777777', email: 'both@example.com' })
@@ -232,13 +244,14 @@ describe('PATCH /users/:userId', () => {
       expect(res.body.data.email).toBe('both@example.com')
     })
 
-    it('should call adminUpdateUser with correct parameters', async () => {
+    it('should call db.update with the user table', async () => {
       const selfUserId = 'user-owner'
       mockDbSelect.mockReturnValueOnce(selectWithLimit([{ userId: selfUserId }]))
+      mockDbUpdate.mockReturnValueOnce(
+        updateWithReturning([{ id: selfUserId, phoneNumber: null, email: 'self@example.com' }]),
+      )
       await request(app).patch(`/users/${selfUserId}`).send({ email: 'self@example.com' })
-      expect(mockAdminUpdateUser).toHaveBeenCalledWith({
-        body: { userId: selfUserId, data: { email: 'self@example.com' } },
-      })
+      expect(mockDbUpdate).toHaveBeenCalled()
     })
   })
 
@@ -247,7 +260,7 @@ describe('PATCH /users/:userId', () => {
       mockDbSelect
         .mockReturnValueOnce(selectWithLimit([{ role: 'owner' }]))
         .mockReturnValueOnce(selectWithLimit([{ userId: TARGET_USER_ID }]))
-      mockAdminUpdateUser.mockRejectedValue(new Error('unique constraint violation on email'))
+      mockDbUpdate.mockReturnValueOnce(updateWithError(new Error('unique constraint violation on email')))
       const res = await request(app).patch(`/users/${TARGET_USER_ID}`).send({ email: 'taken@example.com' })
       expect(res.status).toBe(409)
       expect(res.body.error.code).toBe('DUPLICATE_EMAIL')
@@ -257,7 +270,7 @@ describe('PATCH /users/:userId', () => {
       mockDbSelect
         .mockReturnValueOnce(selectWithLimit([{ role: 'owner' }]))
         .mockReturnValueOnce(selectWithLimit([{ userId: TARGET_USER_ID }]))
-      mockAdminUpdateUser.mockRejectedValue(new Error('UNIQUE constraint violation'))
+      mockDbUpdate.mockReturnValueOnce(updateWithError(new Error('UNIQUE constraint violation')))
       const res = await request(app).patch(`/users/${TARGET_USER_ID}`).send({ phoneNumber: '+5511999999999' })
       expect(res.status).toBe(409)
       expect(res.body.error.code).toBe('DUPLICATE_PHONE')
@@ -268,7 +281,7 @@ describe('PATCH /users/:userId', () => {
     it('should return 500 for unexpected errors', async () => {
       const selfUserId = 'user-owner'
       mockDbSelect.mockReturnValueOnce(selectWithLimit([{ userId: selfUserId }]))
-      mockAdminUpdateUser.mockRejectedValue(new Error('Database connection lost'))
+      mockDbUpdate.mockReturnValueOnce(updateWithError(new Error('Database connection lost')))
       const res = await request(app).patch(`/users/${selfUserId}`).send({ email: 'test@example.com' })
       expect(res.status).toBe(500)
       expect(res.body.error.code).toBe('INTERNAL_ERROR')

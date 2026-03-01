@@ -181,6 +181,7 @@ export const CreateAppointmentSchema = z.object({
   customerName: z.string().min(1).max(255),
   customerEmail: z.string().email(),
   customerPhone: z.string().min(8).max(50),
+  notes: z.string().max(500).optional(),
 })
 
 export const RescheduleAppointmentSchema = z.object({
@@ -194,7 +195,7 @@ export const OwnerCreateAppointmentSchema = z.object({
   customerName: z.string().min(1).max(255),
   customerEmail: z.string().email().optional(),
   customerPhone: z.string().optional(),
-  status: z.enum(['pending', 'confirmed', 'cancelled']).default('confirmed'),
+  status: z.enum(['pending', 'confirmed', 'cancelled', 'completed', 'no_show']).default('confirmed'),
   notes: z.string().optional(),
 })
 

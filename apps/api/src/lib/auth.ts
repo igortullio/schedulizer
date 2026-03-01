@@ -9,7 +9,7 @@ import {
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { APIError } from 'better-auth/api'
-import { magicLink, organization, phoneNumber } from 'better-auth/plugins'
+import { admin, magicLink, organization, phoneNumber } from 'better-auth/plugins'
 import { ac, adminRole, memberRole, ownerRole } from './access-control'
 import { checkMemberLimit } from './member-limit-guard'
 
@@ -70,6 +70,7 @@ export const auth = betterAuth({
     enabled: false,
   },
   plugins: [
+    admin(),
     phoneNumber({
       sendOTP: async ({ phoneNumber: phone, code }) => {
         const pendingName = getPendingName(phone)
